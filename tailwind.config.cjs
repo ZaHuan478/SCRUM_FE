@@ -85,13 +85,13 @@ module.exports = {
       fontSize: {
         'label-sm': ['12px', { lineHeight: '1', fontWeight: '500' }],
         'body-md': ['16px', { lineHeight: '1.6', fontWeight: '400' }],
-        'display-lg': ['48px', { lineHeight: '1.2', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'display-lg': ['48px', { lineHeight: '1.2', letterSpacing: '0', fontWeight: '700' }],
         'body-sm': ['14px', { lineHeight: '1.5', fontWeight: '400' }],
-        'headline-lg': ['32px', { lineHeight: '1.25', letterSpacing: '-0.01em', fontWeight: '700' }],
+        'headline-lg': ['32px', { lineHeight: '1.25', letterSpacing: '0', fontWeight: '700' }],
         'body-lg': ['18px', { lineHeight: '1.6', fontWeight: '400' }],
         'headline-md': ['24px', { lineHeight: '1.3', fontWeight: '600' }],
         'headline-sm': ['20px', { lineHeight: '1.4', fontWeight: '600' }],
-        'label-md': ['14px', { lineHeight: '1', letterSpacing: '0.01em', fontWeight: '600' }]
+        'label-md': ['14px', { lineHeight: '1', letterSpacing: '0', fontWeight: '600' }]
       }
     },
   },
