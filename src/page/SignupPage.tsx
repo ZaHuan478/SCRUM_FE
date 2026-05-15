@@ -1,8 +1,7 @@
-import React from 'react'
 import SignupForm from '../components/Organisms/SignupForm'
 import Logo from '../components/Atoms/Logo'
 
-const SignupPage: React.FC = () => {
+const SignupPage = () => {
   return (
     <main className="flex min-h-screen">
       <section className="hidden lg:flex lg:w-1/2 relative bg-surface-container-low overflow-hidden items-center justify-center p-xxxl">
@@ -11,15 +10,13 @@ const SignupPage: React.FC = () => {
             <Logo />
           </div>
           <div className="space-y-lg mb-xxxl">
-            <h2 className="font-display-lg text-display-lg text-on-surface">Trải nghiệm dịch vụ y tế xuất sắc ngay tại nhà.</h2>
-            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-md mx-auto">Tiếp cận các chuyên gia hàng đầu thế giới và quản lý hồ sơ sức khỏe cá nhân của bạn với nền tảng kỹ thuật số an toàn, ưu tiên bệnh nhân.</p>
+            <h2 className="font-display-lg text-display-lg text-on-surface">Bắt đầu hành trình chăm sóc sức khỏe chủ động.</h2>
+            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-md mx-auto">Tạo tài khoản để lưu lịch hẹn, quản lý hồ sơ và theo dõi các chuyên gia phù hợp.</p>
           </div>
           <div className="relative rounded-xl overflow-hidden shadow-md bg-white p-sm group transition-all duration-500 hover:shadow-xl">
             <img alt="Chuyên gia y tế sử dụng máy tính bảng" className="rounded-lg w-full aspect-video object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDijD02HRM7VXecjG1XDoZ__Je8ILVaEpaZSv-kgurpN8vfWQcpqMPAnZiF6evycX9W2TSELvFjK_QkXuif6pUOEgW2qSfbKuZ6Kyj0-VbQKObXP4mpFyY0X7Xta8r6bN0ZQT-ezFgzmzCaYqzf7myQz6lu7v7tdg7NKgW53XQ4I3dmyy_4LvKVyngHHtTtuZM2rfov1dGppRJyUGYQoSc02VPere7h1GeWpG6hGOoesKNGXext7xDxrZaedJT4YnFZNpyfh9b9ocOr" />
           </div>
         </div>
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-secondary-container/10 rounded-full blur-3xl"></div>
       </section>
 
       <section className="w-full lg:w-1/2 flex items-center justify-center p-lg md:p-xxxl bg-surface-container-lowest">
