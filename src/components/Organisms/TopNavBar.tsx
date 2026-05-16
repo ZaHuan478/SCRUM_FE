@@ -25,9 +25,12 @@ const TopNavBar = () => {
         <div className="flex items-center gap-md">
           {user ? (
             <>
-              <span className="hidden max-w-40 truncate font-label-md text-label-md text-on-surface-variant sm:inline">
+              <Link
+                className="hidden max-w-40 truncate font-label-md text-label-md text-on-surface-variant transition-colors hover:text-primary sm:inline"
+                to="/patient-dashboard"
+              >
                 {user.full_name || user.email}
-              </span>
+              </Link>
               <button className="font-label-md text-label-md text-on-surface-variant transition-colors hover:text-primary" onClick={handleLogout} type="button">
                 Đăng xuất
               </button>

@@ -3,6 +3,7 @@ import HomePage from './page/HomePage'
 import AuthPage from './page/AuthPage'
 import SignupPage from './page/SignupPage'
 import AppointmentPage from './page/AppointmentPage'
+import PatientDashboardPage from './page/PatientDashboardPage'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/login" element={<AuthPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/appointments/new" element={<AppointmentPage />} />
+        <Route path="/patient-dashboard" element={<PatientDashboardPage />} />
       </Routes>
     </BrowserRouter>
   )
