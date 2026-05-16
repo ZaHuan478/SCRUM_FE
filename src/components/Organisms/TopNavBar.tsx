@@ -11,6 +11,8 @@ const TopNavBar = () => {
     setUser(null)
   }
 
+  const profilePath = user?.role === 'ADMIN' ? '/admin/dashboard' : '/patient-dashboard'
+
   return (
     <header className="sticky top-0 z-50 bg-surface/90 shadow-sm backdrop-blur-md">
       <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-md px-lg py-md md:px-xxl">
@@ -27,7 +29,7 @@ const TopNavBar = () => {
             <>
               <Link
                 className="hidden max-w-40 truncate font-label-md text-label-md text-on-surface-variant transition-colors hover:text-primary sm:inline"
-                to="/patient-dashboard"
+                to={profilePath}
               >
                 {user.full_name || user.email}
               </Link>
