@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import Icon from '../Atoms/Icon'
 
 export type DoctorCardData = {
+  id?: number | string
   name: string
   specialty: string
   experienceYears: number
@@ -15,9 +16,11 @@ type DoctorCardProps = {
 }
 
 const DoctorCard = ({ doctor }: DoctorCardProps) => {
+  const detailPath = `/doctors/${doctor.id || 'julianne-rivers'}`
+
   return (
     <article className="group overflow-hidden rounded-xl border border-outline-variant/30 bg-surface shadow-sm transition-all hover:shadow-xl">
-      <div className="relative aspect-[4/5] overflow-hidden">
+      <Link className="relative block aspect-[4/5] overflow-hidden" to={detailPath}>
         <img
           alt={doctor.name}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -27,9 +30,11 @@ const DoctorCard = ({ doctor }: DoctorCardProps) => {
           <Icon name="star" className="text-tertiary" />
           <span className="font-label-md text-label-md text-on-surface">{doctor.rating}</span>
         </div>
-      </div>
+      </Link>
       <div className="p-md">
-        <h3 className="mb-xs font-headline-sm text-headline-sm text-on-background">{doctor.name}</h3>
+        <Link className="mb-xs block font-headline-sm text-headline-sm text-on-background hover:text-primary" to={detailPath}>
+          {doctor.name}
+        </Link>
         <p className="mb-md inline-block rounded-lg bg-secondary-container/10 px-sm py-xs font-body-sm text-body-sm font-medium text-secondary">
           {doctor.specialty}
         </p>

@@ -14,6 +14,7 @@ const fallbackImages = [
 
 const fallbackDoctors: DoctorCardData[] = [
   {
+    id: 'sarah-jenkins',
     name: 'BS. Sarah Jenkins',
     specialty: 'Tim mạch',
     experienceYears: 12,
@@ -21,6 +22,7 @@ const fallbackDoctors: DoctorCardData[] = [
     image: fallbackImages[0],
   },
   {
+    id: 'michael-chen',
     name: 'BS. Michael Chen',
     specialty: 'Thần kinh',
     experienceYears: 8,
@@ -28,6 +30,7 @@ const fallbackDoctors: DoctorCardData[] = [
     image: fallbackImages[1],
   },
   {
+    id: 'elena-rodriguez',
     name: 'BS. Elena Rodriguez',
     specialty: 'Nhi khoa',
     experienceYears: 15,
@@ -35,6 +38,7 @@ const fallbackDoctors: DoctorCardData[] = [
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB0Ae3VvbhQzJAPtqZwcTiNvVV8R5FfK9jMdqop1gbDWzdwKIR2zYyebCJM_O3JnVEnpMOPGjeJviyePdATQJ7_-Qiv_t0YQL65YGJH-pvU709LfyyRhCkBZnGfyj9jyO1IF4BQp4BchCDYi8Sk1i9O7C-IyZHsP10xGgo6ux-alXT83OXkHIXoBlgou_xaMr_cvg020HgFqQKn5tj3UrFNl0giOs3F5fIwKzer-XWPt5peedkbP-jvpQW7yBSfClDz-i42Gt9ItS60',
   },
   {
+    id: 'james-wilson',
     name: 'BS. James Wilson',
     specialty: 'Chấn thương chỉnh hình',
     experienceYears: 10,
@@ -64,6 +68,7 @@ const formatFee = (fee?: string | number | null) => {
 }
 
 const mapDoctor = (doctor: Doctor, index: number): DoctorCardData => ({
+  id: doctor.id,
   name: doctor.user?.full_name || `Bác sĩ #${doctor.id}`,
   specialty: specialtyFromDescription(doctor),
   experienceYears: Number(doctor.experience_years || 0),

@@ -4,6 +4,7 @@ import AuthPage from './page/AuthPage'
 import SignupPage from './page/SignupPage'
 import AppointmentPage from './page/AppointmentPage'
 import PatientDashboardPage from './page/PatientDashboardPage'
+import DoctorDetailPage from './page/DoctorDetailPage'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/appointments/new" element={<AppointmentPage />} />
         <Route path="/patient-dashboard" element={<PatientDashboardPage />} />
+        <Route path="/doctors/:doctorId" element={<DoctorDetailPage />} />
       </Routes>
     </BrowserRouter>
   )
