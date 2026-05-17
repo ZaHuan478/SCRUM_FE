@@ -1,9 +1,9 @@
 import TopNavBar from '../Organisms/TopNavBar'
-import HeroSection from '../Organisms/HeroSection'
-import FeaturedDoctorsSection from '../Organisms/FeaturedDoctorsSection'
-import DepartmentsSection from '../Organisms/DepartmentsSection'
-import HowItWorksSection from '../Organisms/HowItWorksSection'
-import TestimonialsSection from '../Organisms/TestimonialsSection'
+import HeroSection from '../Organisms/Home/HeroSection'
+import FeaturedDoctorsSection from '../Organisms/Home/FeaturedDoctorsSection'
+import DepartmentsSection from '../Organisms/DepartmentDesign/DepartmentsSection'
+import HowItWorksSection from '../Organisms/Home/HowItWorksSection'
+import TestimonialsSection from '../Organisms/Home/TestimonialsSection'
 
 type HomeTemplateProps = {
   searchQuery: string

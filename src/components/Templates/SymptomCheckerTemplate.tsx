@@ -1,8 +1,8 @@
 import TopNavBar from '../Organisms/TopNavBar'
-import SymptomHeroSection from '../Organisms/SymptomHeroSection'
-import SuggestedDepartmentsPanel from '../Organisms/SuggestedDepartmentsPanel'
-import SuggestedDoctorsPanel from '../Organisms/SuggestedDoctorsPanel'
-import EmergencyCtaSection from '../Organisms/EmergencyCtaSection'
+import SymptomHeroSection from '../Organisms/SymptomChecker/SymptomHeroSection'
+import SuggestedDepartmentsPanel from '../Organisms/SymptomChecker/SuggestedDepartmentsPanel'
+import SuggestedDoctorsPanel from '../Organisms/SymptomChecker/SuggestedDoctorsPanel'
+import EmergencyCtaSection from '../Organisms/SymptomChecker/EmergencyCtaSection'
 import type { SuggestedDepartment } from '../Molecules/SuggestedDepartmentCard'
 import type { SuggestedDoctor } from '../Molecules/SuggestedDoctorCard'
 

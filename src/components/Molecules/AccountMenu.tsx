@@ -83,6 +83,28 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
             <p className="truncate font-body-sm text-body-sm text-on-surface-variant">{user.email}</p>
           </div>
           <div className="p-sm">
+            {user.role === 'DOCTOR' && (
+              <Link
+                className="flex w-full items-center gap-sm rounded-lg px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-high"
+                onClick={() => setOpen(false)}
+                role="menuitem"
+                to="/doctor/schedule"
+              >
+                <Icon className="text-xl text-primary" name="event_available" />
+                Lịch khám của tôi
+              </Link>
+            )}
+            {user.role === 'PATIENT' && (
+              <Link
+                className="flex w-full items-center gap-sm rounded-lg px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-high"
+                onClick={() => setOpen(false)}
+                role="menuitem"
+                to="/appointments"
+              >
+                <Icon className="text-xl text-primary" name="event_note" />
+                Lịch hẹn của tôi
+              </Link>
+            )}
             <Link
               className="flex w-full items-center gap-sm rounded-lg px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-high"
               onClick={() => setOpen(false)}

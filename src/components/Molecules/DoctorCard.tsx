@@ -1,4 +1,4 @@
-import Button from '../Atoms/Button'
+import { Link } from 'react-router-dom'
 import Icon from '../Atoms/Icon'
 import Image from '../Atoms/Image'
 
@@ -43,7 +43,9 @@ const DoctorCard = ({ doctor }: DoctorCardProps) => {
           <span className="font-label-md text-label-md text-on-surface-variant">
             {doctor.experienceYears !== undefined && doctor.experienceYears !== null ? `${doctor.experienceYears} năm kinh nghiệm` : ''}
           </span>
-          <Button className="border-none p-0 text-primary shadow-none hover:bg-transparent hover:underline" fullWidth={false} type="button" variant="ghost">Đặt lịch</Button>
+          <Link className="font-label-md text-label-md text-primary transition-colors hover:underline" to="/appointments">
+            Đặt lịch
+          </Link>
         </div>
         {doctor.fee && <p className="mt-sm font-body-sm text-body-sm text-on-surface-variant">Phí tư vấn: {doctor.fee}</p>}
       </div>

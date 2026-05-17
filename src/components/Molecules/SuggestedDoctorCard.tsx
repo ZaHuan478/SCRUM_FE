@@ -1,4 +1,4 @@
-import Button from '../Atoms/Button'
+import { Link } from 'react-router-dom'
 import Icon from '../Atoms/Icon'
 import Image from '../Atoms/Image'
 
@@ -56,7 +56,12 @@ const SuggestedDoctorCard = ({ doctor }: SuggestedDoctorCardProps) => {
             ))}
           </div>
         )}
-        <Button type="button">Đặt lịch ngay</Button>
+        <Link
+          className="inline-flex w-full items-center justify-center rounded-lg bg-primary px-md py-md font-label-md text-label-md text-on-primary shadow-sm transition-all hover:bg-primary-container hover:shadow-lg active:scale-[0.98]"
+          to="/appointments"
+        >
+          Đặt lịch ngay
+        </Link>
       </div>
     </article>
   )

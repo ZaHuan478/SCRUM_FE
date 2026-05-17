@@ -5,6 +5,8 @@ import SignupPage from './page/SignupPage'
 import SymptomCheckerPage from './page/SymptomCheckerPage'
 import AdminDashboardPage from './page/AdminDashboardPage'
 import ProfilePage from './page/ProfilePage'
+import DoctorSchedulePage from './page/DoctorSchedulePage'
+import PatientAppointmentsPage from './page/PatientAppointmentsPage'
 
 function App() {
   return (
@@ -16,6 +18,10 @@ function App() {
         <Route path="/admin/doctors" element={<AdminDashboardPage />} />
         <Route path="/admin/patients" element={<AdminDashboardPage />} />
         <Route path="/admin/users" element={<AdminDashboardPage />} />
+        <Route path="/doctor" element={<DoctorSchedulePage />} />
+        <Route path="/doctor/schedule" element={<DoctorSchedulePage />} />
+        <Route path="/appointments" element={<PatientAppointmentsPage />} />
+        <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/symptoms" element={<SymptomCheckerPage />} />
         <Route path="/login" element={<AuthPage />} />
