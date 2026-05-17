@@ -1,4 +1,4 @@
-import AuthForm from '../components/Organisms/AuthForm'
+import AuthForm from '../components/Organisms/Auth/AuthForm'
 import Image from '../components/Atoms/Image'
 import Logo from '../components/Atoms/Logo'
 

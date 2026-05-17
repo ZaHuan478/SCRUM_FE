@@ -69,7 +69,7 @@ const TopNavBar = ({ active = 'doctors' }: TopNavBarProps) => {
               Đăng nhập
             </Link>
           )}
-          <Link className="rounded-lg bg-primary-container px-lg py-sm font-label-md text-label-md text-on-primary-container shadow-sm transition-all hover:opacity-90 active:scale-95" to="/#featured-doctors">
+          <Link className="rounded-lg bg-primary-container px-lg py-sm font-label-md text-label-md text-on-primary-container shadow-sm transition-all hover:opacity-90 active:scale-95" to="/appointments">
             Đặt lịch hẹn
           </Link>
         </div>

@@ -54,6 +54,9 @@ export const getDoctors = (query: DoctorQuery = {}) => {
   return apiRequest<DoctorsResult>(`/doctors${search ? `?${search}` : ''}`)
 }
 
+export const getDoctorByUserId = (userId: number | string) =>
+  apiRequest<Doctor>(`/doctors/user/${userId}`)
+
 export const updateDoctor = (id: number | string, payload: UpdateDoctorPayload) =>
   apiRequest<Doctor>(`/doctors/${id}`, {
     method: 'PUT',

@@ -1,4 +1,4 @@
-import SignupForm from '../components/Organisms/SignupForm'
+import SignupForm from '../components/Organisms/Auth/SignupForm'
 import Image from '../components/Atoms/Image'
 import Logo from '../components/Atoms/Logo'
 

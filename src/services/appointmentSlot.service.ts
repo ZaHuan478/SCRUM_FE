@@ -40,6 +40,21 @@ type AppointmentSlotQuery = {
   status?: AppointmentSlotStatus
 }
 
+export type CreateAppointmentSlotPayload = {
+  doctor_assignment_id: number | string
+  start_time: string
+  end_time: string
+  max_patients?: number | string
+  status?: AppointmentSlotStatus
+}
+
+export type UpdateAppointmentSlotPayload = {
+  start_time?: string
+  end_time?: string
+  max_patients?: number | string
+  status?: AppointmentSlotStatus
+}
+
 export const getAppointmentSlots = (query: AppointmentSlotQuery = {}) => {
   const params = new URLSearchParams()
 
@@ -55,3 +70,31 @@ export const getAppointmentSlots = (query: AppointmentSlotQuery = {}) => {
 
   return apiRequest<AppointmentSlotsResult>(`/appointment-slots${search ? `?${search}` : ''}`)
 }
+
+export const createAppointmentSlot = (payload: CreateAppointmentSlotPayload) =>
+  apiRequest<AppointmentSlot>('/appointment-slots', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+
+export const updateAppointmentSlot = (id: number | string, payload: UpdateAppointmentSlotPayload) =>
+  apiRequest<AppointmentSlot>(`/appointment-slots/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+
+export const deleteAppointmentSlot = (id: number | string) =>
+  apiRequest<Record<string, never>>(`/appointment-slots/${id}`, {
+    method: 'DELETE',
+  })
+
+export const cancelAppointmentSlot = (id: number | string) =>
+  apiRequest<AppointmentSlot>(`/appointment-slots/${id}/cancel`, {
+    method: 'PATCH',
+  })
+
+export const changeAppointmentSlotStatus = (id: number | string, status: AppointmentSlotStatus) =>
+  apiRequest<AppointmentSlot>(`/appointment-slots/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  })
