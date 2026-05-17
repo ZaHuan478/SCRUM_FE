@@ -1,5 +1,8 @@
 import SignupForm from '../components/Organisms/SignupForm'
+import Image from '../components/Atoms/Image'
 import Logo from '../components/Atoms/Logo'
+
+const signupImage = ''
 
 const SignupPage = () => {
   return (
@@ -13,9 +16,11 @@ const SignupPage = () => {
             <h2 className="font-display-lg text-display-lg text-on-surface">Bắt đầu hành trình chăm sóc sức khỏe chủ động.</h2>
             <p className="font-body-lg text-body-lg text-on-surface-variant max-w-md mx-auto">Tạo tài khoản để lưu lịch hẹn, quản lý hồ sơ và theo dõi các chuyên gia phù hợp.</p>
           </div>
-          <div className="relative rounded-xl overflow-hidden shadow-md bg-white p-sm group transition-all duration-500 hover:shadow-xl">
-            <img alt="Chuyên gia y tế sử dụng máy tính bảng" className="rounded-lg w-full aspect-video object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDijD02HRM7VXecjG1XDoZ__Je8ILVaEpaZSv-kgurpN8vfWQcpqMPAnZiF6evycX9W2TSELvFjK_QkXuif6pUOEgW2qSfbKuZ6Kyj0-VbQKObXP4mpFyY0X7Xta8r6bN0ZQT-ezFgzmzCaYqzf7myQz6lu7v7tdg7NKgW53XQ4I3dmyy_4LvKVyngHHtTtuZM2rfov1dGppRJyUGYQoSc02VPere7h1GeWpG6hGOoesKNGXext7xDxrZaedJT4YnFZNpyfh9b9ocOr" />
-          </div>
+          {signupImage && (
+            <div className="relative rounded-xl overflow-hidden shadow-md bg-white p-sm group transition-all duration-500 hover:shadow-xl">
+              <Image alt="" className="rounded-lg w-full aspect-video object-cover" src={signupImage} />
+            </div>
+          )}
         </div>
       </section>
 

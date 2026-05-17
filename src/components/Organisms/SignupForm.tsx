@@ -4,8 +4,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import Logo from '../Atoms/Logo'
 import Input from '../Atoms/Input'
 import Button from '../Atoms/Button'
+import Checkbox from '../Atoms/Checkbox'
 import SocialLogin from '../Molecules/SocialLogin'
-import Divider from '../Molecules/Divider'
 import { register } from '../../services/auth.service'
 
 const SignupForm = () => {
@@ -72,7 +72,7 @@ const SignupForm = () => {
 
       <SocialLogin />
 
-      <Divider />
+      {/* <Divider /> */}
 
       <form className="space-y-lg" onSubmit={handleSubmit}>
         {error && <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">{error}</p>}
@@ -84,7 +84,7 @@ const SignupForm = () => {
           label="Họ và tên"
           name="fullName"
           onChange={(event) => setFullName(event.target.value)}
-          placeholder="Nguyễn Văn A"
+          placeholder=""
           type="text"
           value={fullName}
         />
@@ -95,7 +95,7 @@ const SignupForm = () => {
           label="Số điện thoại"
           name="phone"
           onChange={(event) => setPhone(event.target.value)}
-          placeholder="0900000000"
+          placeholder=""
           type="tel"
           value={phone}
         />
@@ -106,7 +106,7 @@ const SignupForm = () => {
           label="Địa chỉ email"
           name="email"
           onChange={(event) => setEmail(event.target.value)}
-          placeholder="ten@vidu.com"
+          placeholder=""
           type="email"
           value={email}
         />
@@ -117,7 +117,7 @@ const SignupForm = () => {
           label="Mật khẩu"
           name="password"
           onChange={(event) => setPassword(event.target.value)}
-          placeholder="••••••••"
+          placeholder=""
           type="password"
           value={password}
         />
@@ -128,18 +128,16 @@ const SignupForm = () => {
           label="Xác nhận mật khẩu"
           name="confirmPassword"
           onChange={(event) => setConfirmPassword(event.target.value)}
-          placeholder="••••••••"
+          placeholder=""
           type="password"
           value={confirmPassword}
         />
 
         <div className="flex items-center justify-between">
           <label className="flex items-center gap-sm cursor-pointer group">
-            <input
+            <Checkbox
               checked={acceptedTerms}
-              className="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary transition-all"
               onChange={(event) => setAcceptedTerms(event.target.checked)}
-              type="checkbox"
             />
             <span className="font-label-md text-label-md text-on-surface-variant group-hover:text-on-surface">Tôi đồng ý với điều khoản</span>
           </label>

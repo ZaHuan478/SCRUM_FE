@@ -1,8 +1,9 @@
 import Badge from '../Atoms/Badge'
 import Icon from '../Atoms/Icon'
+import Image from '../Atoms/Image'
 import SearchPanel from '../Molecules/SearchPanel'
 
-const HERO_IMAGE = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAywBK4YuLlmNNX2MhTdRjCj6tdRcc1fWbW-HeJoAxCVZ0KCFlMixlHo6qM6TBeXcJHcDH0zpCPvQmXEr4zPeXEHYgZoaVn9ASOEeBlF0iWyOCkE8-0pC9htNA7RCoVfVw_BaqBRBG1a5Sf-ADOSdCiuyebUSl_t66s7xmIxzd0LyWRhaIv_wGrA0A_TWy76tHY_rmziYAvMj0i30o6NXQKHyZ4uLU4D5iUi3fwSpU6rxcN8d9QGi0-JZzp6tqsSk9CetRm1BLb03vz'
+const heroImage = ''
 
 type HeroSectionProps = {
   onSearch: (query: string) => void
@@ -23,11 +24,12 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
           <SearchPanel onSearch={onSearch} />
         </div>
         <div className="relative md:col-span-5">
-          <div className="relative overflow-hidden rounded-xl shadow-2xl">
-            <img
+          <div className="relative overflow-hidden rounded-xl bg-surface-variant shadow-2xl">
+            <Image
               alt="Bác sĩ chuyên nghiệp tại MedPrecision"
               className="aspect-[4/5] h-auto w-full object-cover"
-              src={HERO_IMAGE}
+              fallbackClassName="aspect-[4/5] w-full"
+              src={heroImage}
             />
             <div className="absolute bottom-md left-md right-md rounded-xl border border-outline-variant/20 bg-surface/90 p-md shadow-lg backdrop-blur-md">
               <div className="flex items-center gap-md">

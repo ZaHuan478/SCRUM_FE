@@ -5,14 +5,15 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   label?: string
   icon?: string
   error?: string
+  wrapperClassName?: string
 }
 
-const Input: React.FC<InputProps> = ({ label, icon, error, className = '', id, name, ...rest }) => {
+const Input: React.FC<InputProps> = ({ label, icon, error, wrapperClassName = '', className = '', id, name, ...rest }) => {
   const inputId = id || name
   const errorId = error && inputId ? `${inputId}-error` : undefined
 
   return (
-    <div className="space-y-xs">
+    <div className={`space-y-xs ${wrapperClassName}`}>
       {label && <label className="font-label-md text-label-md text-on-surface" htmlFor={inputId}>{label}</label>}
       <div className="relative">
         {icon && <Icon name={icon} className="absolute left-md top-1/2 -translate-y-1/2 text-outline" />}
