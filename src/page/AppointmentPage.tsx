@@ -5,7 +5,6 @@ import CalendarPicker from '../components/Molecules/CalendarPicker'
 import TimeSlotPicker from '../components/Molecules/TimeSlotPicker'
 import AppointmentForm from '../components/Organisms/AppointmentForm'
 import BookingSummary from '../components/Organisms/BookingSummary'
-import AppFooter from '../components/Organisms/AppFooter'
 import {
   appointmentSteps,
   bookingCopy,
@@ -113,7 +112,6 @@ const AppointmentPage = () => {
           </div>
         </div>
       </main>
-      <AppFooter />
     </div>
   )
 }

@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import AppFooter from '../components/Organisms/AppFooter'
 import DoctorBiographySection from '../components/Organisms/DoctorBiographySection'
 import DoctorBookingWidget from '../components/Organisms/DoctorBookingWidget'
 import DoctorEducationPanel from '../components/Organisms/DoctorEducationPanel'
@@ -31,7 +30,6 @@ const DoctorDetailPage = () => {
           <DoctorBookingWidget />
         </div>
       </main>
-      <AppFooter />
     </div>
   )
 }
