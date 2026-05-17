@@ -4,8 +4,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import Logo from '../Atoms/Logo'
 import Input from '../Atoms/Input'
 import Button from '../Atoms/Button'
+import Checkbox from '../Atoms/Checkbox'
 import SocialLogin from '../Molecules/SocialLogin'
-import Divider from '../Molecules/Divider'
 import { login, saveAuthSession } from '../../services/auth.service'
 
 const AuthForm = () => {
@@ -30,7 +30,7 @@ const AuthForm = () => {
     try {
       const session = await login({ email, password })
       saveAuthSession(session, remember)
-      navigate('/')
+      navigate(session.user.role === 'ADMIN' ? '/admin' : '/profile')
     } catch (requestError) {
       const message = requestError instanceof Error ? requestError.message : 'Đăng nhập không thành công.'
       setError(message)
@@ -52,7 +52,7 @@ const AuthForm = () => {
 
       <SocialLogin />
 
-      <Divider />
+      {/* <Divider /> */}
 
       <form className="space-y-lg" onSubmit={handleSubmit}>
         {error && <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">{error}</p>}
@@ -63,7 +63,7 @@ const AuthForm = () => {
           label="Địa chỉ email"
           name="email"
           onChange={(event) => setEmail(event.target.value)}
-          placeholder="ten@vidu.com"
+          placeholder=""
           type="email"
           value={email}
         />
@@ -74,18 +74,16 @@ const AuthForm = () => {
           label="Mật khẩu"
           name="password"
           onChange={(event) => setPassword(event.target.value)}
-          placeholder="••••••••"
+          placeholder=""
           type="password"
           value={password}
         />
 
         <div className="flex items-center justify-between">
           <label className="flex items-center gap-sm cursor-pointer group">
-            <input
+            <Checkbox
               checked={remember}
-              className="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary transition-all"
               onChange={(event) => setRemember(event.target.checked)}
-              type="checkbox"
             />
             <span className="font-label-md text-label-md text-on-surface-variant group-hover:text-on-surface">Ghi nhớ đăng nhập</span>
           </label>

@@ -1,5 +1,8 @@
 import AuthForm from '../components/Organisms/AuthForm'
+import Image from '../components/Atoms/Image'
 import Logo from '../components/Atoms/Logo'
+
+const authImage = ''
 
 const AuthPage = () => {
   return (
@@ -13,9 +16,11 @@ const AuthPage = () => {
             <h2 className="font-display-lg text-display-lg text-on-surface">Quản lý chăm sóc sức khỏe trên một nền tảng an toàn.</h2>
             <p className="font-body-lg text-body-lg text-on-surface-variant max-w-md mx-auto">Truy cập hồ sơ cá nhân, đặt lịch và kết nối với chuyên gia y tế đã xác thực.</p>
           </div>
-          <div className="relative rounded-xl overflow-hidden shadow-md bg-white p-sm group transition-all duration-500 hover:shadow-xl">
-            <img alt="Chuyên gia y tế sử dụng máy tính bảng" className="rounded-lg w-full aspect-video object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDijD02HRM7VXecjG1XDoZ__Je8ILVaEpaZSv-kgurpN8vfWQcpqMPAnZiF6evycX9W2TSELvFjK_QkXuif6pUOEgW2qSfbKuZ6Kyj0-VbQKObXP4mpFyY0X7Xta8r6bN0ZQT-ezFgzmzCaYqzf7myQz6lu7v7tdg7NKgW53XQ4I3dmyy_4LvKVyngHHtTtuZM2rfov1dGppRJyUGYQoSc02VPere7h1GeWpG6hGOoesKNGXext7xDxrZaedJT4YnFZNpyfh9b9ocOr" />
-          </div>
+          {authImage && (
+            <div className="relative rounded-xl overflow-hidden shadow-md bg-white p-sm group transition-all duration-500 hover:shadow-xl">
+              <Image alt="" className="rounded-lg w-full aspect-video object-cover" src={authImage} />
+            </div>
+          )}
         </div>
       </section>
 
