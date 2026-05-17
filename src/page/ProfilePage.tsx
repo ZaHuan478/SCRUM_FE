@@ -239,7 +239,7 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen bg-background text-on-background">
       <TopNavBar active="about" />
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-xl px-lg py-xl md:px-xxl md:py-xxl">
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-xl px-lg py-xl md:px-xxl md:py-xxl">
         <section className="flex flex-col gap-md border-b border-outline-variant/30 pb-lg md:flex-row md:items-end md:justify-between">
           <div className="flex items-center gap-md">
             <div className="h-20 w-20 shrink-0 overflow-hidden rounded-full border border-outline-variant/30 bg-surface-variant">
@@ -252,8 +252,8 @@ const ProfilePage = () => {
           </div>
         </section>
 
-        <form className="grid grid-cols-1 items-start gap-xl lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]" onSubmit={handleSubmit}>
-          <section className="rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-md shadow-sm">
+        <form className="grid grid-cols-1 items-start gap-xl lg:grid-cols-3" onSubmit={handleSubmit}>
+          <section className="rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-md shadow-sm lg:col-span-3">
             <div className="mb-lg flex items-center gap-sm">
               <Icon className="text-primary" name="badge" />
               <h2 className="font-headline-sm text-headline-sm text-on-surface">Thông tin định danh</h2>
@@ -335,89 +335,90 @@ const ProfilePage = () => {
 
           <section className="rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-md shadow-sm">
             <div className="mb-lg flex items-center gap-sm">
-              <Icon className="text-secondary" name="image" />
-              <h2 className="font-headline-sm text-headline-sm text-on-surface">Ảnh hồ sơ</h2>
+              <Icon className="text-secondary" name="account_circle" />
+              <h2 className="font-headline-sm text-headline-sm text-on-surface">Ảnh đại diện</h2>
             </div>
 
-            <div className="space-y-lg">
-              <div className="space-y-sm border-b border-outline-variant/30 pb-lg">
-                <div className="flex items-center justify-between gap-md">
-                  <label className="font-label-md text-label-md text-on-surface" htmlFor="profile-avatar">Ảnh đại diện</label>
-                  {form.avatarUrl && (
-                    <Button className="border-none p-0 text-error" fullWidth={false} onClick={clearAvatar} type="button" variant="ghost">
-                      Xóa ảnh
-                    </Button>
-                  )}
-                </div>
-                <div className="flex flex-col gap-md sm:flex-row sm:items-center">
-                  <div className="h-28 w-28 shrink-0 overflow-hidden rounded-full border border-outline-variant/30 bg-surface-variant">
-                    <Image alt="Ảnh đại diện" className="h-full w-full object-cover" fallbackClassName="h-full w-full" src={form.avatarUrl || undefined} />
-                  </div>
-                  <div className="flex flex-wrap gap-sm">
-                    <input
-                      accept="image/png,image/jpeg,image/webp"
-                      className="sr-only"
-                      id="profile-avatar"
-                      onChange={(event) => void handleImageChange(event, 'avatarUrl', 'Ảnh đại diện')}
-                      ref={avatarInputRef}
-                      type="file"
-                    />
-                    <Button
-                      className="inline-flex items-center justify-center gap-xs px-md py-sm"
-                      disabled={isSaving}
-                      fullWidth={false}
-                      onClick={() => avatarInputRef.current?.click()}
-                      type="button"
-                      variant="ghost"
-                    >
-                      <Icon className="text-lg" name="upload" />
-                      Chọn ảnh
-                    </Button>
-                  </div>
-                </div>
+            <div className="space-y-md">
+              <div className="mx-auto h-32 w-32 overflow-hidden rounded-full border border-outline-variant/30 bg-surface-variant">
+                <Image alt="Ảnh đại diện" className="h-full w-full object-cover" fallbackClassName="h-full w-full" src={form.avatarUrl || undefined} />
               </div>
+              <input
+                accept="image/png,image/jpeg,image/webp"
+                className="sr-only"
+                id="profile-avatar"
+                onChange={(event) => void handleImageChange(event, 'avatarUrl', 'Ảnh đại diện')}
+                ref={avatarInputRef}
+                type="file"
+              />
+              <div className="flex flex-wrap justify-center gap-sm">
+                <Button
+                  className="inline-flex items-center justify-center gap-xs px-md py-sm"
+                  disabled={isSaving}
+                  fullWidth={false}
+                  onClick={() => avatarInputRef.current?.click()}
+                  type="button"
+                  variant="ghost"
+                >
+                  <Icon className="text-lg" name="upload" />
+                  Chọn ảnh
+                </Button>
+                {form.avatarUrl && (
+                  <Button className="border-none px-md py-sm text-error" fullWidth={false} onClick={clearAvatar} type="button" variant="ghost">
+                    Xóa ảnh
+                  </Button>
+                )}
+              </div>
+            </div>
+          </section>
 
-              <div className="space-y-sm">
-                <div className="flex items-center justify-between gap-md">
-                  <label className="font-label-md text-label-md text-on-surface" htmlFor="profile-cccd-front">CCCD Mặt trước</label>
-                  {form.cccdFrontImage && (
-                    <Button className="border-none p-0 text-error" fullWidth={false} onClick={() => updateField('cccdFrontImage', '')} type="button" variant="ghost">
-                      Xóa ảnh
-                    </Button>
-                  )}
-                </div>
-                <div className="aspect-[16/10] overflow-hidden rounded-lg border border-outline-variant/30 bg-surface-variant">
-                  <Image alt="CCCD mặt trước" className="h-full w-full object-cover" fallbackClassName="h-full w-full" src={form.cccdFrontImage || undefined} />
-                </div>
-                <input
-                  accept="image/png,image/jpeg,image/webp"
-                  className="w-full rounded-lg border border-outline-variant px-md py-sm font-body-sm text-body-sm text-on-surface-variant"
-                  id="profile-cccd-front"
-                  onChange={(event) => void handleImageChange(event, 'cccdFrontImage', 'Ảnh CCCD')}
-                  type="file"
-                />
-              </div>
+          <section className="rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-md shadow-sm">
+            <div className="mb-lg flex items-center gap-sm">
+              <Icon className="text-secondary" name="badge" />
+              <h2 className="font-headline-sm text-headline-sm text-on-surface">CCCD mặt trước</h2>
+            </div>
 
-              <div className="space-y-sm">
-                <div className="flex items-center justify-between gap-md">
-                  <label className="font-label-md text-label-md text-on-surface" htmlFor="profile-cccd-back">CCCD Mặt sau</label>
-                  {form.cccdBackImage && (
-                    <Button className="border-none p-0 text-error" fullWidth={false} onClick={() => updateField('cccdBackImage', '')} type="button" variant="ghost">
-                      Xóa ảnh
-                    </Button>
-                  )}
-                </div>
-                <div className="aspect-[16/10] overflow-hidden rounded-lg border border-outline-variant/30 bg-surface-variant">
-                  <Image alt="CCCD mặt sau" className="h-full w-full object-cover" fallbackClassName="h-full w-full" src={form.cccdBackImage || undefined} />
-                </div>
-                <input
-                  accept="image/png,image/jpeg,image/webp"
-                  className="w-full rounded-lg border border-outline-variant px-md py-sm font-body-sm text-body-sm text-on-surface-variant"
-                  id="profile-cccd-back"
-                  onChange={(event) => void handleImageChange(event, 'cccdBackImage', 'Ảnh CCCD')}
-                  type="file"
-                />
+            <div className="space-y-md">
+              <div className="aspect-[16/10] overflow-hidden rounded-lg border border-outline-variant/30 bg-surface-variant">
+                <Image alt="CCCD mặt trước" className="h-full w-full object-cover" fallbackClassName="h-full w-full" src={form.cccdFrontImage || undefined} />
               </div>
+              <input
+                accept="image/png,image/jpeg,image/webp"
+                className="w-full rounded-lg border border-outline-variant px-md py-sm font-body-sm text-body-sm text-on-surface-variant"
+                id="profile-cccd-front"
+                onChange={(event) => void handleImageChange(event, 'cccdFrontImage', 'Ảnh CCCD')}
+                type="file"
+              />
+              {form.cccdFrontImage && (
+                <Button className="border-none p-0 text-error" fullWidth={false} onClick={() => updateField('cccdFrontImage', '')} type="button" variant="ghost">
+                  Xóa ảnh
+                </Button>
+              )}
+            </div>
+          </section>
+
+          <section className="rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-md shadow-sm">
+            <div className="mb-lg flex items-center gap-sm">
+              <Icon className="text-secondary" name="badge" />
+              <h2 className="font-headline-sm text-headline-sm text-on-surface">CCCD mặt sau</h2>
+            </div>
+
+            <div className="space-y-md">
+              <div className="aspect-[16/10] overflow-hidden rounded-lg border border-outline-variant/30 bg-surface-variant">
+                <Image alt="CCCD mặt sau" className="h-full w-full object-cover" fallbackClassName="h-full w-full" src={form.cccdBackImage || undefined} />
+              </div>
+              <input
+                accept="image/png,image/jpeg,image/webp"
+                className="w-full rounded-lg border border-outline-variant px-md py-sm font-body-sm text-body-sm text-on-surface-variant"
+                id="profile-cccd-back"
+                onChange={(event) => void handleImageChange(event, 'cccdBackImage', 'Ảnh CCCD')}
+                type="file"
+              />
+              {form.cccdBackImage && (
+                <Button className="border-none p-0 text-error" fullWidth={false} onClick={() => updateField('cccdBackImage', '')} type="button" variant="ghost">
+                  Xóa ảnh
+                </Button>
+              )}
             </div>
           </section>
         </form>
