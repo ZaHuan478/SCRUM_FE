@@ -30,7 +30,7 @@ const AuthForm = () => {
     try {
       const session = await login({ email, password })
       saveAuthSession(session, remember)
-      navigate(session.user.role === 'ADMIN' ? '/admin' : '/profile')
+      navigate(session.user.role === 'ADMIN' ? '/admin' : '/')
     } catch (requestError) {
       const message = requestError instanceof Error ? requestError.message : 'Đăng nhập không thành công.'
       setError(message)

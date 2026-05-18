@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import Icon from '../../Atoms/Icon'
 import Button from '../../Atoms/Button'
 import SuggestedDoctorCard from '../../Molecules/SymptomChecker/SuggestedDoctorCard'
@@ -16,9 +17,11 @@ const SuggestedDoctorsPanel = ({ doctors, status }: SuggestedDoctorsPanelProps) 
           <Icon name="groups" className="text-primary" />
           <h2 className="font-headline-sm text-headline-sm text-on-background">Bác sĩ đề xuất</h2>
         </div>
-        <Button className="border-none p-0 text-primary hover:bg-transparent hover:underline" fullWidth={false} type="button" variant="ghost">
-          Xem tất cả chuyên gia
-        </Button>
+        <Link to="/doctors">
+          <Button className="flex items-center gap-xs border-none p-0 text-primary shadow-none transition-all hover:gap-sm hover:bg-transparent" fullWidth={false} type="button" variant="ghost">
+            Xem tất cả <Icon name="arrow_forward" />
+          </Button>
+        </Link>
       </div>
       {status === 'loading' && (
         <p className="rounded-lg border border-outline-variant/30 bg-surface p-md font-body-sm text-body-sm text-on-surface-variant">

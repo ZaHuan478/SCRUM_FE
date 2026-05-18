@@ -23,6 +23,7 @@ const mapDoctor = (doctor: Doctor, departmentName?: string): SuggestedDoctor => 
   const experience = Number(doctor.experience_years || 0)
 
   return {
+    id: doctor.id,
     name: doctor.user?.full_name || '',
     title: getTitleFromDoctor(doctor),
     tags: [

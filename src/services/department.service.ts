@@ -43,6 +43,9 @@ export const getDepartments = (query: DepartmentQuery = {}) => {
   return apiRequest<DepartmentsResult>(`/departments${search ? `?${search}` : ''}`)
 }
 
+export const getDepartmentById = (id: number | string) =>
+  apiRequest<Department>(`/departments/${id}`)
+
 export const createDepartment = (payload: DepartmentPayload) =>
   apiRequest<Department>('/departments', {
     method: 'POST',

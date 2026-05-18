@@ -12,8 +12,8 @@ type TopNavBarProps = {
 }
 
 const navItems: Array<{ key: NavKey; label: string; to: string }> = [
-  { key: 'doctors', label: 'Tìm bác sĩ', to: '/#featured-doctors' },
-  { key: 'departments', label: 'Khoa', to: '/#departments' },
+  { key: 'doctors', label: 'Tìm bác sĩ', to: '/doctors' },
+  { key: 'departments', label: 'Khoa', to: '/departments' },
   { key: 'symptoms', label: 'Kiểm tra triệu chứng', to: '/symptoms' },
 ]
 

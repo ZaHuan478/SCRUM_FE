@@ -21,11 +21,14 @@ type PatientAppointmentBookingPanelProps = {
   recommendationStatus: LoadStatus
   selectedDate: string
   selectedDepartmentId: string
+  selectedDoctorId: string
+  selectedDoctorName: string
   selectedSlot: AppointmentSlot | null
   selectedSlotId: number | string | null
   slotStatus: LoadStatus
   slots: AppointmentSlot[]
   upcomingDays: Date[]
+  onClearDoctor: () => void
   onDateChange: (date: string) => void
   onDepartmentChange: (departmentId: string) => void
   onReasonChange: (reason: string) => void
@@ -44,11 +47,14 @@ const PatientAppointmentBookingPanel = ({
   recommendationStatus,
   selectedDate,
   selectedDepartmentId,
+  selectedDoctorId,
+  selectedDoctorName,
   selectedSlot,
   selectedSlotId,
   slotStatus,
   slots,
   upcomingDays,
+  onClearDoctor,
   onDateChange,
   onDepartmentChange,
   onReasonChange,
@@ -79,7 +85,7 @@ const PatientAppointmentBookingPanel = ({
           <span className="font-label-md text-label-md text-on-surface">Khoa</span>
           <select
             className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-            disabled={departmentStatus === 'loading'}
+            disabled={departmentStatus === 'loading' || Boolean(selectedDoctorId)}
             onChange={(event) => onDepartmentChange(event.target.value)}
             value={selectedDepartmentId}
           >
@@ -91,6 +97,26 @@ const PatientAppointmentBookingPanel = ({
         </label>
       </div>
     </div>
+
+    {selectedDoctorId && (
+      <div className="flex flex-col gap-sm rounded-lg border border-primary/20 bg-primary-fixed px-md py-sm text-on-primary-fixed sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-sm">
+          <Icon className="text-lg" name="person_search" />
+          <p className="font-body-sm text-body-sm">
+            Đang chỉ hiển thị lịch của <span className="font-label-md text-label-md">{selectedDoctorName || `bác sĩ #${selectedDoctorId}`}</span>.
+          </p>
+        </div>
+        <Button
+          className="border-on-primary-fixed/20 px-sm py-xs text-on-primary-fixed hover:bg-on-primary-fixed/10"
+          fullWidth={false}
+          onClick={onClearDoctor}
+          type="button"
+          variant="ghost"
+        >
+          Bỏ lọc bác sĩ
+        </Button>
+      </div>
+    )}
 
     <div className="rounded-lg border border-outline-variant/30 bg-surface-container-low p-md">
       <label className="space-y-xs">
@@ -181,7 +207,9 @@ const PatientAppointmentBookingPanel = ({
       <div className="rounded-lg border border-dashed border-outline-variant px-md py-xl text-center">
         <Icon className="text-4xl text-outline" name="event_busy" />
         <p className="mt-sm font-label-md text-label-md text-on-surface">Chưa có khung giờ phù hợp</p>
-        <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">Hãy thử chọn ngày khác hoặc bỏ lọc khoa.</p>
+        <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
+          {selectedDoctorId ? 'Hãy thử chọn ngày khác hoặc bỏ lọc bác sĩ.' : 'Hãy thử chọn ngày khác hoặc bỏ lọc khoa.'}
+        </p>
       </div>
     )}
 

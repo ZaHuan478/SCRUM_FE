@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Button from '../../Atoms/Button'
 import DoctorCard from '../../Molecules/Home/DoctorCard'
 import type { DoctorCardData } from '../../Molecules/Home/DoctorCard'
@@ -26,6 +27,7 @@ const formatFee = (fee?: string | number | null) => {
 }
 
 const mapDoctor = (doctor: Doctor): DoctorCardData => ({
+  id: doctor.id,
   name: doctor.user?.full_name || '',
   specialty: specialtyFromDescription(doctor),
   experienceYears: doctor.experience_years,
@@ -77,11 +79,13 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
       <div className="mb-xxl flex flex-col justify-between gap-md md:flex-row md:items-end">
         <div>
           <h2 className="mb-sm font-headline-lg text-headline-lg text-on-background">Chuyên gia nổi bật</h2>
-          <p className="font-body-md text-body-md text-on-surface-variant">Danh sách được lấy từ backend và hiển thị theo hồ sơ đang hoạt động.</p>
+          <p className="font-body-md text-body-md text-on-surface-variant"></p>
         </div>
-        <Button className="flex items-center gap-xs self-start border-none p-0 text-primary shadow-none transition-all hover:gap-sm hover:bg-transparent" fullWidth={false} type="button" variant="ghost">
-          Xem tất cả <Icon name="arrow_forward" />
-        </Button>
+        <Link to="/doctors">
+          <Button className="flex items-center gap-xs self-start border-none p-0 text-primary shadow-none transition-all hover:gap-sm hover:bg-transparent" fullWidth={false} type="button" variant="ghost">
+            Xem tất cả <Icon name="arrow_forward" />
+          </Button>
+        </Link>
       </div>
       {apiStatus === 'error' && (
         <p className="mb-md rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">

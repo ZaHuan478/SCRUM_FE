@@ -7,6 +7,9 @@ import AdminDashboardPage from './page/AdminDashboardPage'
 import ProfilePage from './page/ProfilePage'
 import DoctorSchedulePage from './page/DoctorSchedulePage'
 import PatientAppointmentsPage from './page/PatientAppointmentsPage'
+import DoctorsPage from './page/DoctorsPage'
+import DepartmentsPage from './page/DepartmentsPage'
+import DepartmentDetailPage from './page/DepartmentDetailPage'
 
 function App() {
   return (
@@ -20,6 +23,9 @@ function App() {
         <Route path="/admin/users" element={<AdminDashboardPage />} />
         <Route path="/doctor" element={<DoctorSchedulePage />} />
         <Route path="/doctor/schedule" element={<DoctorSchedulePage />} />
+        <Route path="/doctors" element={<DoctorsPage />} />
+        <Route path="/departments" element={<DepartmentsPage />} />
+        <Route path="/departments/:id" element={<DepartmentDetailPage />} />
         <Route path="/appointments" element={<PatientAppointmentsPage />} />
         <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
