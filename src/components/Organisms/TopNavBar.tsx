@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Logo from '../Atoms/Logo'
 import AccountMenu from '../Molecules/Common/AccountMenu'
+import NotificationBell from '../Notifications/NotificationBell'
 import { AUTH_USER_CHANGED_EVENT, clearAuthSession, getStoredUser } from '../../services/auth.service'
 import type { User } from '../../services/auth.service'
 
@@ -68,7 +69,10 @@ const TopNavBar = ({ active = 'doctors' }: TopNavBarProps) => {
             </Link>
           )}
           {user ? (
-            <AccountMenu onLogout={handleLogout} user={user} />
+            <>
+              <NotificationBell />
+              <AccountMenu onLogout={handleLogout} user={user} />
+            </>
           ) : (
             <Link className="hidden font-label-md text-label-md text-primary transition-colors hover:opacity-80 lg:block" to="/login">
               Đăng nhập
