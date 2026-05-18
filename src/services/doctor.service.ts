@@ -30,6 +30,7 @@ export type DoctorsResult = {
 type DoctorQuery = {
   page?: number
   limit?: number
+  keyword?: string
   status?: 'ACTIVE' | 'INACTIVE'
 }
 
@@ -49,6 +50,7 @@ export const getDoctors = (query: DoctorQuery = {}) => {
 
   if (query.page) params.set('page', String(query.page))
   if (query.limit) params.set('limit', String(query.limit))
+  if (query.keyword) params.set('keyword', query.keyword)
   if (query.status) params.set('status', query.status)
 
   const search = params.toString()

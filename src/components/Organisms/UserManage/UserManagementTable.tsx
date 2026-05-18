@@ -2,13 +2,17 @@ import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import Input from '../../Atoms/Input'
 import type { User } from '../../../services/auth.service'
+import type { DashboardPagination } from '../../../utils/adminDashboard'
 
 type UserManagementTableProps = {
   users: User[]
+  pagination: DashboardPagination
   status: 'loading' | 'ready' | 'error'
+  totalUsers: number
   onCreateUser: () => void
   onDeleteUser: (user: User) => void
   onEditUser: (user: User) => void
+  onPageChange: (page: number) => void
   onSearchQueryChange: (query: string) => void
   onViewUser: (user: User) => void
   searchQuery: string
@@ -35,14 +39,22 @@ const statusConfig: Record<User['status'], { label: string; className: string; d
 
 const UserManagementTable = ({
   users,
+  pagination,
   status,
+  totalUsers,
   onCreateUser,
   onDeleteUser,
   onEditUser,
+  onPageChange,
   onSearchQueryChange,
   onViewUser,
   searchQuery,
 }: UserManagementTableProps) => {
+  const firstItem = totalUsers === 0 ? 0 : (pagination.page - 1) * pagination.limit + 1
+  const lastItem = Math.min(pagination.page * pagination.limit, totalUsers)
+  const hasPreviousPage = pagination.page > 1
+  const hasNextPage = pagination.page < pagination.totalPages
+
   return (
     <section className="overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0px_4px_20px_rgba(15,23,42,0.05)]" id="user-management">
       <div className="flex flex-col items-start justify-between gap-lg border-b border-outline-variant/20 p-lg md:flex-row md:items-center md:p-xl">
@@ -151,10 +163,35 @@ const UserManagementTable = ({
           </table>
         </div>
       )}
-      <div className="border-t border-outline-variant/20 bg-surface-container-low p-lg">
+      <div className="flex flex-col justify-between gap-md border-t border-outline-variant/20 bg-surface-container-low p-lg sm:flex-row sm:items-center">
         <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Đang hiển thị {users.length} user
+          Đang hiển thị {firstItem}-{lastItem} trên {totalUsers} user
         </p>
+        <div className="flex items-center gap-sm">
+          <Button
+            className="px-md py-sm"
+            disabled={!hasPreviousPage || status === 'loading'}
+            fullWidth={false}
+            onClick={() => onPageChange(pagination.page - 1)}
+            type="button"
+            variant="ghost"
+          >
+            Trước
+          </Button>
+          <span className="min-w-20 text-center font-label-md text-label-md text-on-surface-variant">
+            Trang {pagination.page}/{Math.max(pagination.totalPages, 1)}
+          </span>
+          <Button
+            className="px-md py-sm"
+            disabled={!hasNextPage || status === 'loading'}
+            fullWidth={false}
+            onClick={() => onPageChange(pagination.page + 1)}
+            type="button"
+            variant="ghost"
+          >
+            Tiếp theo
+          </Button>
+        </div>
       </div>
     </section>
   )

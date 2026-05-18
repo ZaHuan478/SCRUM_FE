@@ -11,19 +11,31 @@ import type { Department, DepartmentsResult } from '../services/department.servi
 import type { DoctorAssignmentsResult } from '../services/doctorAssignment.service'
 import type { Doctor, DoctorsResult } from '../services/doctor.service'
 import type { PatientsResult } from '../services/patient.service'
+import type { UsersResult } from '../services/user.service'
 
 export type LoadStatus = 'loading' | 'ready' | 'error'
+
+export type DashboardPagination = {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
 
 export type DashboardState = {
   analyticsData: AnalyticsPoint[]
   analyticsStatus: LoadStatus
   departments: Department[]
+  departmentPagination: DashboardPagination
   departmentStatus: LoadStatus
   doctors: DoctorManagementRowData[]
+  doctorPagination: DashboardPagination
   doctorStatus: LoadStatus
   patients: PatientManagementRowData[]
+  patientPagination: DashboardPagination
   patientStatus: LoadStatus
   users: User[]
+  userPagination: DashboardPagination
   userStatus: LoadStatus
   departmentOptions: DoctorDepartmentOption[]
   stats: DashboardStat[]
@@ -31,18 +43,39 @@ export type DashboardState = {
   totalDepartments: number
   totalDoctors: number
   totalPatients: number
+  totalUsers: number
 }
+
+export const emptyDashboardPagination: DashboardPagination = {
+  page: 1,
+  limit: 8,
+  total: 0,
+  totalPages: 0,
+}
+
+export const toDashboardPagination = (
+  pagination?: DepartmentsResult['pagination'] | DoctorsResult['pagination'] | PatientsResult['pagination'] | UsersResult['pagination']
+): DashboardPagination => ({
+  page: pagination?.page || emptyDashboardPagination.page,
+  limit: pagination?.limit || emptyDashboardPagination.limit,
+  total: pagination?.total || emptyDashboardPagination.total,
+  totalPages: pagination?.total_pages || emptyDashboardPagination.totalPages,
+})
 
 export const emptyDashboardState: DashboardState = {
   analyticsData: [],
   analyticsStatus: 'loading',
   departments: [],
+  departmentPagination: emptyDashboardPagination,
   departmentStatus: 'loading',
   doctors: [],
+  doctorPagination: emptyDashboardPagination,
   doctorStatus: 'loading',
   patients: [],
+  patientPagination: emptyDashboardPagination,
   patientStatus: 'loading',
   users: [],
+  userPagination: emptyDashboardPagination,
   userStatus: 'loading',
   departmentOptions: [],
   stats: [],
@@ -50,6 +83,7 @@ export const emptyDashboardState: DashboardState = {
   totalDepartments: 0,
   totalDoctors: 0,
   totalPatients: 0,
+  totalUsers: 0,
 }
 
 export const dashboardErrorState: DashboardState = {

@@ -25,26 +25,69 @@ import {
   getUserInfoFields,
   mapDoctors,
   mapPatients,
+  toDashboardPagination,
 } from '../utils/adminDashboard'
 import type { DashboardState } from '../utils/adminDashboard'
 
-export const loadDashboardData = async (): Promise<DashboardState> => {
+const ADMIN_PAGE_LIMIT = 8
+
+type DashboardDataQuery = {
+  departmentKeyword?: string
+  departmentPage?: number
+  doctorKeyword?: string
+  doctorPage?: number
+  patientKeyword?: string
+  patientPage?: number
+  userKeyword?: string
+  userPage?: number
+}
+
+const getSearchKeyword = (value?: string) => value?.trim() || undefined
+
+export const loadDashboardData = async ({
+  departmentKeyword,
+  departmentPage = 1,
+  doctorKeyword,
+  doctorPage = 1,
+  patientKeyword,
+  patientPage = 1,
+  userKeyword,
+  userPage = 1,
+}: DashboardDataQuery = {}): Promise<DashboardState> => {
   const [
     doctorsResponse,
     activeDoctorsResponse,
     patientsResponse,
     departmentsResponse,
+    departmentOptionsResponse,
     usersResponse,
     assignmentsResponse,
     slotsResponse,
     availableSlotsResponse,
     appointmentsResponse,
   ] = await Promise.allSettled([
-    getDoctors({ limit: 100 }),
+    getDoctors({
+      page: doctorPage,
+      limit: ADMIN_PAGE_LIMIT,
+      keyword: getSearchKeyword(doctorKeyword),
+    }),
     getDoctors({ limit: 1, status: 'ACTIVE' }),
-    getPatients({ limit: 100 }),
+    getPatients({
+      page: patientPage,
+      limit: ADMIN_PAGE_LIMIT,
+      keyword: getSearchKeyword(patientKeyword),
+    }),
+    getDepartments({
+      page: departmentPage,
+      limit: ADMIN_PAGE_LIMIT,
+      keyword: getSearchKeyword(departmentKeyword),
+    }),
     getDepartments({ limit: 100 }),
-    getUsers(),
+    getUsers({
+      page: userPage,
+      limit: ADMIN_PAGE_LIMIT,
+      keyword: getSearchKeyword(userKeyword),
+    }),
     getDoctorAssignments({ limit: 100, status: 'ACTIVE' }),
     getAppointmentSlots({ limit: 100 }),
     getAppointmentSlots({ limit: 1, status: 'AVAILABLE' }),
@@ -55,6 +98,7 @@ export const loadDashboardData = async (): Promise<DashboardState> => {
   const activeDoctors = getFulfilledValue(activeDoctorsResponse)
   const patients = getFulfilledValue(patientsResponse)
   const departments = getFulfilledValue(departmentsResponse)
+  const departmentOptions = getFulfilledValue(departmentOptionsResponse)
   const users = getFulfilledValue(usersResponse)
   const assignments = getFulfilledValue(assignmentsResponse)
   const slots = getFulfilledValue(slotsResponse)
@@ -66,14 +110,18 @@ export const loadDashboardData = async (): Promise<DashboardState> => {
     analyticsData: buildAnalyticsData(appointments, slots),
     analyticsStatus: appointments || slots ? 'ready' : 'error',
     departments: departments?.departments || [],
+    departmentPagination: toDashboardPagination(departments?.pagination),
     departmentStatus: departments ? 'ready' : 'error',
     doctors: mapDoctors(doctors, appointments, slots, assignments),
+    doctorPagination: toDashboardPagination(doctors?.pagination),
     doctorStatus: doctors ? 'ready' : 'error',
     patients: mapPatients(patients),
+    patientPagination: toDashboardPagination(patients?.pagination),
     patientStatus: patients ? 'ready' : 'error',
-    users: users || [],
+    users: users?.users || [],
+    userPagination: toDashboardPagination(users?.pagination),
     userStatus: users ? 'ready' : 'error',
-    departmentOptions: buildDepartmentOptions(departments),
+    departmentOptions: buildDepartmentOptions(departmentOptions || departments),
     stats: buildStats({
       activeDoctors,
       appointments,
@@ -87,6 +135,7 @@ export const loadDashboardData = async (): Promise<DashboardState> => {
     totalDepartments: departments?.pagination.total || 0,
     totalDoctors: doctors?.pagination.total || 0,
     totalPatients: patients?.pagination.total || 0,
+    totalUsers: users?.pagination.total || 0,
   }
 }
 
@@ -112,9 +161,27 @@ export const useAdminDashboard = () => {
   const [isSavingDoctor, setIsSavingDoctor] = useState(false)
 
   const refreshDashboard = useCallback(async () => {
-    const nextDashboard = await loadDashboardData()
+    const nextDashboard = await loadDashboardData({
+      departmentKeyword: departmentSearchQuery,
+      departmentPage: dashboard.departmentPagination.page,
+      doctorKeyword: doctorSearchQuery,
+      doctorPage: dashboard.doctorPagination.page,
+      patientKeyword: patientSearchQuery,
+      patientPage: dashboard.patientPagination.page,
+      userKeyword: userSearchQuery,
+      userPage: dashboard.userPagination.page,
+    })
     setDashboard(nextDashboard)
-  }, [])
+  }, [
+    dashboard.departmentPagination.page,
+    dashboard.doctorPagination.page,
+    dashboard.patientPagination.page,
+    dashboard.userPagination.page,
+    departmentSearchQuery,
+    doctorSearchQuery,
+    patientSearchQuery,
+    userSearchQuery,
+  ])
 
   useEffect(() => {
     let active = true
@@ -134,41 +201,134 @@ export const useAdminDashboard = () => {
     }
   }, [])
 
-  const visibleDepartments = useMemo(() => {
-    const normalizedQuery = departmentSearchQuery.trim().toLowerCase()
-    if (!normalizedQuery) return dashboard.departments
+  const fetchDepartmentsPage = useCallback(async (page: number, keyword = departmentSearchQuery) => {
+    setDashboard((currentDashboard) => ({ ...currentDashboard, departmentStatus: 'loading' }))
 
-    return dashboard.departments.filter((department) => (
-      `${department.name} ${department.description || ''} ${department.status}`.toLowerCase().includes(normalizedQuery)
-    ))
-  }, [dashboard.departments, departmentSearchQuery])
+    try {
+      const departments = await getDepartments({
+        page,
+        limit: ADMIN_PAGE_LIMIT,
+        keyword: keyword.trim() || undefined,
+      })
 
-  const visibleDoctors = useMemo(() => {
-    const normalizedQuery = doctorSearchQuery.trim().toLowerCase()
-    if (!normalizedQuery) return dashboard.doctors
+      setDashboard((currentDashboard) => ({
+        ...currentDashboard,
+        departments: departments.departments,
+        departmentPagination: toDashboardPagination(departments.pagination),
+        departmentStatus: 'ready',
+        totalDepartments: departments.pagination.total,
+      }))
+    } catch {
+      setDashboard((currentDashboard) => ({ ...currentDashboard, departmentStatus: 'error' }))
+    }
+  }, [departmentSearchQuery])
 
-    return dashboard.doctors.filter((doctor) => (
-      `${doctor.name} ${doctor.email || ''} ${doctor.specialty || ''} ${doctor.cccd || ''}`.toLowerCase().includes(normalizedQuery)
-    ))
-  }, [dashboard.doctors, doctorSearchQuery])
+  const fetchDoctorsPage = useCallback(async (page: number, keyword = doctorSearchQuery) => {
+    setDashboard((currentDashboard) => ({ ...currentDashboard, doctorStatus: 'loading' }))
 
-  const visiblePatients = useMemo(() => {
-    const normalizedQuery = patientSearchQuery.trim().toLowerCase()
-    if (!normalizedQuery) return dashboard.patients
+    try {
+      const [doctors, assignments, slots, appointments] = await Promise.all([
+        getDoctors({
+          page,
+          limit: ADMIN_PAGE_LIMIT,
+          keyword: keyword.trim() || undefined,
+        }),
+        getDoctorAssignments({ limit: 100, status: 'ACTIVE' }),
+        getAppointmentSlots({ limit: 100 }),
+        getAppointments({ limit: 100 }),
+      ])
 
-    return dashboard.patients.filter((patient) => (
-      `${patient.name} ${patient.email || ''} ${patient.phone || ''} ${patient.gender || ''} ${patient.insuranceNumber || ''}`.toLowerCase().includes(normalizedQuery)
-    ))
-  }, [dashboard.patients, patientSearchQuery])
+      setDashboard((currentDashboard) => ({
+        ...currentDashboard,
+        doctors: mapDoctors(doctors, appointments, slots, assignments),
+        doctorPagination: toDashboardPagination(doctors.pagination),
+        doctorStatus: 'ready',
+        totalDoctors: doctors.pagination.total,
+      }))
+    } catch {
+      setDashboard((currentDashboard) => ({ ...currentDashboard, doctorStatus: 'error' }))
+    }
+  }, [doctorSearchQuery])
 
-  const visibleUsers = useMemo(() => {
-    const normalizedQuery = userSearchQuery.trim().toLowerCase()
-    if (!normalizedQuery) return dashboard.users
+  const fetchPatientsPage = useCallback(async (page: number, keyword = patientSearchQuery) => {
+    setDashboard((currentDashboard) => ({ ...currentDashboard, patientStatus: 'loading' }))
 
-    return dashboard.users.filter((user) => (
-      `${user.full_name || ''} ${user.email} ${user.phone || ''} ${user.role} ${user.status} ${user.cccd_number || ''}`.toLowerCase().includes(normalizedQuery)
-    ))
-  }, [dashboard.users, userSearchQuery])
+    try {
+      const patients = await getPatients({
+        page,
+        limit: ADMIN_PAGE_LIMIT,
+        keyword: keyword.trim() || undefined,
+      })
+
+      setDashboard((currentDashboard) => ({
+        ...currentDashboard,
+        patients: mapPatients(patients),
+        patientPagination: toDashboardPagination(patients.pagination),
+        patientStatus: 'ready',
+        totalPatients: patients.pagination.total,
+      }))
+    } catch {
+      setDashboard((currentDashboard) => ({ ...currentDashboard, patientStatus: 'error' }))
+    }
+  }, [patientSearchQuery])
+
+  const fetchUsersPage = useCallback(async (page: number, keyword = userSearchQuery) => {
+    setDashboard((currentDashboard) => ({ ...currentDashboard, userStatus: 'loading' }))
+
+    try {
+      const users = await getUsers({
+        page,
+        limit: ADMIN_PAGE_LIMIT,
+        keyword: keyword.trim() || undefined,
+      })
+
+      setDashboard((currentDashboard) => ({
+        ...currentDashboard,
+        users: users.users,
+        userPagination: toDashboardPagination(users.pagination),
+        userStatus: 'ready',
+        totalUsers: users.pagination.total,
+      }))
+    } catch {
+      setDashboard((currentDashboard) => ({ ...currentDashboard, userStatus: 'error' }))
+    }
+  }, [userSearchQuery])
+
+  const handleDepartmentPageChange = useCallback((page: number) => {
+    void fetchDepartmentsPage(page)
+  }, [fetchDepartmentsPage])
+
+  const handleDoctorPageChange = useCallback((page: number) => {
+    void fetchDoctorsPage(page)
+  }, [fetchDoctorsPage])
+
+  const handlePatientPageChange = useCallback((page: number) => {
+    void fetchPatientsPage(page)
+  }, [fetchPatientsPage])
+
+  const handleUserPageChange = useCallback((page: number) => {
+    void fetchUsersPage(page)
+  }, [fetchUsersPage])
+
+  const handleDepartmentSearchQueryChange = useCallback((query: string) => {
+    setDepartmentSearchQuery(query)
+    void fetchDepartmentsPage(1, query)
+  }, [fetchDepartmentsPage])
+
+  const handleDoctorSearchQueryChange = useCallback((query: string) => {
+    setDoctorSearchQuery(query)
+    void fetchDoctorsPage(1, query)
+  }, [fetchDoctorsPage])
+
+  const handlePatientSearchQueryChange = useCallback((query: string) => {
+    setPatientSearchQuery(query)
+    void fetchPatientsPage(1, query)
+  }, [fetchPatientsPage])
+
+  const handleUserSearchQueryChange = useCallback((query: string) => {
+    setUserSearchQuery(query)
+    void fetchUsersPage(1, query)
+  }, [fetchUsersPage])
 
   const closeUserModal = useCallback(() => {
     setIsUserModalOpen(false)
@@ -415,11 +575,19 @@ export const useAdminDashboard = () => {
     handleCreateUser,
     handleDeleteUser,
     handleDepartmentEditSubmit,
+    handleDepartmentPageChange,
+    handleDepartmentSearchQueryChange,
     handleDoctorEditSubmit,
+    handleDoctorPageChange,
+    handleDoctorSearchQueryChange,
     handleEditDepartment,
     handleEditDoctor,
     handleEditUser,
+    handlePatientPageChange,
+    handlePatientSearchQueryChange,
     handleUserSubmit,
+    handleUserPageChange,
+    handleUserSearchQueryChange,
     isDepartmentModalOpen,
     isSavingDepartment,
     isSavingDoctor,
@@ -430,19 +598,15 @@ export const useAdminDashboard = () => {
     selectedDoctor,
     selectedPatient,
     selectedUser,
-    setDepartmentSearchQuery,
-    setDoctorSearchQuery,
-    setPatientSearchQuery,
     setSelectedDoctor,
     setSelectedPatient,
     setSelectedUser,
-    setUserSearchQuery,
     userSearchQuery,
     userEditError,
     userFields,
-    visibleDepartments,
-    visibleDoctors,
-    visiblePatients,
-    visibleUsers,
+    visibleDepartments: dashboard.departments,
+    visibleDoctors: dashboard.doctors,
+    visiblePatients: dashboard.patients,
+    visibleUsers: dashboard.users,
   }
 }
