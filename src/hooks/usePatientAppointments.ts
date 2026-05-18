@@ -15,7 +15,6 @@ import {
   buildAppointmentStats,
   buildUpcomingDays,
   findMatchingSymptoms,
-  getDateKey,
   isAuthFailure,
   sortAppointmentsByTime,
   sortSlotsByTime,
@@ -23,7 +22,7 @@ import {
 import type { LoadStatus, PatientAppointmentStat } from '../utils/patientAppointments'
 
 type UsePatientAppointmentsOptions = {
-  storedUser: User
+  storedUser: User | null
   onAuthFailure: () => void
 }
 
@@ -83,14 +82,13 @@ export const usePatientAppointments = ({
   const [searchParams, setSearchParams] = useSearchParams()
   const initialDoctorId = searchParams.get('doctor_id') || ''
   const initialDoctorName = searchParams.get('doctor_name') || ''
-  const todayKey = useMemo(() => getDateKey(new Date()), [])
   const upcomingDays = useMemo(() => buildUpcomingDays(), [])
   const [departments, setDepartments] = useState<Department[]>([])
   const [symptoms, setSymptoms] = useState<Symptom[]>([])
   const [recommendedDepartments, setRecommendedDepartments] = useState<RecommendedDepartment[]>([])
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [slots, setSlots] = useState<AppointmentSlot[]>([])
-  const [selectedDate, setSelectedDate] = useState(todayKey)
+  const [selectedDate, setSelectedDate] = useState('')
   const [selectedDepartmentId, setSelectedDepartmentId] = useState('')
   const [selectedDoctorId, setSelectedDoctorId] = useState(initialDoctorId)
   const [selectedDoctorName, setSelectedDoctorName] = useState(initialDoctorName)
@@ -114,6 +112,12 @@ export const usePatientAppointments = ({
   }, [onAuthFailure])
 
   const loadAppointments = useCallback(async () => {
+    if (storedUser?.role !== 'PATIENT') {
+      setAppointments([])
+      setAppointmentStatus('ready')
+      return
+    }
+
     setAppointmentStatus('loading')
 
     try {
@@ -128,21 +132,24 @@ export const usePatientAppointments = ({
 
       setAppointmentStatus('error')
     }
-  }, [onAuthFailure])
+  }, [onAuthFailure, storedUser?.role])
 
   const loadSlots = useCallback(async () => {
     setSlotStatus('loading')
 
     try {
       const result = await getAppointmentSlots({
-        date: selectedDate,
+        date: selectedDate || undefined,
         department_id: selectedDoctorId ? undefined : selectedDepartmentId || undefined,
         doctor_id: selectedDoctorId || undefined,
         limit: 100,
+        start_from: selectedDate ? undefined : new Date().toISOString(),
         status: 'AVAILABLE',
       })
 
-      setSlots(sortSlotsByTime(result.appointment_slots))
+      setSlots(sortSlotsByTime(result.appointment_slots).filter((slot) => (
+        selectedDate || new Date(slot.start_time).getTime() >= Date.now()
+      )))
       setSlotStatus('ready')
     } catch (requestError) {
       if (isAuthFailure(requestError)) {
@@ -263,6 +270,19 @@ export const usePatientAppointments = ({
   useEffect(() => {
     let active = true
 
+    if (storedUser?.role !== 'PATIENT') {
+      const timeoutId = window.setTimeout(() => {
+        if (!active) return
+        setAppointments([])
+        setAppointmentStatus('ready')
+      }, 0)
+
+      return () => {
+        active = false
+        window.clearTimeout(timeoutId)
+      }
+    }
+
     getMyAppointments({ limit: 100 })
       .then((result) => {
         if (!active) return
@@ -284,22 +304,25 @@ export const usePatientAppointments = ({
     return () => {
       active = false
     }
-  }, [onAuthFailure])
+  }, [onAuthFailure, storedUser?.role])
 
   useEffect(() => {
     let active = true
 
     getAppointmentSlots({
-      date: selectedDate,
+      date: selectedDate || undefined,
       department_id: selectedDoctorId ? undefined : selectedDepartmentId || undefined,
       doctor_id: selectedDoctorId || undefined,
       limit: 100,
+      start_from: selectedDate ? undefined : new Date().toISOString(),
       status: 'AVAILABLE',
     })
       .then((result) => {
         if (!active) return
 
-        setSlots(sortSlotsByTime(result.appointment_slots))
+        setSlots(sortSlotsByTime(result.appointment_slots).filter((slot) => (
+          selectedDate || new Date(slot.start_time).getTime() >= Date.now()
+        )))
         setSlotStatus('ready')
       })
       .catch((requestError: unknown) => {
@@ -368,8 +391,13 @@ export const usePatientAppointments = ({
     setBookingError('')
     setBookingSuccess('')
 
+    if (!storedUser) {
+      setBookingError('Vui lòng đăng nhập bằng tài khoản bệnh nhân để gửi đặt lịch.')
+      return
+    }
+
     if (storedUser.role !== 'PATIENT') {
-      setBookingError('Chỉ tài khoản bệnh nhân mới có thể đặt lịch hẹn.')
+      setBookingError('Chỉ tài khoản bệnh nhân mới có thể gửi đặt lịch hẹn.')
       return
     }
 
@@ -390,7 +418,7 @@ export const usePatientAppointments = ({
     } catch (requestError) {
       handleRequestError(requestError, 'Không thể đặt lịch hẹn.')
     }
-  }, [handleRequestError, loadAppointments, loadSlots, reason, selectedSlot, storedUser.role])
+  }, [handleRequestError, loadAppointments, loadSlots, reason, selectedSlot, storedUser])
 
   const cancelMyAppointment = useCallback(async (appointment: Appointment) => {
     if (!['PENDING', 'CONFIRMED'].includes(appointment.status)) return

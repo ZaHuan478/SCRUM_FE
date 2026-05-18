@@ -1,12 +1,12 @@
 import { useCallback, useState } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import PatientAppointmentsTemplate from '../components/Templates/PatientAppointmentsTemplate'
 import { usePatientAppointments } from '../hooks/usePatientAppointments'
 import { clearAuthSession, getStoredUser } from '../services/auth.service'
 import type { User } from '../services/auth.service'
 
 type PatientAppointmentsContentProps = {
-  storedUser: User
+  storedUser: User | null
   onLogout: () => void
 }
 
@@ -32,9 +32,6 @@ const PatientAppointmentsPage = () => {
     clearAuthSession()
     navigate('/login', { replace: true })
   }, [navigate])
-
-  if (!storedUser) return <Navigate replace to="/login" />
-  if (storedUser.role !== 'PATIENT') return <Navigate replace to="/" />
 
   return <PatientAppointmentsContent onLogout={handleLogout} storedUser={storedUser} />
 }
