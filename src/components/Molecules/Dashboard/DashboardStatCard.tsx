@@ -1,4 +1,4 @@
-import Icon from '../Atoms/Icon'
+import Icon from '../../Atoms/Icon'
 
 export type DashboardStatTone = 'primary' | 'secondary' | 'tertiary' | 'success' | 'neutral'
 

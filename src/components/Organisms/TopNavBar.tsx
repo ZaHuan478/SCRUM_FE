@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Logo from '../Atoms/Logo'
-import AccountMenu from '../Molecules/AccountMenu'
+import AccountMenu from '../Molecules/Common/AccountMenu'
 import { AUTH_USER_CHANGED_EVENT, clearAuthSession, getStoredUser } from '../../services/auth.service'
 import type { User } from '../../services/auth.service'
 
@@ -62,6 +62,11 @@ const TopNavBar = ({ active = 'doctors' }: TopNavBarProps) => {
           ))}
         </div>
         <div className="flex items-center gap-md">
+          {user?.role === 'PATIENT' && (
+            <Link className="rounded-lg bg-primary-container px-lg py-sm font-label-md text-label-md text-on-primary-container shadow-sm transition-all hover:opacity-90 active:scale-95" to="/appointments">
+              Đặt lịch hẹn
+            </Link>
+          )}
           {user ? (
             <AccountMenu onLogout={handleLogout} user={user} />
           ) : (
@@ -69,9 +74,6 @@ const TopNavBar = ({ active = 'doctors' }: TopNavBarProps) => {
               Đăng nhập
             </Link>
           )}
-          <Link className="rounded-lg bg-primary-container px-lg py-sm font-label-md text-label-md text-on-primary-container shadow-sm transition-all hover:opacity-90 active:scale-95" to="/appointments">
-            Đặt lịch hẹn
-          </Link>
         </div>
       </nav>
     </header>

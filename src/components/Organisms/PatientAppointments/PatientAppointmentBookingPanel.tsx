@@ -1,10 +1,12 @@
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import Input from '../../Atoms/Input'
-import PatientAppointmentDayButton from '../../Molecules/PatientAppointmentDayButton'
-import PatientAppointmentSlotCard from '../../Molecules/PatientAppointmentSlotCard'
+import PatientAppointmentDayButton from '../../Molecules/PatientAppointments/PatientAppointmentDayButton'
+import PatientAppointmentSlotCard from '../../Molecules/PatientAppointments/PatientAppointmentSlotCard'
 import type { AppointmentSlot } from '../../../services/appointmentSlot.service'
+import type { RecommendedDepartment } from '../../../services/departmentSymptomRule.service'
 import type { Department } from '../../../services/department.service'
+import type { Symptom } from '../../../services/symptom.service'
 import { getDateKey, longDateFormatter } from '../../../utils/patientAppointments'
 import type { LoadStatus } from '../../../utils/patientAppointments'
 
@@ -13,7 +15,10 @@ type PatientAppointmentBookingPanelProps = {
   bookingSuccess: string
   departmentStatus: LoadStatus
   departments: Department[]
+  matchedSymptoms: Symptom[]
   reason: string
+  recommendedDepartments: RecommendedDepartment[]
+  recommendationStatus: LoadStatus
   selectedDate: string
   selectedDepartmentId: string
   selectedSlot: AppointmentSlot | null
@@ -33,7 +38,10 @@ const PatientAppointmentBookingPanel = ({
   bookingSuccess,
   departmentStatus,
   departments,
+  matchedSymptoms,
   reason,
+  recommendedDepartments,
+  recommendationStatus,
   selectedDate,
   selectedDepartmentId,
   selectedSlot,
@@ -82,6 +90,58 @@ const PatientAppointmentBookingPanel = ({
           </select>
         </label>
       </div>
+    </div>
+
+    <div className="rounded-lg border border-outline-variant/30 bg-surface-container-low p-md">
+      <label className="space-y-xs">
+        <span className="font-label-md text-label-md text-on-surface">Triệu chứng / lý do khám</span>
+        <textarea
+          className="min-h-24 w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
+          onChange={(event) => onReasonChange(event.target.value)}
+          placeholder="Ví dụ: đau ngực, khó thở, tim đập nhanh..."
+          value={reason}
+        />
+      </label>
+
+      {(matchedSymptoms.length > 0 || recommendedDepartments.length > 0 || recommendationStatus === 'loading') && (
+        <div className="mt-md flex flex-col gap-sm">
+          {matchedSymptoms.length > 0 && (
+            <div className="flex flex-wrap gap-xs">
+              {matchedSymptoms.map((symptom) => (
+                <span
+                  className="rounded-full bg-primary-fixed px-sm py-xs font-label-sm text-label-sm text-on-primary-fixed"
+                  key={symptom.id}
+                >
+                  {symptom.name}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {recommendationStatus === 'loading' && (
+            <p className="font-body-sm text-body-sm text-on-surface-variant">Đang tìm khoa phù hợp...</p>
+          )}
+
+          {recommendedDepartments.length > 0 && (
+            <div className="flex flex-wrap gap-xs">
+              {recommendedDepartments.map((department) => (
+                <button
+                  className={`rounded-full border px-sm py-xs font-label-sm text-label-sm transition-colors ${
+                    String(selectedDepartmentId) === String(department.department_id)
+                      ? 'border-primary bg-primary text-on-primary'
+                      : 'border-outline-variant bg-surface-container-lowest text-on-surface hover:border-primary'
+                  }`}
+                  key={department.department_id}
+                  onClick={() => onDepartmentChange(String(department.department_id))}
+                  type="button"
+                >
+                  {department.department_name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
 
     <div className="grid grid-cols-2 gap-sm md:grid-cols-7">
@@ -138,16 +198,7 @@ const PatientAppointmentBookingPanel = ({
       </div>
     )}
 
-    <div className="rounded-lg border border-outline-variant/30 bg-surface p-md">
-      <label className="space-y-xs">
-        <span className="font-label-md text-label-md text-on-surface">Lý do khám</span>
-        <textarea
-          className="min-h-28 w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-          onChange={(event) => onReasonChange(event.target.value)}
-          placeholder="Mô tả ngắn triệu chứng hoặc nhu cầu khám..."
-          value={reason}
-        />
-      </label>
+    <div className="rounded-lg p-md">
       <div className="mt-md flex flex-col gap-sm sm:flex-row sm:items-center sm:justify-between">
         <p className="font-body-sm text-body-sm text-on-surface-variant">
           {selectedSlot ? 'Khung giờ đã sẵn sàng để gửi đặt lịch.' : 'Chọn một khung giờ trước khi gửi.'}

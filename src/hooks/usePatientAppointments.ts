@@ -6,9 +6,14 @@ import { getAppointmentSlots } from '../services/appointmentSlot.service'
 import type { User } from '../services/auth.service'
 import type { Department } from '../services/department.service'
 import { getDepartments } from '../services/department.service'
+import { recommendDepartmentsBySymptoms } from '../services/departmentSymptomRule.service'
+import type { RecommendedDepartment } from '../services/departmentSymptomRule.service'
+import type { Symptom } from '../services/symptom.service'
+import { getSymptoms } from '../services/symptom.service'
 import {
   buildAppointmentStats,
   buildUpcomingDays,
+  findMatchingSymptoms,
   getDateKey,
   isAuthFailure,
   sortAppointmentsByTime,
@@ -21,6 +26,22 @@ type UsePatientAppointmentsOptions = {
   onAuthFailure: () => void
 }
 
+const loadActiveSymptoms = async () => {
+  const firstPage = await getSymptoms({ limit: 100, status: 'ACTIVE' })
+  if (firstPage.pagination.total_pages <= 1) return firstPage.symptoms
+
+  const remainingPages = await Promise.all(
+    Array.from({ length: firstPage.pagination.total_pages - 1 }, (_, index) => (
+      getSymptoms({ limit: 100, page: index + 2, status: 'ACTIVE' })
+    ))
+  )
+
+  return [
+    ...firstPage.symptoms,
+    ...remainingPages.flatMap((result) => result.symptoms),
+  ]
+}
+
 export type PatientAppointmentsState = {
   appointmentActionId: number | string | null
   appointmentStatus: LoadStatus
@@ -29,7 +50,10 @@ export type PatientAppointmentsState = {
   bookingSuccess: string
   departments: Department[]
   departmentStatus: LoadStatus
+  matchedSymptoms: Symptom[]
   reason: string
+  recommendedDepartments: RecommendedDepartment[]
+  recommendationStatus: LoadStatus
   selectedDate: string
   selectedDepartmentId: string
   selectedSlot: AppointmentSlot | null
@@ -55,6 +79,8 @@ export const usePatientAppointments = ({
   const todayKey = useMemo(() => getDateKey(new Date()), [])
   const upcomingDays = useMemo(() => buildUpcomingDays(), [])
   const [departments, setDepartments] = useState<Department[]>([])
+  const [symptoms, setSymptoms] = useState<Symptom[]>([])
+  const [recommendedDepartments, setRecommendedDepartments] = useState<RecommendedDepartment[]>([])
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [slots, setSlots] = useState<AppointmentSlot[]>([])
   const [selectedDate, setSelectedDate] = useState(todayKey)
@@ -62,6 +88,7 @@ export const usePatientAppointments = ({
   const [selectedSlotId, setSelectedSlotId] = useState<number | string | null>(null)
   const [reason, setReason] = useState('')
   const [departmentStatus, setDepartmentStatus] = useState<LoadStatus>('loading')
+  const [recommendationStatus, setRecommendationStatus] = useState<LoadStatus>('ready')
   const [appointmentStatus, setAppointmentStatus] = useState<LoadStatus>('loading')
   const [slotStatus, setSlotStatus] = useState<LoadStatus>('loading')
   const [bookingError, setBookingError] = useState('')
@@ -118,6 +145,10 @@ export const usePatientAppointments = ({
     }
   }, [onAuthFailure, selectedDate, selectedDepartmentId])
 
+  const matchedSymptoms = useMemo(() => (
+    findMatchingSymptoms(reason, symptoms).slice(0, 8)
+  ), [reason, symptoms])
+
   useEffect(() => {
     let active = true
 
@@ -139,6 +170,79 @@ export const usePatientAppointments = ({
       active = false
     }
   }, [])
+
+  useEffect(() => {
+    let active = true
+
+    loadActiveSymptoms()
+      .then((nextSymptoms) => {
+        if (!active) return
+        setSymptoms(nextSymptoms)
+      })
+      .catch(() => {
+        if (!active) return
+        setSymptoms([])
+      })
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  useEffect(() => {
+    let active = true
+
+    if (matchedSymptoms.length === 0) {
+      const timeoutId = window.setTimeout(() => {
+        if (!active) return
+
+        setRecommendedDepartments([])
+        setRecommendationStatus('ready')
+      }, 0)
+
+      return () => {
+        active = false
+        window.clearTimeout(timeoutId)
+      }
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      if (!active) return
+
+      setRecommendationStatus('loading')
+
+      recommendDepartmentsBySymptoms(matchedSymptoms.map((symptom) => symptom.id))
+        .then((recommendations) => {
+          if (!active) return
+
+          const nextRecommendations = recommendations.slice(0, 3)
+          setRecommendedDepartments(nextRecommendations)
+          setRecommendationStatus('ready')
+
+          const topDepartmentId = nextRecommendations[0]?.department_id
+          if (!topDepartmentId) return
+
+          setSelectedDepartmentId((currentDepartmentId) => {
+            if (currentDepartmentId === String(topDepartmentId)) return currentDepartmentId
+
+            setSelectedSlotId(null)
+            setSlotStatus('loading')
+            return String(topDepartmentId)
+          })
+        })
+        .catch(() => {
+          if (!active) return
+
+          setRecommendedDepartments([])
+          setRecommendationStatus('error')
+        })
+    }, 250)
+
+    return () => {
+      active = false
+      window.clearTimeout(timeoutId)
+    }
+  }, [matchedSymptoms])
 
   useEffect(() => {
     let active = true
@@ -281,7 +385,10 @@ export const usePatientAppointments = ({
     departments,
     loadAppointments,
     loadSlots,
+    matchedSymptoms,
     reason,
+    recommendedDepartments,
+    recommendationStatus,
     selectedDate,
     selectedDepartmentId,
     selectedSlot,

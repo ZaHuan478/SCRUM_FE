@@ -1,16 +1,23 @@
-import SymptomSearchBox from '../../Molecules/SymptomSearchBox'
-import SymptomSuggestionPill from '../../Molecules/SymptomSuggestionPill'
+import SymptomSearchBox from '../../Molecules/SymptomChecker/SymptomSearchBox'
+import SymptomSuggestionPill from '../../Molecules/SymptomChecker/SymptomSuggestionPill'
 
-const suggestions: string[] = []
+const popularSuggestions = ['Đau ngực', 'Khó thở', 'Đau đầu kéo dài', 'Đau bụng', 'Mất ngủ', 'Đau lưng']
 
 type SymptomHeroSectionProps = {
+  searchSuggestions: string[]
   query: string
   onQueryChange: (query: string) => void
   onSearch: () => void
   onSuggestionSelect: (suggestion: string) => void
 }
 
-const SymptomHeroSection = ({ query, onQueryChange, onSearch, onSuggestionSelect }: SymptomHeroSectionProps) => {
+const SymptomHeroSection = ({
+  searchSuggestions,
+  query,
+  onQueryChange,
+  onSearch,
+  onSuggestionSelect,
+}: SymptomHeroSectionProps) => {
   return (
     <section className="bg-gradient-to-b from-surface to-surface-container-low px-lg py-xxxl">
       <div className="mx-auto max-w-4xl space-y-xl text-center">
@@ -20,11 +27,17 @@ const SymptomHeroSection = ({ query, onQueryChange, onSearch, onSuggestionSelect
             Xác định các nguyên nhân tiềm tàng cho triệu chứng của bạn và tìm chuyên gia phù hợp để điều trị.
           </p>
         </div>
-        <SymptomSearchBox onChange={onQueryChange} onSubmit={onSearch} value={query} />
-        {suggestions.length > 0 && (
+        <SymptomSearchBox
+          onChange={onQueryChange}
+          onSubmit={onSearch}
+          onSuggestionSelect={onSuggestionSelect}
+          suggestions={searchSuggestions}
+          value={query}
+        />
+        {popularSuggestions.length > 0 && (
           <div className="flex flex-wrap justify-center gap-sm pt-md">
             <span className="self-center font-label-sm text-label-sm text-on-surface-variant">Tìm kiếm phổ biến:</span>
-            {suggestions.map((suggestion) => (
+            {popularSuggestions.map((suggestion) => (
               <SymptomSuggestionPill key={suggestion} label={suggestion} onSelect={onSuggestionSelect} />
             ))}
           </div>

@@ -1,5 +1,5 @@
 import Icon from '../../Atoms/Icon'
-import DoctorScheduleSlotCard from '../../Molecules/DoctorScheduleSlotCard'
+import DoctorScheduleSlotCard from '../../Molecules/DoctorSchedule/DoctorScheduleSlotCard'
 import type { AppointmentSlot, AppointmentSlotStatus } from '../../../services/appointmentSlot.service'
 import type { DaySummary } from '../../../utils/doctorSchedule'
 

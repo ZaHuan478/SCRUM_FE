@@ -1,11 +1,11 @@
-import Icon from '../Atoms/Icon'
-import type { DoctorScheduleStat } from '../../utils/doctorSchedule'
+import Icon from '../../Atoms/Icon'
+import type { PatientAppointmentStat } from '../../../utils/patientAppointments'
 
-type DoctorScheduleStatCardProps = {
-  stat: DoctorScheduleStat
+type PatientAppointmentStatCardProps = {
+  stat: PatientAppointmentStat
 }
 
-const DoctorScheduleStatCard = ({ stat }: DoctorScheduleStatCardProps) => (
+const PatientAppointmentStatCard = ({ stat }: PatientAppointmentStatCardProps) => (
   <article className="rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-md shadow-sm">
     <div className="mb-md flex items-center justify-between gap-md">
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-fixed text-primary">
@@ -18,4 +18,4 @@ const DoctorScheduleStatCard = ({ stat }: DoctorScheduleStatCardProps) => (
   </article>
 )
 
-export default DoctorScheduleStatCard
+export default PatientAppointmentStatCard

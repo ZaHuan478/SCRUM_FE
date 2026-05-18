@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import Icon from '../Atoms/Icon'
+import Icon from '../../Atoms/Icon'
 
 type DashboardNavItemProps = {
   icon: string

@@ -1,4 +1,4 @@
-import Icon from '../Atoms/Icon'
+import Icon from '../../Atoms/Icon'
 
 type DepartmentCardProps = {
   icon: string

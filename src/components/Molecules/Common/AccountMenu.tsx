@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import Icon from '../Atoms/Icon'
-import type { User } from '../../services/auth.service'
+import Icon from '../../Atoms/Icon'
+import type { User } from '../../../services/auth.service'
 
 type AccountMenuProps = {
   user: User

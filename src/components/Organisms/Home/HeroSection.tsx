@@ -1,7 +1,7 @@
 import Badge from '../../Atoms/Badge'
 import Icon from '../../Atoms/Icon'
 import Image from '../../Atoms/Image'
-import SearchPanel from '../../Molecules/SearchPanel'
+import SearchPanel from '../../Molecules/Home/SearchPanel'
 
 const heroImage = ''
 

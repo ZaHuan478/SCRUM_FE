@@ -4,7 +4,7 @@ import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import Image from '../../Atoms/Image'
 import Input from '../../Atoms/Input'
-import type { DoctorManagementRowData } from '../../Molecules/DoctorManagementRow'
+import type { DoctorManagementRowData } from '../../Molecules/Management/DoctorManagementRow'
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024
 
