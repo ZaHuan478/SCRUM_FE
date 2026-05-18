@@ -17,6 +17,7 @@ export type DoctorManagementRowData = {
   experienceYears?: number | null
   consultationFee?: string | null
   description?: string | null
+  profBiography?: string | null
   appointmentsThisWeek: number
   image?: string | null
 }

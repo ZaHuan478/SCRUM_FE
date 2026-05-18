@@ -63,9 +63,16 @@ const DoctorCard = ({ doctor }: DoctorCardProps) => {
           <span className="font-label-md text-label-md text-on-surface-variant">
             {doctor.experienceYears !== undefined && doctor.experienceYears !== null ? `${doctor.experienceYears} năm kinh nghiệm` : ''}
           </span>
-          <Link className="font-label-md text-label-md text-primary transition-colors hover:underline" to={bookingPath}>
-            Đặt lịch
-          </Link>
+          <div className="flex items-center gap-sm">
+            {doctor.id && (
+              <Link className="font-label-md text-label-md text-on-surface-variant transition-colors hover:text-primary hover:underline" to={`/doctors/${doctor.id}`}>
+                Chi tiết
+              </Link>
+            )}
+            <Link className="font-label-md text-label-md text-primary transition-colors hover:underline" to={bookingPath}>
+              Đặt lịch
+            </Link>
+          </div>
         </div>
         {doctor.fee && <p className="mt-sm font-body-sm text-body-sm text-on-surface-variant">Phí tư vấn: {doctor.fee}</p>}
       </div>
