@@ -230,6 +230,7 @@ export const mapDoctors = (
         ? null
         : String(doctor.consultation_fee),
       description: doctor.description,
+      profBiography: doctor.prof_biography,
       appointmentsThisWeek: weeklyCounts.get(doctorId) || 0,
       image: doctor.image_url,
     }
@@ -335,6 +336,7 @@ export const getDoctorInfoFields = (doctor: DoctorManagementRowData | null): Adm
       { label: 'Lịch tuần này', value: doctor.appointmentsThisWeek },
       { label: 'Ảnh đại diện', value: doctor.image },
       { label: 'Mô tả', value: doctor.description },
+      { label: 'Tiểu sử chuyên môn', value: doctor.profBiography },
     ]
     : []
 )
