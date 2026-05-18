@@ -69,7 +69,7 @@ const PatientAppointmentBookingPanel = ({
           <h2 className="font-headline-sm text-headline-sm text-on-surface">Đặt lịch hẹn</h2>
         </div>
         <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
-          {longDateFormatter.format(new Date(selectedDate))}
+          {selectedDate ? longDateFormatter.format(new Date(selectedDate)) : 'Hiển thị lịch khám trống gần nhất của các bác sĩ'}
         </p>
       </div>
       <div className="grid w-full grid-cols-1 gap-md md:w-auto md:grid-cols-2">
@@ -170,7 +170,21 @@ const PatientAppointmentBookingPanel = ({
       )}
     </div>
 
-    <div className="grid grid-cols-2 gap-sm md:grid-cols-7">
+    <div className="grid grid-cols-2 gap-sm md:grid-cols-4 xl:grid-cols-8">
+      <button
+        className={`rounded-lg border px-md py-sm text-left transition-all ${
+          selectedDate === ''
+            ? 'border-primary bg-primary text-on-primary shadow-sm'
+            : 'border-outline-variant/30 bg-surface hover:border-primary/40'
+        }`}
+        onClick={() => onDateChange('')}
+        type="button"
+      >
+        <span className="block font-label-md text-label-md">Gần nhất</span>
+        <span className={`mt-xs block font-label-sm text-label-sm ${selectedDate === '' ? 'text-on-primary/80' : 'text-on-surface-variant'}`}>
+          Sắp tới
+        </span>
+      </button>
       {upcomingDays.slice(0, 7).map((date) => {
         const dateKey = getDateKey(date)
 
@@ -193,7 +207,7 @@ const PatientAppointmentBookingPanel = ({
 
     {slotStatus === 'loading' && (
       <p className="rounded-lg bg-surface-container px-md py-sm font-body-sm text-body-sm text-on-surface-variant">
-        Đang tải khung giờ trống...
+        Đang tải lịch khám trống gần nhất...
       </p>
     )}
 
@@ -208,7 +222,7 @@ const PatientAppointmentBookingPanel = ({
         <Icon className="text-4xl text-outline" name="event_busy" />
         <p className="mt-sm font-label-md text-label-md text-on-surface">Chưa có khung giờ phù hợp</p>
         <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
-          {selectedDoctorId ? 'Hãy thử chọn ngày khác hoặc bỏ lọc bác sĩ.' : 'Hãy thử chọn ngày khác hoặc bỏ lọc khoa.'}
+          {selectedDoctorId ? 'Hãy thử chọn ngày khác hoặc bỏ lọc bác sĩ.' : 'Hãy thử chọn ngày khác, bỏ lọc khoa hoặc quay về Gần nhất.'}
         </p>
       </div>
     )}

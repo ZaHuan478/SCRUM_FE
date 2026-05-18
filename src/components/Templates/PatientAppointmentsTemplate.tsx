@@ -6,7 +6,7 @@ import type { PatientAppointmentsState } from '../../hooks/usePatientAppointment
 import type { User } from '../../services/auth.service'
 
 type PatientAppointmentsTemplateProps = PatientAppointmentsState & {
-  user: User
+  user: User | null
 }
 
 const PatientAppointmentsTemplate = ({
@@ -39,6 +39,7 @@ const PatientAppointmentsTemplate = ({
   stats,
   submitAppointment,
   upcomingDays,
+  user,
 }: PatientAppointmentsTemplateProps) => (
   <div className="min-h-screen bg-background text-on-background">
     <TopNavBar active="doctors" />
@@ -51,7 +52,7 @@ const PatientAppointmentsTemplate = ({
         </p>
       </section>
 
-      <PatientAppointmentStatsGrid stats={stats} />
+      {user?.role === 'PATIENT' && <PatientAppointmentStatsGrid stats={stats} />}
 
       <div className="grid grid-cols-1 items-start gap-xl lg:grid-cols-12">
         <PatientAppointmentBookingPanel
@@ -82,17 +83,26 @@ const PatientAppointmentsTemplate = ({
           onClearDoctor={clearSelectedDoctor}
         />
 
-        <PatientAppointmentHistoryPanel
-          actionId={appointmentActionId}
-          appointments={appointments}
-          onCancel={(appointment) => {
-            void cancelMyAppointment(appointment)
-          }}
-          onRefresh={() => {
-            void loadAppointments()
-          }}
-          status={appointmentStatus}
-        />
+        {user?.role === 'PATIENT' ? (
+          <PatientAppointmentHistoryPanel
+            actionId={appointmentActionId}
+            appointments={appointments}
+            onCancel={(appointment) => {
+              void cancelMyAppointment(appointment)
+            }}
+            onRefresh={() => {
+              void loadAppointments()
+            }}
+            status={appointmentStatus}
+          />
+        ) : (
+          <aside className="rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-lg shadow-sm lg:col-span-5">
+            <h2 className="font-headline-sm text-headline-sm text-on-surface">Gửi đặt lịch</h2>
+            <p className="mt-sm font-body-sm text-body-sm text-on-surface-variant">
+              Bạn có thể xem lịch khám trống gần nhất ngay tại đây. Để gửi yêu cầu đặt lịch và theo dõi lịch hẹn, hãy đăng nhập bằng tài khoản bệnh nhân.
+            </p>
+          </aside>
+        )}
       </div>
     </main>
   </div>

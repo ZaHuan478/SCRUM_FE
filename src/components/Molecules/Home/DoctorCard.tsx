@@ -59,17 +59,24 @@ const DoctorCard = ({ doctor }: DoctorCardProps) => {
             {doctor.phone && <p>{doctor.phone}</p>}
           </div>
         )}
-        <div className="mt-md flex items-center justify-between gap-sm border-t border-outline-variant/30 pt-md">
+        <div className="mt-md flex flex-col gap-md border-t border-outline-variant/30 pt-md">
           <span className="font-label-md text-label-md text-on-surface-variant">
             {doctor.experienceYears !== undefined && doctor.experienceYears !== null ? `${doctor.experienceYears} năm kinh nghiệm` : ''}
           </span>
-          <div className="flex items-center gap-sm">
+          <div className="grid grid-cols-1 gap-sm sm:grid-cols-2">
             {doctor.id && (
-              <Link className="font-label-md text-label-md text-on-surface-variant transition-colors hover:text-primary hover:underline" to={`/doctors/${doctor.id}`}>
+              <Link
+                className="inline-flex items-center justify-center rounded-lg border border-outline-variant px-md py-sm font-label-md text-label-md text-on-surface-variant transition-colors hover:border-primary hover:text-primary"
+                to={`/doctors/${doctor.id}`}
+              >
                 Chi tiết
               </Link>
             )}
-            <Link className="font-label-md text-label-md text-primary transition-colors hover:underline" to={bookingPath}>
+            <Link
+              className="inline-flex items-center justify-center gap-xs rounded-lg bg-primary px-md py-sm font-label-md text-label-md text-on-primary shadow-sm transition-all hover:bg-primary-container hover:shadow-lg active:scale-[0.98]"
+              to={bookingPath}
+            >
+              <Icon className="text-lg" name="event_available" />
               Đặt lịch
             </Link>
           </div>

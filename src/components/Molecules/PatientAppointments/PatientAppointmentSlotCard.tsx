@@ -7,6 +7,7 @@ import {
   getSlotDepartmentName,
   getSlotDoctorName,
   getSlotRemaining,
+  longDateFormatter,
 } from '../../../utils/patientAppointments'
 
 type PatientAppointmentSlotCardProps = {
@@ -43,6 +44,10 @@ const PatientAppointmentSlotCard = ({ active, slot, onSelect }: PatientAppointme
       </div>
 
       <div className="flex flex-wrap items-center gap-sm">
+        <span className="inline-flex items-center gap-xs rounded-full bg-surface-container px-md py-xs font-body-sm text-body-sm text-on-surface">
+          <Icon className="text-lg text-primary" name="calendar_today" />
+          {longDateFormatter.format(new Date(slot.start_time))}
+        </span>
         <span className="inline-flex items-center gap-xs rounded-full bg-surface-container px-md py-xs font-body-sm text-body-sm text-on-surface">
           <Icon className="text-lg text-primary" name="schedule" />
           {formatSlotRange(slot)}
