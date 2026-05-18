@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import Button from '../Atoms/Button'
-import Icon from '../Atoms/Icon'
-import Input from '../Atoms/Input'
+import Button from '../../Atoms/Button'
+import Icon from '../../Atoms/Icon'
+import Input from '../../Atoms/Input'
 
 type SearchPanelProps = {
   onSearch?: (query: string) => void

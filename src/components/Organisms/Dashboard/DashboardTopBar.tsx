@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import AccountMenu from '../../Molecules/AccountMenu'
+import AccountMenu from '../../Molecules/Common/AccountMenu'
 import Button from '../../Atoms/Button'
 import Input from '../../Atoms/Input'
 import Logo from '../../Atoms/Logo'
@@ -41,9 +41,11 @@ const DashboardTopBar = ({ searchQuery, onSearchQueryChange, onLogout }: Dashboa
             value={searchQuery}
             wrapperClassName="hidden w-64 sm:block"
           />
-          <Link className="hidden rounded-lg bg-primary px-lg py-sm font-label-md text-label-md text-on-primary shadow-sm transition-all hover:bg-primary-container sm:inline-flex" to="/admin/doctors">
-            Đặt lịch hẹn
-          </Link>
+          {user?.role === 'PATIENT' && (
+            <Link className="hidden rounded-lg bg-primary px-lg py-sm font-label-md text-label-md text-on-primary shadow-sm transition-all hover:bg-primary-container sm:inline-flex" to="/appointments">
+              Đặt lịch hẹn
+            </Link>
+          )}
           {user ? (
             <AccountMenu onLogout={onLogout} user={user} />
           ) : (

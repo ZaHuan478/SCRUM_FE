@@ -1,4 +1,4 @@
-import Icon from '../Atoms/Icon'
+import Icon from '../../Atoms/Icon'
 
 export type SuggestedDepartment = {
   title: string

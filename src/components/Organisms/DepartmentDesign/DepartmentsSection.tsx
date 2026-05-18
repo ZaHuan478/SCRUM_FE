@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import DepartmentCard from '../../Molecules/DepartmentCard'
+import DepartmentCard from '../../Molecules/Home/DepartmentCard'
 import { getDepartments } from '../../../services/department.service'
 import type { Department } from '../../../services/department.service'
 

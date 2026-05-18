@@ -3,14 +3,15 @@ import SymptomHeroSection from '../Organisms/SymptomChecker/SymptomHeroSection'
 import SuggestedDepartmentsPanel from '../Organisms/SymptomChecker/SuggestedDepartmentsPanel'
 import SuggestedDoctorsPanel from '../Organisms/SymptomChecker/SuggestedDoctorsPanel'
 import EmergencyCtaSection from '../Organisms/SymptomChecker/EmergencyCtaSection'
-import type { SuggestedDepartment } from '../Molecules/SuggestedDepartmentCard'
-import type { SuggestedDoctor } from '../Molecules/SuggestedDoctorCard'
+import type { SuggestedDepartment } from '../Molecules/SymptomChecker/SuggestedDepartmentCard'
+import type { SuggestedDoctor } from '../Molecules/SymptomChecker/SuggestedDoctorCard'
 
 type SymptomCheckerTemplateProps = {
   query: string
   departments: SuggestedDepartment[]
   doctors: SuggestedDoctor[]
   doctorStatus: 'loading' | 'ready' | 'error'
+  searchSuggestions: string[]
   onQueryChange: (query: string) => void
   onSearch: () => void
   onSuggestionSelect: (suggestion: string) => void
@@ -21,6 +22,7 @@ const SymptomCheckerTemplate = ({
   departments,
   doctors,
   doctorStatus,
+  searchSuggestions,
   onQueryChange,
   onSearch,
   onSuggestionSelect,
@@ -34,6 +36,7 @@ const SymptomCheckerTemplate = ({
           onSearch={onSearch}
           onSuggestionSelect={onSuggestionSelect}
           query={query}
+          searchSuggestions={searchSuggestions}
         />
         <section className="mx-auto grid max-w-7xl grid-cols-1 gap-xxl px-lg py-xxl md:px-xxl lg:grid-cols-12" id="symptom-results">
           <SuggestedDepartmentsPanel departments={departments} />

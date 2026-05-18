@@ -1,5 +1,5 @@
 import Logo from '../../Atoms/Logo'
-import DashboardNavItem from '../../Molecules/DashboardNavItem'
+import DashboardNavItem from '../../Molecules/Common/DashboardNavItem'
 
 const primaryNavItems = [
   { icon: 'dashboard', label: 'Tổng quan', to: '/admin', end: true },

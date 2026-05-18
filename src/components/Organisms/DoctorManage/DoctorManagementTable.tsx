@@ -1,7 +1,7 @@
 import Input from '../../Atoms/Input'
 import Icon from '../../Atoms/Icon'
-import DoctorManagementRow from '../../Molecules/DoctorManagementRow'
-import type { DoctorManagementRowData } from '../../Molecules/DoctorManagementRow'
+import DoctorManagementRow from '../../Molecules/Management/DoctorManagementRow'
+import type { DoctorManagementRowData } from '../../Molecules/Management/DoctorManagementRow'
 
 type DoctorManagementTableProps = {
   doctors: DoctorManagementRowData[]

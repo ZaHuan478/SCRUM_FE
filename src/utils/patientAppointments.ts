@@ -1,5 +1,6 @@
 import type { Appointment, AppointmentStatus } from '../services/appointment.service'
 import type { AppointmentSlot } from '../services/appointmentSlot.service'
+import type { Symptom } from '../services/symptom.service'
 
 export type LoadStatus = 'loading' | 'ready' | 'error'
 
@@ -124,6 +125,26 @@ export const sortAppointmentsByTime = (appointments: Appointment[]) => (
     return new Date(secondTime).getTime() - new Date(firstTime).getTime()
   })
 )
+
+const normalizeVietnameseText = (value: string) => (
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+)
+
+export const findMatchingSymptoms = (query: string, symptoms: Symptom[]) => {
+  const normalizedQuery = normalizeVietnameseText(query)
+  if (normalizedQuery.trim().length < 2) return []
+
+  return symptoms.filter((symptom) => {
+    const symptomName = normalizeVietnameseText(symptom.name)
+
+    return normalizedQuery.includes(symptomName) || symptomName.includes(normalizedQuery)
+  })
+}
 
 export const buildAppointmentStats = (appointments: Appointment[]): PatientAppointmentStat[] => {
   const upcoming = appointments.filter((appointment) => (

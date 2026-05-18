@@ -3,8 +3,8 @@ import {
   emptySummary,
   getDateKey,
   weekdayFormatter,
-} from '../../utils/doctorSchedule'
-import type { DaySummary } from '../../utils/doctorSchedule'
+} from '../../../utils/doctorSchedule'
+import type { DaySummary } from '../../../utils/doctorSchedule'
 
 type DoctorScheduleDayButtonProps = {
   active: boolean

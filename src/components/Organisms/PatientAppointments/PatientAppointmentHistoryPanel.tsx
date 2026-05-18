@@ -1,6 +1,6 @@
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
-import PatientAppointmentCard from '../../Molecules/PatientAppointmentCard'
+import PatientAppointmentCard from '../../Molecules/PatientAppointments/PatientAppointmentCard'
 import type { Appointment } from '../../../services/appointment.service'
 import type { LoadStatus } from '../../../utils/patientAppointments'
 

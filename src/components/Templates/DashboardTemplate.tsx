@@ -8,9 +8,9 @@ import DoctorManagementTable from '../Organisms/DoctorManage/DoctorManagementTab
 import PatientManagementTable from '../Organisms/PatientManage/PatientManagementTable'
 import UserManagementTable from '../Organisms/UserManage/UserManagementTable'
 import type { AnalyticsPoint } from '../Organisms/Dashboard/AppointmentAnalyticsSection'
-import type { DashboardStat } from '../Molecules/DashboardStatCard'
-import type { DoctorManagementRowData } from '../Molecules/DoctorManagementRow'
-import type { PatientManagementRowData } from '../Molecules/PatientManagementRow'
+import type { DashboardStat } from '../Molecules/Dashboard/DashboardStatCard'
+import type { DoctorManagementRowData } from '../Molecules/Management/DoctorManagementRow'
+import type { PatientManagementRowData } from '../Molecules/Management/PatientManagementRow'
 import type { User } from '../../services/auth.service'
 import type { Department } from '../../services/department.service'
 

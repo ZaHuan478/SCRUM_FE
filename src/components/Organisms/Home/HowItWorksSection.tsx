@@ -1,4 +1,4 @@
-import StepItem from '../../Molecules/StepItem'
+import StepItem from '../../Molecules/Home/StepItem'
 
 type StepData = {
   title: string

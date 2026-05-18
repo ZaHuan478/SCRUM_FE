@@ -1,13 +1,13 @@
-import Button from '../Atoms/Button'
-import Icon from '../Atoms/Icon'
-import Image from '../Atoms/Image'
-import type { AppointmentSlot } from '../../services/appointmentSlot.service'
+import Button from '../../Atoms/Button'
+import Icon from '../../Atoms/Icon'
+import Image from '../../Atoms/Image'
+import type { AppointmentSlot } from '../../../services/appointmentSlot.service'
 import {
   formatSlotRange,
   getSlotDepartmentName,
   getSlotDoctorName,
   getSlotRemaining,
-} from '../../utils/patientAppointments'
+} from '../../../utils/patientAppointments'
 
 type PatientAppointmentSlotCardProps = {
   active: boolean

@@ -19,7 +19,10 @@ const PatientAppointmentsTemplate = ({
   departmentStatus,
   departments,
   loadAppointments,
+  matchedSymptoms,
   reason,
+  recommendedDepartments,
+  recommendationStatus,
   selectedDate,
   selectedDepartmentId,
   selectedSlot,
@@ -60,7 +63,10 @@ const PatientAppointmentsTemplate = ({
           onSubmit={() => {
             void submitAppointment()
           }}
+          matchedSymptoms={matchedSymptoms}
           reason={reason}
+          recommendedDepartments={recommendedDepartments}
+          recommendationStatus={recommendationStatus}
           selectedDate={selectedDate}
           selectedDepartmentId={selectedDepartmentId}
           selectedSlot={selectedSlot}

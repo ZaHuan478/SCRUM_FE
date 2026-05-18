@@ -1,7 +1,7 @@
 import Icon from '../../Atoms/Icon'
 import Button from '../../Atoms/Button'
-import SuggestedDoctorCard from '../../Molecules/SuggestedDoctorCard'
-import type { SuggestedDoctor } from '../../Molecules/SuggestedDoctorCard'
+import SuggestedDoctorCard from '../../Molecules/SymptomChecker/SuggestedDoctorCard'
+import type { SuggestedDoctor } from '../../Molecules/SymptomChecker/SuggestedDoctorCard'
 
 type SuggestedDoctorsPanelProps = {
   doctors: SuggestedDoctor[]

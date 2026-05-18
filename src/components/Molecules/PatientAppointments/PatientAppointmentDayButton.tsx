@@ -1,4 +1,4 @@
-import { getDateKey, shortDateFormatter } from '../../utils/patientAppointments'
+import { getDateKey, shortDateFormatter } from '../../../utils/patientAppointments'
 
 type PatientAppointmentDayButtonProps = {
   active: boolean

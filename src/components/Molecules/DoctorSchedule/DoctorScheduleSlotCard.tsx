@@ -1,7 +1,7 @@
-import Button from '../Atoms/Button'
-import Icon from '../Atoms/Icon'
-import type { AppointmentSlot, AppointmentSlotStatus } from '../../services/appointmentSlot.service'
-import { formatSlotRange, slotStatusMeta } from '../../utils/doctorSchedule'
+import Button from '../../Atoms/Button'
+import Icon from '../../Atoms/Icon'
+import type { AppointmentSlot, AppointmentSlotStatus } from '../../../services/appointmentSlot.service'
+import { formatSlotRange, slotStatusMeta } from '../../../utils/doctorSchedule'
 
 type DoctorScheduleSlotCardProps = {
   isActing: boolean

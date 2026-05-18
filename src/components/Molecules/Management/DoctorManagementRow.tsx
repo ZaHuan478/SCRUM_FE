@@ -1,6 +1,6 @@
-import Button from '../Atoms/Button'
-import Icon from '../Atoms/Icon'
-import Image from '../Atoms/Image'
+import Button from '../../Atoms/Button'
+import Icon from '../../Atoms/Icon'
+import Image from '../../Atoms/Image'
 
 export type DoctorManagementRowData = {
   id: number | string

@@ -1,6 +1,6 @@
 import React from 'react'
-import Button from '../Atoms/Button'
-import Icon from '../Atoms/Icon'
+import Button from '../../Atoms/Button'
+import Icon from '../../Atoms/Icon'
 
 type SocialProvider = {
   label: string

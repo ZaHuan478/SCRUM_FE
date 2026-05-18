@@ -1,5 +1,5 @@
-import DashboardStatCard from '../../Molecules/DashboardStatCard'
-import type { DashboardStat } from '../../Molecules/DashboardStatCard'
+import DashboardStatCard from '../../Molecules/Dashboard/DashboardStatCard'
+import type { DashboardStat } from '../../Molecules/Dashboard/DashboardStatCard'
 
 type DashboardStatsGridProps = {
   stats: DashboardStat[]

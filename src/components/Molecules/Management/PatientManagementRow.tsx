@@ -1,5 +1,5 @@
-import Button from '../Atoms/Button'
-import Icon from '../Atoms/Icon'
+import Button from '../../Atoms/Button'
+import Icon from '../../Atoms/Icon'
 
 export type PatientManagementRowData = {
   id: number | string

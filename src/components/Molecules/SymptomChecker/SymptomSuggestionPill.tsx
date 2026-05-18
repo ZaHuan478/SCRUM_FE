@@ -1,4 +1,4 @@
-import Button from '../Atoms/Button'
+import Button from '../../Atoms/Button'
 
 type SymptomSuggestionPillProps = {
   label: string

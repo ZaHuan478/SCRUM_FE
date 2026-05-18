@@ -5,7 +5,7 @@ import Logo from '../../Atoms/Logo'
 import Input from '../../Atoms/Input'
 import Button from '../../Atoms/Button'
 import Checkbox from '../../Atoms/Checkbox'
-import SocialLogin from '../../Molecules/SocialLogin'
+import SocialLogin from '../../Molecules/Auth/SocialLogin'
 import { login, saveAuthSession } from '../../../services/auth.service'
 
 const AuthForm = () => {

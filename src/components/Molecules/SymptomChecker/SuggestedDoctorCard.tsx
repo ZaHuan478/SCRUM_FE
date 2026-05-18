@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
-import Icon from '../Atoms/Icon'
-import Image from '../Atoms/Image'
+import Icon from '../../Atoms/Icon'
+import Image from '../../Atoms/Image'
 
 export type SuggestedDoctor = {
   name?: string

@@ -1,6 +1,6 @@
 import Icon from '../../Atoms/Icon'
-import SuggestedDepartmentCard from '../../Molecules/SuggestedDepartmentCard'
-import type { SuggestedDepartment } from '../../Molecules/SuggestedDepartmentCard'
+import SuggestedDepartmentCard from '../../Molecules/SymptomChecker/SuggestedDepartmentCard'
+import type { SuggestedDepartment } from '../../Molecules/SymptomChecker/SuggestedDepartmentCard'
 
 type SuggestedDepartmentsPanelProps = {
   departments: SuggestedDepartment[]

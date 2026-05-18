@@ -1,4 +1,4 @@
-import DoctorScheduleStatCard from '../../Molecules/DoctorScheduleStatCard'
+import DoctorScheduleStatCard from '../../Molecules/DoctorSchedule/DoctorScheduleStatCard'
 import type { DoctorScheduleStat } from '../../../utils/doctorSchedule'
 
 type DoctorScheduleStatsGridProps = {

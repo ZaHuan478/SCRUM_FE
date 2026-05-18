@@ -1,13 +1,13 @@
-import Button from '../Atoms/Button'
-import Icon from '../Atoms/Icon'
-import type { Appointment } from '../../services/appointment.service'
+import Button from '../../Atoms/Button'
+import Icon from '../../Atoms/Icon'
+import type { Appointment } from '../../../services/appointment.service'
 import {
   appointmentStatusMeta,
   formatAppointmentDate,
   formatAppointmentTime,
   getAppointmentDepartmentName,
   getAppointmentDoctorName,
-} from '../../utils/patientAppointments'
+} from '../../../utils/patientAppointments'
 
 type PatientAppointmentCardProps = {
   appointment: Appointment

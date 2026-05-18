@@ -1,7 +1,7 @@
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import Input from '../../Atoms/Input'
-import DoctorScheduleDayButton from '../../Molecules/DoctorScheduleDayButton'
+import DoctorScheduleDayButton from '../../Molecules/DoctorSchedule/DoctorScheduleDayButton'
 import { getDateKey } from '../../../utils/doctorSchedule'
 import type { DaySummary, LoadStatus } from '../../../utils/doctorSchedule'
 

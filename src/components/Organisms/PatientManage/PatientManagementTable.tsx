@@ -1,6 +1,6 @@
 import Icon from '../../Atoms/Icon'
-import PatientManagementRow from '../../Molecules/PatientManagementRow'
-import type { PatientManagementRowData } from '../../Molecules/PatientManagementRow'
+import PatientManagementRow from '../../Molecules/Management/PatientManagementRow'
+import type { PatientManagementRowData } from '../../Molecules/Management/PatientManagementRow'
 
 type PatientManagementTableProps = {
   patients: PatientManagementRowData[]

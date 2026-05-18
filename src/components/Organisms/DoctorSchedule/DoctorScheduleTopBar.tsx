@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import Logo from '../../Atoms/Logo'
-import AccountMenu from '../../Molecules/AccountMenu'
+import AccountMenu from '../../Molecules/Common/AccountMenu'
 import type { User } from '../../../services/auth.service'
 import type { Doctor } from '../../../services/doctor.service'
 
