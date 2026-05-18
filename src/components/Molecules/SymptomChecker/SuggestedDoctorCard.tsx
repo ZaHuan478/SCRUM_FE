@@ -3,6 +3,7 @@ import Icon from '../../Atoms/Icon'
 import Image from '../../Atoms/Image'
 
 export type SuggestedDoctor = {
+  id?: number | string
   name?: string
   title?: string
   rating?: string
@@ -18,6 +19,12 @@ type SuggestedDoctorCardProps = {
 
 const SuggestedDoctorCard = ({ doctor }: SuggestedDoctorCardProps) => {
   const tags = doctor.tags || []
+  const bookingSearch = new URLSearchParams()
+
+  if (doctor.id) bookingSearch.set('doctor_id', String(doctor.id))
+  if (doctor.name) bookingSearch.set('doctor_name', doctor.name)
+
+  const bookingPath = `/appointments${bookingSearch.toString() ? `?${bookingSearch.toString()}` : ''}`
 
   return (
     <article className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm transition-shadow hover:shadow-md">
@@ -58,7 +65,7 @@ const SuggestedDoctorCard = ({ doctor }: SuggestedDoctorCardProps) => {
         )}
         <Link
           className="inline-flex w-full items-center justify-center rounded-lg bg-primary px-md py-md font-label-md text-label-md text-on-primary shadow-sm transition-all hover:bg-primary-container hover:shadow-lg active:scale-[0.98]"
-          to="/appointments"
+          to={bookingPath}
         >
           Đặt lịch ngay
         </Link>

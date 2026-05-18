@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import type { Appointment } from '../services/appointment.service'
 import { cancelAppointment, createMyAppointment, getMyAppointments } from '../services/appointment.service'
 import type { AppointmentSlot } from '../services/appointmentSlot.service'
@@ -56,6 +57,8 @@ export type PatientAppointmentsState = {
   recommendationStatus: LoadStatus
   selectedDate: string
   selectedDepartmentId: string
+  selectedDoctorId: string
+  selectedDoctorName: string
   selectedSlot: AppointmentSlot | null
   selectedSlotId: number | string | null
   slotStatus: LoadStatus
@@ -67,6 +70,7 @@ export type PatientAppointmentsState = {
   loadSlots: () => Promise<void>
   selectDate: (date: string) => void
   selectDepartment: (departmentId: string) => void
+  clearSelectedDoctor: () => void
   selectSlot: (slot: AppointmentSlot) => void
   setReason: (reason: string) => void
   submitAppointment: () => Promise<void>
@@ -76,6 +80,9 @@ export const usePatientAppointments = ({
   storedUser,
   onAuthFailure,
 }: UsePatientAppointmentsOptions): PatientAppointmentsState => {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const initialDoctorId = searchParams.get('doctor_id') || ''
+  const initialDoctorName = searchParams.get('doctor_name') || ''
   const todayKey = useMemo(() => getDateKey(new Date()), [])
   const upcomingDays = useMemo(() => buildUpcomingDays(), [])
   const [departments, setDepartments] = useState<Department[]>([])
@@ -85,6 +92,8 @@ export const usePatientAppointments = ({
   const [slots, setSlots] = useState<AppointmentSlot[]>([])
   const [selectedDate, setSelectedDate] = useState(todayKey)
   const [selectedDepartmentId, setSelectedDepartmentId] = useState('')
+  const [selectedDoctorId, setSelectedDoctorId] = useState(initialDoctorId)
+  const [selectedDoctorName, setSelectedDoctorName] = useState(initialDoctorName)
   const [selectedSlotId, setSelectedSlotId] = useState<number | string | null>(null)
   const [reason, setReason] = useState('')
   const [departmentStatus, setDepartmentStatus] = useState<LoadStatus>('loading')
@@ -127,7 +136,8 @@ export const usePatientAppointments = ({
     try {
       const result = await getAppointmentSlots({
         date: selectedDate,
-        department_id: selectedDepartmentId || undefined,
+        department_id: selectedDoctorId ? undefined : selectedDepartmentId || undefined,
+        doctor_id: selectedDoctorId || undefined,
         limit: 100,
         status: 'AVAILABLE',
       })
@@ -143,7 +153,7 @@ export const usePatientAppointments = ({
       setSlots([])
       setSlotStatus('error')
     }
-  }, [onAuthFailure, selectedDate, selectedDepartmentId])
+  }, [onAuthFailure, selectedDate, selectedDepartmentId, selectedDoctorId])
 
   const matchedSymptoms = useMemo(() => (
     findMatchingSymptoms(reason, symptoms).slice(0, 8)
@@ -174,6 +184,12 @@ export const usePatientAppointments = ({
   useEffect(() => {
     let active = true
 
+    if (reason.trim().length < 2 || symptoms.length > 0) {
+      return () => {
+        active = false
+      }
+    }
+
     loadActiveSymptoms()
       .then((nextSymptoms) => {
         if (!active) return
@@ -187,7 +203,7 @@ export const usePatientAppointments = ({
     return () => {
       active = false
     }
-  }, [])
+  }, [reason, symptoms.length])
 
   useEffect(() => {
     let active = true
@@ -220,7 +236,7 @@ export const usePatientAppointments = ({
           setRecommendationStatus('ready')
 
           const topDepartmentId = nextRecommendations[0]?.department_id
-          if (!topDepartmentId) return
+          if (!topDepartmentId || selectedDoctorId) return
 
           setSelectedDepartmentId((currentDepartmentId) => {
             if (currentDepartmentId === String(topDepartmentId)) return currentDepartmentId
@@ -242,7 +258,7 @@ export const usePatientAppointments = ({
       active = false
       window.clearTimeout(timeoutId)
     }
-  }, [matchedSymptoms])
+  }, [matchedSymptoms, selectedDoctorId])
 
   useEffect(() => {
     let active = true
@@ -275,7 +291,8 @@ export const usePatientAppointments = ({
 
     getAppointmentSlots({
       date: selectedDate,
-      department_id: selectedDepartmentId || undefined,
+      department_id: selectedDoctorId ? undefined : selectedDepartmentId || undefined,
+      doctor_id: selectedDoctorId || undefined,
       limit: 100,
       status: 'AVAILABLE',
     })
@@ -300,7 +317,7 @@ export const usePatientAppointments = ({
     return () => {
       active = false
     }
-  }, [onAuthFailure, selectedDate, selectedDepartmentId])
+  }, [onAuthFailure, selectedDate, selectedDepartmentId, selectedDoctorId])
 
   const selectedSlot = useMemo(() => (
     slots.find((slot) => String(slot.id) === String(selectedSlotId)) || null
@@ -315,10 +332,31 @@ export const usePatientAppointments = ({
   }, [])
 
   const selectDepartment = useCallback((departmentId: string) => {
+    setSelectedDoctorId('')
+    setSelectedDoctorName('')
+    setSearchParams((currentParams) => {
+      const nextParams = new URLSearchParams(currentParams)
+      nextParams.delete('doctor_id')
+      nextParams.delete('doctor_name')
+      return nextParams
+    }, { replace: true })
     setSelectedDepartmentId(departmentId)
     setSelectedSlotId(null)
     setSlotStatus('loading')
-  }, [])
+  }, [setSearchParams])
+
+  const clearSelectedDoctor = useCallback(() => {
+    setSelectedDoctorId('')
+    setSelectedDoctorName('')
+    setSelectedSlotId(null)
+    setSlotStatus('loading')
+    setSearchParams((currentParams) => {
+      const nextParams = new URLSearchParams(currentParams)
+      nextParams.delete('doctor_id')
+      nextParams.delete('doctor_name')
+      return nextParams
+    }, { replace: true })
+  }, [setSearchParams])
 
   const selectSlot = useCallback((slot: AppointmentSlot) => {
     setSelectedSlotId(slot.id)
@@ -385,12 +423,15 @@ export const usePatientAppointments = ({
     departments,
     loadAppointments,
     loadSlots,
+    clearSelectedDoctor,
     matchedSymptoms,
     reason,
     recommendedDepartments,
     recommendationStatus,
     selectedDate,
     selectedDepartmentId,
+    selectedDoctorId,
+    selectedDoctorName,
     selectedSlot,
     selectedSlotId,
     selectDate,

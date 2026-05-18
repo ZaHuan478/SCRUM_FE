@@ -16,6 +16,7 @@ const PatientAppointmentsTemplate = ({
   bookingError,
   bookingSuccess,
   cancelMyAppointment,
+  clearSelectedDoctor,
   departmentStatus,
   departments,
   loadAppointments,
@@ -25,6 +26,8 @@ const PatientAppointmentsTemplate = ({
   recommendationStatus,
   selectedDate,
   selectedDepartmentId,
+  selectedDoctorId,
+  selectedDoctorName,
   selectedSlot,
   selectedSlotId,
   selectDate,
@@ -69,11 +72,14 @@ const PatientAppointmentsTemplate = ({
           recommendationStatus={recommendationStatus}
           selectedDate={selectedDate}
           selectedDepartmentId={selectedDepartmentId}
+          selectedDoctorId={selectedDoctorId}
+          selectedDoctorName={selectedDoctorName}
           selectedSlot={selectedSlot}
           selectedSlotId={selectedSlotId}
           slotStatus={slotStatus}
           slots={slots}
           upcomingDays={upcomingDays}
+          onClearDoctor={clearSelectedDoctor}
         />
 
         <PatientAppointmentHistoryPanel
