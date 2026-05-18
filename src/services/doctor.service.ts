@@ -8,6 +8,7 @@ export type Doctor = {
   cccd?: string | null
   experience_years?: number | null
   description?: string | null
+  prof_biography?: string | null
   image_url?: string | null
   consultation_fee?: string | number | null
   status: 'ACTIVE' | 'INACTIVE'
@@ -37,6 +38,7 @@ export type UpdateDoctorPayload = {
   cccd?: string | null
   experience_years?: number | string | null
   description?: string | null
+  prof_biography?: string | null
   image_url?: string | null
   consultation_fee?: number | string | null
   status?: 'ACTIVE' | 'INACTIVE'
@@ -56,6 +58,9 @@ export const getDoctors = (query: DoctorQuery = {}) => {
 
 export const getDoctorByUserId = (userId: number | string) =>
   apiRequest<Doctor>(`/doctors/user/${userId}`)
+
+export const getDoctorById = (id: number | string) =>
+  apiRequest<Doctor>(`/doctors/${id}`)
 
 export const updateDoctor = (id: number | string, payload: UpdateDoctorPayload) =>
   apiRequest<Doctor>(`/doctors/${id}`, {

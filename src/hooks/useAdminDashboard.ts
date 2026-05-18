@@ -326,6 +326,7 @@ export const useAdminDashboard = () => {
           ? null
           : payload.consultationFee,
         description: payload.description?.trim() || null,
+        prof_biography: payload.profBiography?.trim() || null,
         status: payload.status,
         image_url: uploadedDoctor?.image_url || payload.imageUrl?.trim() || null,
       })

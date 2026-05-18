@@ -20,6 +20,7 @@ export type DoctorEditFormValues = {
   experienceYears?: string
   consultationFee?: string
   description?: string
+  profBiography?: string
   status: 'ACTIVE' | 'INACTIVE'
   departmentId?: string
   imageUrl?: string
@@ -52,6 +53,7 @@ const DoctorEditModal = ({
   ))
   const [consultationFee, setConsultationFee] = useState(() => doctor?.consultationFee || '')
   const [description, setDescription] = useState(() => doctor?.description || '')
+  const [profBiography, setProfBiography] = useState(() => doctor?.profBiography || '')
   const [status, setStatus] = useState<'ACTIVE' | 'INACTIVE'>(() => doctor?.status || 'ACTIVE')
   const [departmentId, setDepartmentId] = useState(() => (
     doctor?.departmentId ? String(doctor.departmentId) : ''
@@ -116,6 +118,7 @@ const DoctorEditModal = ({
       experienceYears: experienceYears.trim(),
       consultationFee: consultationFee.trim(),
       description: description.trim(),
+      profBiography: profBiography.trim(),
       status,
       departmentId,
       imageUrl: imageUrl.trim(),
@@ -303,6 +306,19 @@ const DoctorEditModal = ({
               onChange={(event) => setDescription(event.target.value)}
               placeholder="Nhập mô tả chuyên môn"
               value={description}
+            />
+          </div>
+
+          <div className="space-y-xs">
+            <label className="font-label-md text-label-md text-on-surface" htmlFor="doctor-prof-biography">
+              Tiểu sử chuyên môn
+            </label>
+            <textarea
+              className="min-h-36 w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
+              id="doctor-prof-biography"
+              onChange={(event) => setProfBiography(event.target.value)}
+              placeholder="Nhập tiểu sử chuyên môn của bác sĩ"
+              value={profBiography}
             />
           </div>
         </div>
