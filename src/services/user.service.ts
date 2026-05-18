@@ -1,6 +1,22 @@
 import { apiRequest } from '../api/client'
 import type { User, UserRole } from './auth.service'
 
+export type UsersResult = {
+  users: User[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    total_pages: number
+  }
+}
+
+type UserQuery = {
+  page?: number
+  limit?: number
+  keyword?: string
+}
+
 export type CreateUserPayload = {
   full_name?: string | null
   email: string
@@ -27,7 +43,17 @@ export type UpdateUserPayload = {
   role?: User['role']
 }
 
-export const getUsers = () => apiRequest<User[]>('/users')
+export const getUsers = (query: UserQuery = {}) => {
+  const params = new URLSearchParams()
+
+  if (query.page) params.set('page', String(query.page))
+  if (query.limit) params.set('limit', String(query.limit))
+  if (query.keyword) params.set('keyword', query.keyword)
+
+  const search = params.toString()
+
+  return apiRequest<UsersResult>(`/users${search ? `?${search}` : ''}`)
+}
 
 export const getCurrentUser = () => apiRequest<User>('/users/me')
 

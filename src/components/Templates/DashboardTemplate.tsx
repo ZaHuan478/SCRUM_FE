@@ -13,6 +13,7 @@ import type { DoctorManagementRowData } from '../Molecules/Management/DoctorMana
 import type { PatientManagementRowData } from '../Molecules/Management/PatientManagementRow'
 import type { User } from '../../services/auth.service'
 import type { Department } from '../../services/department.service'
+import type { DashboardPagination } from '../../utils/adminDashboard'
 
 type DashboardSection = 'overview' | 'departments' | 'doctors' | 'patients' | 'users'
 
@@ -29,12 +30,16 @@ type DashboardTemplateProps = {
   analyticsData: AnalyticsPoint[]
   analyticsStatus: 'loading' | 'ready' | 'error'
   departments: Department[]
+  departmentPagination: DashboardPagination
   departmentStatus: 'loading' | 'ready' | 'error'
   doctors: DoctorManagementRowData[]
+  doctorPagination: DashboardPagination
   doctorStatus: 'loading' | 'ready' | 'error'
   patients: PatientManagementRowData[]
+  patientPagination: DashboardPagination
   patientStatus: 'loading' | 'ready' | 'error'
   users: User[]
+  userPagination: DashboardPagination
   userStatus: 'loading' | 'ready' | 'error'
   departmentSearchQuery: string
   doctorSearchQuery: string
@@ -45,12 +50,17 @@ type DashboardTemplateProps = {
   totalDepartments: number
   totalDoctors: number
   totalPatients: number
+  totalUsers: number
   onCreateDepartment: () => void
   onEditDepartment: (department: Department) => void
   onLogout: () => void
+  onDepartmentPageChange: (page: number) => void
   onDepartmentSearchQueryChange: (query: string) => void
+  onDoctorPageChange: (page: number) => void
   onDoctorSearchQueryChange: (query: string) => void
+  onPatientPageChange: (page: number) => void
   onPatientSearchQueryChange: (query: string) => void
+  onUserPageChange: (page: number) => void
   onUserSearchQueryChange: (query: string) => void
   onEditDoctor: (doctor: DoctorManagementRowData) => void
   onCreateUser: () => void
@@ -65,12 +75,16 @@ const DashboardTemplate = ({
   analyticsData,
   analyticsStatus,
   departments,
+  departmentPagination,
   departmentStatus,
   doctors,
+  doctorPagination,
   doctorStatus,
   patients,
+  patientPagination,
   patientStatus,
   users,
+  userPagination,
   userStatus,
   departmentSearchQuery,
   doctorSearchQuery,
@@ -81,12 +95,17 @@ const DashboardTemplate = ({
   totalDepartments,
   totalDoctors,
   totalPatients,
+  totalUsers,
   onCreateDepartment,
   onEditDepartment,
   onLogout,
+  onDepartmentPageChange,
   onDepartmentSearchQueryChange,
+  onDoctorPageChange,
   onDoctorSearchQueryChange,
+  onPatientPageChange,
   onPatientSearchQueryChange,
+  onUserPageChange,
   onUserSearchQueryChange,
   onEditDoctor,
   onCreateUser,
@@ -119,9 +138,11 @@ const DashboardTemplate = ({
           {activeSection === 'departments' && (
             <DepartmentManagementTable
               departments={departments}
+              onPageChange={onDepartmentPageChange}
               onCreateDepartment={onCreateDepartment}
               onEditDepartment={onEditDepartment}
               onSearchQueryChange={onDepartmentSearchQueryChange}
+              pagination={departmentPagination}
               searchQuery={departmentSearchQuery}
               status={departmentStatus}
               totalDepartments={totalDepartments}
@@ -131,8 +152,10 @@ const DashboardTemplate = ({
             <DoctorManagementTable
               doctors={doctors}
               onEditDoctor={onEditDoctor}
+              onPageChange={onDoctorPageChange}
               onSearchQueryChange={onDoctorSearchQueryChange}
               onViewDoctor={onViewDoctor}
+              pagination={doctorPagination}
               searchQuery={doctorSearchQuery}
               status={doctorStatus}
               totalDoctors={totalDoctors}
@@ -140,8 +163,10 @@ const DashboardTemplate = ({
           )}
           {activeSection === 'patients' && (
             <PatientManagementTable
+              onPageChange={onPatientPageChange}
               onSearchQueryChange={onPatientSearchQueryChange}
               onViewPatient={onViewPatient}
+              pagination={patientPagination}
               patients={patients}
               searchQuery={patientSearchQuery}
               status={patientStatus}
@@ -153,10 +178,13 @@ const DashboardTemplate = ({
               onCreateUser={onCreateUser}
               onDeleteUser={onDeleteUser}
               onEditUser={onEditUser}
+              onPageChange={onUserPageChange}
               onSearchQueryChange={onUserSearchQueryChange}
               onViewUser={onViewUser}
+              pagination={userPagination}
               searchQuery={userSearchQuery}
               status={userStatus}
+              totalUsers={totalUsers}
               users={users}
             />
           )}

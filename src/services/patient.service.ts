@@ -24,6 +24,7 @@ export type PatientsResult = {
 type PatientQuery = {
   page?: number
   limit?: number
+  keyword?: string
 }
 
 export const getPatients = (query: PatientQuery = {}) => {
@@ -31,6 +32,7 @@ export const getPatients = (query: PatientQuery = {}) => {
 
   if (query.page) params.set('page', String(query.page))
   if (query.limit) params.set('limit', String(query.limit))
+  if (query.keyword) params.set('keyword', query.keyword)
 
   const search = params.toString()
 

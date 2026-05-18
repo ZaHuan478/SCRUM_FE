@@ -2,26 +2,36 @@ import Input from '../../Atoms/Input'
 import Icon from '../../Atoms/Icon'
 import DoctorManagementRow from '../../Molecules/Management/DoctorManagementRow'
 import type { DoctorManagementRowData } from '../../Molecules/Management/DoctorManagementRow'
+import type { DashboardPagination } from '../../../utils/adminDashboard'
 
 type DoctorManagementTableProps = {
   doctors: DoctorManagementRowData[]
+  pagination: DashboardPagination
   searchQuery: string
   status: 'loading' | 'ready' | 'error'
   totalDoctors: number
   onViewDoctor: (doctor: DoctorManagementRowData) => void
   onEditDoctor: (doctor: DoctorManagementRowData) => void
+  onPageChange: (page: number) => void
   onSearchQueryChange: (query: string) => void
 }
 
 const DoctorManagementTable = ({
   doctors,
+  pagination,
   searchQuery,
   status,
   totalDoctors,
   onViewDoctor,
   onEditDoctor,
+  onPageChange,
   onSearchQueryChange,
 }: DoctorManagementTableProps) => {
+  const firstItem = totalDoctors === 0 ? 0 : (pagination.page - 1) * pagination.limit + 1
+  const lastItem = Math.min(pagination.page * pagination.limit, totalDoctors)
+  const hasPreviousPage = pagination.page > 1
+  const hasNextPage = pagination.page < pagination.totalPages
+
   return (
     <section className="overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0px_4px_20px_rgba(15,23,42,0.05)]" id="doctor-management">
       <div className="flex flex-col items-start justify-between gap-lg border-b border-outline-variant/20 p-lg md:flex-row md:items-center md:p-xl">
@@ -74,13 +84,26 @@ const DoctorManagementTable = ({
       )}
       <div className="flex flex-col justify-between gap-md border-t border-outline-variant/20 bg-surface-container-low p-lg sm:flex-row sm:items-center">
         <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Đang hiển thị {doctors.length} trên {totalDoctors} bác sĩ
+          Đang hiển thị {firstItem}-{lastItem} trên {totalDoctors} bác sĩ
         </p>
-        <div className="flex gap-sm">
-          <button className="rounded-lg border border-outline-variant px-md py-sm font-label-md text-label-md text-on-surface-variant opacity-50" disabled type="button">
+        <div className="flex items-center gap-sm">
+          <button
+            className="rounded-lg border border-outline-variant px-md py-sm font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={!hasPreviousPage || status === 'loading'}
+            onClick={() => onPageChange(pagination.page - 1)}
+            type="button"
+          >
             Trước
           </button>
-          <button className="rounded-lg border border-outline-variant px-md py-sm font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-high" type="button">
+          <span className="min-w-20 text-center font-label-md text-label-md text-on-surface-variant">
+            Trang {pagination.page}/{Math.max(pagination.totalPages, 1)}
+          </span>
+          <button
+            className="rounded-lg border border-outline-variant px-md py-sm font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={!hasNextPage || status === 'loading'}
+            onClick={() => onPageChange(pagination.page + 1)}
+            type="button"
+          >
             Tiếp theo
           </button>
         </div>

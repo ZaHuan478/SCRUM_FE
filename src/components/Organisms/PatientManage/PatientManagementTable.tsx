@@ -2,11 +2,14 @@ import Icon from '../../Atoms/Icon'
 import Input from '../../Atoms/Input'
 import PatientManagementRow from '../../Molecules/Management/PatientManagementRow'
 import type { PatientManagementRowData } from '../../Molecules/Management/PatientManagementRow'
+import type { DashboardPagination } from '../../../utils/adminDashboard'
 
 type PatientManagementTableProps = {
   patients: PatientManagementRowData[]
+  pagination: DashboardPagination
   status: 'loading' | 'ready' | 'error'
   totalPatients: number
+  onPageChange: (page: number) => void
   onSearchQueryChange: (query: string) => void
   onViewPatient: (patient: PatientManagementRowData) => void
   searchQuery: string
@@ -14,12 +17,19 @@ type PatientManagementTableProps = {
 
 const PatientManagementTable = ({
   patients,
+  pagination,
   status,
   totalPatients,
+  onPageChange,
   onSearchQueryChange,
   onViewPatient,
   searchQuery,
 }: PatientManagementTableProps) => {
+  const firstItem = totalPatients === 0 ? 0 : (pagination.page - 1) * pagination.limit + 1
+  const lastItem = Math.min(pagination.page * pagination.limit, totalPatients)
+  const hasPreviousPage = pagination.page > 1
+  const hasNextPage = pagination.page < pagination.totalPages
+
   return (
     <section className="overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0px_4px_20px_rgba(15,23,42,0.05)]" id="patient-management">
       <div className="flex flex-col items-start justify-between gap-lg border-b border-outline-variant/20 p-lg md:flex-row md:items-center md:p-xl">
@@ -71,10 +81,31 @@ const PatientManagementTable = ({
           </table>
         </div>
       )}
-      <div className="border-t border-outline-variant/20 bg-surface-container-low p-lg">
+      <div className="flex flex-col justify-between gap-md border-t border-outline-variant/20 bg-surface-container-low p-lg sm:flex-row sm:items-center">
         <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Đang hiển thị {patients.length} trên {totalPatients} bệnh nhân
+          Đang hiển thị {firstItem}-{lastItem} trên {totalPatients} bệnh nhân
         </p>
+        <div className="flex items-center gap-sm">
+          <button
+            className="rounded-lg border border-outline-variant px-md py-sm font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={!hasPreviousPage || status === 'loading'}
+            onClick={() => onPageChange(pagination.page - 1)}
+            type="button"
+          >
+            Trước
+          </button>
+          <span className="min-w-20 text-center font-label-md text-label-md text-on-surface-variant">
+            Trang {pagination.page}/{Math.max(pagination.totalPages, 1)}
+          </span>
+          <button
+            className="rounded-lg border border-outline-variant px-md py-sm font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={!hasNextPage || status === 'loading'}
+            onClick={() => onPageChange(pagination.page + 1)}
+            type="button"
+          >
+            Tiếp theo
+          </button>
+        </div>
       </div>
     </section>
   )
