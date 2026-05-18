@@ -1,17 +1,14 @@
 import { Link } from 'react-router-dom'
 import AccountMenu from '../../Molecules/Common/AccountMenu'
 import Button from '../../Atoms/Button'
-import Input from '../../Atoms/Input'
 import Logo from '../../Atoms/Logo'
 import { getStoredUser } from '../../../services/auth.service'
 
 type DashboardTopBarProps = {
-  searchQuery: string
-  onSearchQueryChange: (query: string) => void
   onLogout: () => void
 }
 
-const DashboardTopBar = ({ searchQuery, onSearchQueryChange, onLogout }: DashboardTopBarProps) => {
+const DashboardTopBar = ({ onLogout }: DashboardTopBarProps) => {
   const user = getStoredUser()
 
   return (
@@ -31,16 +28,6 @@ const DashboardTopBar = ({ searchQuery, onSearchQueryChange, onLogout }: Dashboa
           </nav>
         </div>
         <div className="flex items-center gap-md">
-          <Input
-            aria-label="Tìm kiếm bác sĩ"
-            className="rounded-full border-none bg-surface-container py-xs text-body-sm focus:ring-2"
-            icon="search"
-            onChange={(event) => onSearchQueryChange(event.target.value)}
-            placeholder="Tìm kiếm..."
-            type="search"
-            value={searchQuery}
-            wrapperClassName="hidden w-64 sm:block"
-          />
           {user?.role === 'PATIENT' && (
             <Link className="hidden rounded-lg bg-primary px-lg py-sm font-label-md text-label-md text-on-primary shadow-sm transition-all hover:bg-primary-container sm:inline-flex" to="/appointments">
               Đặt lịch hẹn
