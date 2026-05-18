@@ -81,6 +81,8 @@ const SymptomCheckerPage = () => {
   const [query, setQuery] = useState('')
   const [allDepartments, setAllDepartments] = useState<Department[]>([])
   const [symptoms, setSymptoms] = useState<Symptom[]>([])
+  const [analyzed, setAnalyzed] = useState(false)
+  const [analyzedSymptoms, setAnalyzedSymptoms] = useState<Symptom[]>([])
   const [departments, setDepartments] = useState<SuggestedDepartment[]>([])
   const [doctors, setDoctors] = useState<SuggestedDoctor[]>([])
   const [doctorStatus, setDoctorStatus] = useState<'loading' | 'ready' | 'error'>('loading')
@@ -128,12 +130,14 @@ const SymptomCheckerPage = () => {
 
   const handleSearch = async (nextQuery = query) => {
     const matchedSymptoms = findMatchingSymptoms(nextQuery, symptoms).slice(0, 8)
+    setAnalyzed(true)
+    setAnalyzedSymptoms(matchedSymptoms)
 
     if (matchedSymptoms.length === 0) {
       setDepartments([])
       setDoctors([])
       setDoctorStatus('ready')
-      document.getElementById('symptom-results')?.scrollIntoView({ behavior: 'smooth' })
+      document.getElementById('symptom-analysis')?.scrollIntoView({ behavior: 'smooth' })
       return
     }
 
@@ -167,7 +171,7 @@ const SymptomCheckerPage = () => {
       setDoctorStatus('error')
     }
 
-    document.getElementById('symptom-results')?.scrollIntoView({ behavior: 'smooth' })
+    document.getElementById('symptom-analysis')?.scrollIntoView({ behavior: 'smooth' })
   }
 
   const handleSuggestionSelect = (suggestion: string) => {
@@ -179,6 +183,8 @@ const SymptomCheckerPage = () => {
 
   return (
     <SymptomCheckerTemplate
+      analyzed={analyzed}
+      analyzedSymptoms={analyzedSymptoms}
       departments={departments}
       doctorStatus={doctorStatus}
       doctors={doctors}
