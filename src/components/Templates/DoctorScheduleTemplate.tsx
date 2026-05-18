@@ -1,5 +1,6 @@
 import DoctorScheduleDayPicker from '../Organisms/DoctorSchedule/DoctorScheduleDayPicker'
 import DoctorScheduleForm from '../Organisms/DoctorSchedule/DoctorScheduleForm'
+import DoctorAppointmentRequestsPanel from '../Organisms/DoctorSchedule/DoctorAppointmentRequestsPanel'
 import DoctorScheduleSlotList from '../Organisms/DoctorSchedule/DoctorScheduleSlotList'
 import DoctorScheduleStatsGrid from '../Organisms/DoctorSchedule/DoctorScheduleStatsGrid'
 import DoctorScheduleTopBar from '../Organisms/DoctorSchedule/DoctorScheduleTopBar'
@@ -14,6 +15,7 @@ type DoctorScheduleTemplateProps = DoctorScheduleState & {
 
 const DoctorScheduleTemplate = ({
   activeAssignment,
+  appointmentActionId,
   dayAction,
   daySummaryMap,
   doctor,
@@ -25,6 +27,8 @@ const DoctorScheduleTemplate = ({
   handleEditSlot,
   handleMarkDayBusy,
   handleMarkDayFree,
+  handleConfirmAppointment,
+  handleCompleteAppointment,
   handleSlotStatusChange,
   handleSlotSubmit,
   isSaving,
@@ -33,6 +37,7 @@ const DoctorScheduleTemplate = ({
   scheduleStats,
   selectedDate,
   selectedDateLabel,
+  selectedDayAppointments,
   selectedDaySlots,
   selectedSummary,
   slotActionId,
@@ -82,6 +87,18 @@ const DoctorScheduleTemplate = ({
           status={status}
           todayKey={todayKey}
           upcomingDays={upcomingDays}
+        />
+
+        <DoctorAppointmentRequestsPanel
+          actionId={appointmentActionId}
+          appointments={selectedDayAppointments}
+          onComplete={(appointment) => {
+            void handleCompleteAppointment(appointment)
+          }}
+          onConfirm={(appointment) => {
+            void handleConfirmAppointment(appointment)
+          }}
+          selectedDateLabel={selectedDateLabel}
         />
 
         <div className="grid grid-cols-1 items-start gap-xl lg:grid-cols-5">

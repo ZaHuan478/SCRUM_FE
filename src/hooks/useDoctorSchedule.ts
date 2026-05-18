@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
+import type { Appointment } from '../services/appointment.service'
+import { completeAppointment, confirmAppointment, getAppointments } from '../services/appointment.service'
 import {
   changeAppointmentSlotStatus,
   createAppointmentSlot,
@@ -42,12 +44,15 @@ type UseDoctorScheduleOptions = {
 
 type DoctorScheduleData = {
   activeAssignment: DoctorAssignment | null
+  appointments: Appointment[]
   doctor: Doctor
   slots: AppointmentSlot[]
 }
 
 export type DoctorScheduleState = {
   activeAssignment: DoctorAssignment | null
+  appointmentActionId: number | string | null
+  appointments: Appointment[]
   dayAction: DayAction
   daySummaryMap: Map<string, DaySummary>
   doctor: Doctor | null
@@ -60,6 +65,7 @@ export type DoctorScheduleState = {
   selectedDate: string
   selectedDateLabel: string
   selectedDaySlots: AppointmentSlot[]
+  selectedDayAppointments: Appointment[]
   selectedSummary: DaySummary
   slotActionId: number | string | null
   status: LoadStatus
@@ -71,6 +77,8 @@ export type DoctorScheduleState = {
   handleEditSlot: (slot: AppointmentSlot) => void
   handleMarkDayBusy: () => Promise<void>
   handleMarkDayFree: () => Promise<void>
+  handleConfirmAppointment: (appointment: Appointment) => Promise<void>
+  handleCompleteAppointment: (appointment: Appointment) => Promise<void>
   handleSlotStatusChange: (slot: AppointmentSlot, nextStatus: AppointmentSlotStatus) => Promise<void>
   handleSlotSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>
   resetForm: () => void
@@ -82,6 +90,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
   const upcomingDays = useMemo(() => buildUpcomingDays(), [])
   const [doctor, setDoctor] = useState<Doctor | null>(null)
   const [activeAssignment, setActiveAssignment] = useState<DoctorAssignment | null>(null)
+  const [appointments, setAppointments] = useState<Appointment[]>([])
   const [slots, setSlots] = useState<AppointmentSlot[]>([])
   const [selectedDate, setSelectedDate] = useState(todayKey)
   const [form, setForm] = useState<SlotFormState>(() => buildEmptySlotForm(todayKey))
@@ -91,6 +100,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
   const [success, setSuccess] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [slotActionId, setSlotActionId] = useState<number | string | null>(null)
+  const [appointmentActionId, setAppointmentActionId] = useState<number | string | null>(null)
   const [dayAction, setDayAction] = useState<DayAction>(null)
 
   const handleRequestError = useCallback((requestError: unknown, fallback: string) => {
@@ -110,12 +120,16 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
       status: 'ACTIVE',
     })
     const assignment = assignmentsResult.doctor_assignments[0] || null
-    const slotsResult = assignment
-      ? await getAppointmentSlots({ doctor_id: doctorProfile.id, limit: 100 })
-      : null
+    const [slotsResult, appointmentsResult] = assignment
+      ? await Promise.all([
+        getAppointmentSlots({ doctor_id: doctorProfile.id, limit: 100 }),
+        getAppointments({ doctor_id: doctorProfile.id, limit: 100 }),
+      ])
+      : [null, null]
 
     return {
       activeAssignment: assignment,
+      appointments: appointmentsResult?.appointments || [],
       doctor: doctorProfile,
       slots: sortSlots(slotsResult?.appointment_slots || []),
     }
@@ -124,6 +138,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
   const applyScheduleData = useCallback((scheduleData: DoctorScheduleData) => {
     setDoctor(scheduleData.doctor)
     setActiveAssignment(scheduleData.activeAssignment)
+    setAppointments(scheduleData.appointments)
     setSlots(scheduleData.slots)
     setStatus('ready')
   }, [])
@@ -177,6 +192,12 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
   const selectedDaySlots = useMemo(() => (
     sortSlots(slots.filter((slot) => getDateKey(slot.start_time) === selectedDate))
   ), [selectedDate, slots])
+
+  const selectedDayAppointments = useMemo(() => (
+    appointments.filter((appointment) => (
+      appointment.slot?.start_time && getDateKey(appointment.slot.start_time) === selectedDate
+    ))
+  ), [appointments, selectedDate])
 
   const selectedSummary = useMemo(() => summarizeSlots(selectedDaySlots), [selectedDaySlots])
 
@@ -386,8 +407,46 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
     }
   }, [handleRequestError, loadSchedule, selectedDaySlots])
 
+  const handleConfirmAppointment = useCallback(async (appointment: Appointment) => {
+    if (appointment.status !== 'PENDING') return
+
+    setError('')
+    setSuccess('')
+    setAppointmentActionId(appointment.id)
+
+    try {
+      await confirmAppointment(appointment.id)
+      setSuccess('Lịch khám đã được xác nhận.')
+      await loadSchedule()
+    } catch (requestError) {
+      handleRequestError(requestError, 'Không thể xác nhận lịch khám.')
+    } finally {
+      setAppointmentActionId(null)
+    }
+  }, [handleRequestError, loadSchedule])
+
+  const handleCompleteAppointment = useCallback(async (appointment: Appointment) => {
+    if (appointment.status !== 'CONFIRMED') return
+
+    setError('')
+    setSuccess('')
+    setAppointmentActionId(appointment.id)
+
+    try {
+      await completeAppointment(appointment.id)
+      setSuccess('Lịch khám đã được hoàn tất.')
+      await loadSchedule()
+    } catch (requestError) {
+      handleRequestError(requestError, 'Không thể hoàn tất lịch khám.')
+    } finally {
+      setAppointmentActionId(null)
+    }
+  }, [handleRequestError, loadSchedule])
+
   return {
     activeAssignment,
+    appointmentActionId,
+    appointments,
     dayAction,
     daySummaryMap,
     doctor,
@@ -399,6 +458,8 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
     handleEditSlot,
     handleMarkDayBusy,
     handleMarkDayFree,
+    handleConfirmAppointment,
+    handleCompleteAppointment,
     handleSlotStatusChange,
     handleSlotSubmit,
     isSaving,
@@ -406,6 +467,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
     resetForm,
     scheduleStats,
     selectedDate,
+    selectedDayAppointments,
     selectedDateLabel,
     selectedDaySlots,
     selectedSummary,
