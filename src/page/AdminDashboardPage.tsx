@@ -21,8 +21,10 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
     closeUserModal,
     dashboard,
     departmentEditError,
+    departmentSearchQuery,
     doctorEditError,
     doctorFields,
+    doctorSearchQuery,
     editingDepartment,
     editingDoctor,
     editingUser,
@@ -41,17 +43,24 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
     isSavingUser,
     isUserModalOpen,
     patientFields,
-    searchQuery,
+    patientSearchQuery,
     selectedDoctor,
     selectedPatient,
     selectedUser,
-    setSearchQuery,
+    setDepartmentSearchQuery,
+    setDoctorSearchQuery,
+    setPatientSearchQuery,
     setSelectedDoctor,
     setSelectedPatient,
     setSelectedUser,
+    setUserSearchQuery,
+    userSearchQuery,
     userEditError,
     userFields,
+    visibleDepartments,
     visibleDoctors,
+    visiblePatients,
+    visibleUsers,
   } = adminDashboard
 
   return (
@@ -59,8 +68,10 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
       <DashboardTemplate
         analyticsData={dashboard.analyticsData}
         analyticsStatus={dashboard.analyticsStatus}
-        departments={dashboard.departments}
+        departments={visibleDepartments}
+        departmentSearchQuery={departmentSearchQuery}
         departmentStatus={dashboard.departmentStatus}
+        doctorSearchQuery={doctorSearchQuery}
         doctors={visibleDoctors}
         doctorStatus={dashboard.doctorStatus}
         onCreateDepartment={handleCreateDepartment}
@@ -70,20 +81,24 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         onEditDoctor={handleEditDoctor}
         onEditUser={handleEditUser}
         onLogout={onLogout}
-        onSearchQueryChange={setSearchQuery}
+        onDepartmentSearchQueryChange={setDepartmentSearchQuery}
+        onDoctorSearchQueryChange={setDoctorSearchQuery}
+        onPatientSearchQueryChange={setPatientSearchQuery}
+        onUserSearchQueryChange={setUserSearchQuery}
         onViewDoctor={setSelectedDoctor}
         onViewPatient={setSelectedPatient}
         onViewUser={setSelectedUser}
         patientStatus={dashboard.patientStatus}
-        patients={dashboard.patients}
-        searchQuery={searchQuery}
+        patientSearchQuery={patientSearchQuery}
+        patients={visiblePatients}
         stats={dashboard.stats}
         statsStatus={dashboard.statsStatus}
         totalDepartments={dashboard.totalDepartments}
         totalDoctors={dashboard.totalDoctors}
         totalPatients={dashboard.totalPatients}
         userStatus={dashboard.userStatus}
-        users={dashboard.users}
+        userSearchQuery={userSearchQuery}
+        users={visibleUsers}
       />
       <AdminInfoModal
         fields={userFields}

@@ -1,4 +1,5 @@
 import Icon from '../../Atoms/Icon'
+import Input from '../../Atoms/Input'
 import PatientManagementRow from '../../Molecules/Management/PatientManagementRow'
 import type { PatientManagementRowData } from '../../Molecules/Management/PatientManagementRow'
 
@@ -6,23 +7,39 @@ type PatientManagementTableProps = {
   patients: PatientManagementRowData[]
   status: 'loading' | 'ready' | 'error'
   totalPatients: number
+  onSearchQueryChange: (query: string) => void
   onViewPatient: (patient: PatientManagementRowData) => void
+  searchQuery: string
 }
 
 const PatientManagementTable = ({
   patients,
   status,
   totalPatients,
+  onSearchQueryChange,
   onViewPatient,
+  searchQuery,
 }: PatientManagementTableProps) => {
   return (
     <section className="overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0px_4px_20px_rgba(15,23,42,0.05)]" id="patient-management">
-      <div className="flex items-center justify-between gap-lg border-b border-outline-variant/20 p-lg md:p-xl">
+      <div className="flex flex-col items-start justify-between gap-lg border-b border-outline-variant/20 p-lg md:flex-row md:items-center md:p-xl">
         <div>
           <h2 className="font-headline-sm text-headline-sm text-on-surface">Quản lý bệnh nhân</h2>
           <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">Danh sách hồ sơ bệnh nhân từ hệ thống.</p>
         </div>
-        <Icon name="personal_injury" className="text-primary" />
+        <div className="flex w-full items-center gap-md md:w-auto">
+          <Input
+            aria-label="Tìm kiếm bệnh nhân"
+            className="py-sm text-body-sm"
+            icon="search"
+            onChange={(event) => onSearchQueryChange(event.target.value)}
+            placeholder="Tìm kiếm bệnh nhân..."
+            type="search"
+            value={searchQuery}
+            wrapperClassName="flex-grow md:w-64"
+          />
+          <Icon className="hidden text-primary sm:block" name="personal_injury" />
+        </div>
       </div>
 
       {status === 'loading' && <div className="p-xl font-body-sm text-body-sm text-on-surface-variant">Đang tải danh sách bệnh nhân...</div>}

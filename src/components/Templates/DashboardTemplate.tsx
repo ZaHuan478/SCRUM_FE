@@ -36,7 +36,10 @@ type DashboardTemplateProps = {
   patientStatus: 'loading' | 'ready' | 'error'
   users: User[]
   userStatus: 'loading' | 'ready' | 'error'
-  searchQuery: string
+  departmentSearchQuery: string
+  doctorSearchQuery: string
+  patientSearchQuery: string
+  userSearchQuery: string
   stats: DashboardStat[]
   statsStatus: 'loading' | 'ready' | 'error'
   totalDepartments: number
@@ -45,7 +48,10 @@ type DashboardTemplateProps = {
   onCreateDepartment: () => void
   onEditDepartment: (department: Department) => void
   onLogout: () => void
-  onSearchQueryChange: (query: string) => void
+  onDepartmentSearchQueryChange: (query: string) => void
+  onDoctorSearchQueryChange: (query: string) => void
+  onPatientSearchQueryChange: (query: string) => void
+  onUserSearchQueryChange: (query: string) => void
   onEditDoctor: (doctor: DoctorManagementRowData) => void
   onCreateUser: () => void
   onDeleteUser: (user: User) => void
@@ -66,7 +72,10 @@ const DashboardTemplate = ({
   patientStatus,
   users,
   userStatus,
-  searchQuery,
+  departmentSearchQuery,
+  doctorSearchQuery,
+  patientSearchQuery,
+  userSearchQuery,
   stats,
   statsStatus,
   totalDepartments,
@@ -75,7 +84,10 @@ const DashboardTemplate = ({
   onCreateDepartment,
   onEditDepartment,
   onLogout,
-  onSearchQueryChange,
+  onDepartmentSearchQueryChange,
+  onDoctorSearchQueryChange,
+  onPatientSearchQueryChange,
+  onUserSearchQueryChange,
   onEditDoctor,
   onCreateUser,
   onDeleteUser,
@@ -91,7 +103,7 @@ const DashboardTemplate = ({
     <div className="flex min-h-screen bg-background text-on-background">
       <DashboardSideNav onLogout={onLogout} />
       <div className="flex min-w-0 flex-grow flex-col">
-        <DashboardTopBar onLogout={onLogout} onSearchQueryChange={onSearchQueryChange} searchQuery={searchQuery} />
+        <DashboardTopBar onLogout={onLogout} />
         <main className="mx-auto flex w-full max-w-7xl flex-grow flex-col gap-xxl px-lg py-lg md:px-xxl md:py-xxl">
           {activeSection === 'overview' && (
             <>
@@ -109,6 +121,8 @@ const DashboardTemplate = ({
               departments={departments}
               onCreateDepartment={onCreateDepartment}
               onEditDepartment={onEditDepartment}
+              onSearchQueryChange={onDepartmentSearchQueryChange}
+              searchQuery={departmentSearchQuery}
               status={departmentStatus}
               totalDepartments={totalDepartments}
             />
@@ -117,17 +131,19 @@ const DashboardTemplate = ({
             <DoctorManagementTable
               doctors={doctors}
               onEditDoctor={onEditDoctor}
-              onSearchQueryChange={onSearchQueryChange}
+              onSearchQueryChange={onDoctorSearchQueryChange}
               onViewDoctor={onViewDoctor}
-              searchQuery={searchQuery}
+              searchQuery={doctorSearchQuery}
               status={doctorStatus}
               totalDoctors={totalDoctors}
             />
           )}
           {activeSection === 'patients' && (
             <PatientManagementTable
+              onSearchQueryChange={onPatientSearchQueryChange}
               onViewPatient={onViewPatient}
               patients={patients}
+              searchQuery={patientSearchQuery}
               status={patientStatus}
               totalPatients={totalPatients}
             />
@@ -137,7 +153,9 @@ const DashboardTemplate = ({
               onCreateUser={onCreateUser}
               onDeleteUser={onDeleteUser}
               onEditUser={onEditUser}
+              onSearchQueryChange={onUserSearchQueryChange}
               onViewUser={onViewUser}
+              searchQuery={userSearchQuery}
               status={userStatus}
               users={users}
             />

@@ -1,5 +1,6 @@
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
+import Input from '../../Atoms/Input'
 import type { Department } from '../../../services/department.service'
 
 type LoadStatus = 'loading' | 'ready' | 'error'
@@ -10,6 +11,8 @@ type DepartmentManagementTableProps = {
   totalDepartments: number
   onCreateDepartment: () => void
   onEditDepartment: (department: Department) => void
+  onSearchQueryChange: (query: string) => void
+  searchQuery: string
 }
 
 const statusConfig = {
@@ -31,6 +34,8 @@ const DepartmentManagementTable = ({
   totalDepartments,
   onCreateDepartment,
   onEditDepartment,
+  onSearchQueryChange,
+  searchQuery,
 }: DepartmentManagementTableProps) => {
   return (
     <section className="overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0px_4px_20px_rgba(15,23,42,0.05)]" id="department-management">
@@ -39,15 +44,27 @@ const DepartmentManagementTable = ({
           <h2 className="font-headline-sm text-headline-sm text-on-surface">Quản lý khoa</h2>
           <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">Thêm khoa mới và cập nhật trạng thái chuyên khoa.</p>
         </div>
-        <Button
-          className="flex items-center gap-xs px-lg py-sm"
-          fullWidth={false}
-          onClick={onCreateDepartment}
-          type="button"
-        >
-          <Icon name="add" />
-          Thêm khoa
-        </Button>
+        <div className="flex w-full flex-col gap-md sm:flex-row md:w-auto md:items-center">
+          <Input
+            aria-label="Tìm kiếm khoa"
+            className="py-sm text-body-sm"
+            icon="search"
+            onChange={(event) => onSearchQueryChange(event.target.value)}
+            placeholder="Tìm kiếm khoa..."
+            type="search"
+            value={searchQuery}
+            wrapperClassName="w-full sm:w-64"
+          />
+          <Button
+            className="flex items-center gap-xs px-lg py-sm"
+            fullWidth={false}
+            onClick={onCreateDepartment}
+            type="button"
+          >
+            <Icon name="add" />
+            Thêm khoa
+          </Button>
+        </div>
       </div>
 
       {status === 'loading' && <div className="p-xl font-body-sm text-body-sm text-on-surface-variant">Đang tải danh sách khoa...</div>}

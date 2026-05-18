@@ -1,5 +1,6 @@
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
+import Input from '../../Atoms/Input'
 import type { User } from '../../../services/auth.service'
 
 type UserManagementTableProps = {
@@ -8,7 +9,9 @@ type UserManagementTableProps = {
   onCreateUser: () => void
   onDeleteUser: (user: User) => void
   onEditUser: (user: User) => void
+  onSearchQueryChange: (query: string) => void
   onViewUser: (user: User) => void
+  searchQuery: string
 }
 
 const roleLabels: Record<User['role'], string> = {
@@ -36,7 +39,9 @@ const UserManagementTable = ({
   onCreateUser,
   onDeleteUser,
   onEditUser,
+  onSearchQueryChange,
   onViewUser,
+  searchQuery,
 }: UserManagementTableProps) => {
   return (
     <section className="overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0px_4px_20px_rgba(15,23,42,0.05)]" id="user-management">
@@ -45,10 +50,22 @@ const UserManagementTable = ({
           <h2 className="font-headline-sm text-headline-sm text-on-surface">Quản lý user</h2>
           <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">Tạo, cập nhật, khóa và xóa tài khoản trong hệ thống.</p>
         </div>
-        <Button className="flex items-center gap-xs px-lg py-sm" fullWidth={false} onClick={onCreateUser} type="button">
-          <Icon name="person_add" />
-          Thêm user
-        </Button>
+        <div className="flex w-full flex-col gap-md sm:flex-row md:w-auto md:items-center">
+          <Input
+            aria-label="Tìm kiếm user"
+            className="py-sm text-body-sm"
+            icon="search"
+            onChange={(event) => onSearchQueryChange(event.target.value)}
+            placeholder="Tìm kiếm user..."
+            type="search"
+            value={searchQuery}
+            wrapperClassName="w-full sm:w-64"
+          />
+          <Button className="flex items-center gap-xs px-lg py-sm" fullWidth={false} onClick={onCreateUser} type="button">
+            <Icon name="person_add" />
+            Thêm user
+          </Button>
+        </div>
       </div>
 
       {status === 'loading' && <div className="p-xl font-body-sm text-body-sm text-on-surface-variant">Đang tải danh sách user...</div>}

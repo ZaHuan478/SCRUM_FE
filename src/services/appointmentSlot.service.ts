@@ -37,6 +37,7 @@ type AppointmentSlotQuery = {
   doctor_id?: number | string
   department_id?: number | string
   date?: string
+  start_from?: string
   status?: AppointmentSlotStatus
 }
 
@@ -64,6 +65,7 @@ export const getAppointmentSlots = (query: AppointmentSlotQuery = {}) => {
   if (query.doctor_id) params.set('doctor_id', String(query.doctor_id))
   if (query.department_id) params.set('department_id', String(query.department_id))
   if (query.date) params.set('date', query.date)
+  if (query.start_from) params.set('start_from', query.start_from)
   if (query.status) params.set('status', query.status)
 
   const search = params.toString()
