@@ -91,7 +91,10 @@ export const loadDashboardData = async (): Promise<DashboardState> => {
 }
 
 export const useAdminDashboard = () => {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [departmentSearchQuery, setDepartmentSearchQuery] = useState('')
+  const [doctorSearchQuery, setDoctorSearchQuery] = useState('')
+  const [patientSearchQuery, setPatientSearchQuery] = useState('')
+  const [userSearchQuery, setUserSearchQuery] = useState('')
   const [dashboard, setDashboard] = useState<DashboardState>(emptyDashboardState)
   const [selectedDoctor, setSelectedDoctor] = useState<DoctorManagementRowData | null>(null)
   const [selectedPatient, setSelectedPatient] = useState<PatientManagementRowData | null>(null)
@@ -131,14 +134,41 @@ export const useAdminDashboard = () => {
     }
   }, [])
 
+  const visibleDepartments = useMemo(() => {
+    const normalizedQuery = departmentSearchQuery.trim().toLowerCase()
+    if (!normalizedQuery) return dashboard.departments
+
+    return dashboard.departments.filter((department) => (
+      `${department.name} ${department.description || ''} ${department.status}`.toLowerCase().includes(normalizedQuery)
+    ))
+  }, [dashboard.departments, departmentSearchQuery])
+
   const visibleDoctors = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLowerCase()
+    const normalizedQuery = doctorSearchQuery.trim().toLowerCase()
     if (!normalizedQuery) return dashboard.doctors
 
     return dashboard.doctors.filter((doctor) => (
       `${doctor.name} ${doctor.email || ''} ${doctor.specialty || ''} ${doctor.cccd || ''}`.toLowerCase().includes(normalizedQuery)
     ))
-  }, [dashboard.doctors, searchQuery])
+  }, [dashboard.doctors, doctorSearchQuery])
+
+  const visiblePatients = useMemo(() => {
+    const normalizedQuery = patientSearchQuery.trim().toLowerCase()
+    if (!normalizedQuery) return dashboard.patients
+
+    return dashboard.patients.filter((patient) => (
+      `${patient.name} ${patient.email || ''} ${patient.phone || ''} ${patient.gender || ''} ${patient.insuranceNumber || ''}`.toLowerCase().includes(normalizedQuery)
+    ))
+  }, [dashboard.patients, patientSearchQuery])
+
+  const visibleUsers = useMemo(() => {
+    const normalizedQuery = userSearchQuery.trim().toLowerCase()
+    if (!normalizedQuery) return dashboard.users
+
+    return dashboard.users.filter((user) => (
+      `${user.full_name || ''} ${user.email} ${user.phone || ''} ${user.role} ${user.status} ${user.cccd_number || ''}`.toLowerCase().includes(normalizedQuery)
+    ))
+  }, [dashboard.users, userSearchQuery])
 
   const closeUserModal = useCallback(() => {
     setIsUserModalOpen(false)
@@ -374,8 +404,10 @@ export const useAdminDashboard = () => {
     closeUserModal,
     dashboard,
     departmentEditError,
+    departmentSearchQuery,
     doctorEditError,
     doctorFields,
+    doctorSearchQuery,
     editingDepartment,
     editingDoctor,
     editingUser,
@@ -394,16 +426,23 @@ export const useAdminDashboard = () => {
     isSavingUser,
     isUserModalOpen,
     patientFields,
-    searchQuery,
+    patientSearchQuery,
     selectedDoctor,
     selectedPatient,
     selectedUser,
-    setSearchQuery,
+    setDepartmentSearchQuery,
+    setDoctorSearchQuery,
+    setPatientSearchQuery,
     setSelectedDoctor,
     setSelectedPatient,
     setSelectedUser,
+    setUserSearchQuery,
+    userSearchQuery,
     userEditError,
     userFields,
+    visibleDepartments,
     visibleDoctors,
+    visiblePatients,
+    visibleUsers,
   }
 }
