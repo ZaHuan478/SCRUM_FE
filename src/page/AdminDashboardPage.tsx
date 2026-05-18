@@ -32,11 +32,19 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
     handleCreateUser,
     handleDeleteUser,
     handleDepartmentEditSubmit,
+    handleDepartmentPageChange,
+    handleDepartmentSearchQueryChange,
     handleDoctorEditSubmit,
+    handleDoctorPageChange,
+    handleDoctorSearchQueryChange,
     handleEditDepartment,
     handleEditDoctor,
     handleEditUser,
+    handlePatientPageChange,
+    handlePatientSearchQueryChange,
     handleUserSubmit,
+    handleUserPageChange,
+    handleUserSearchQueryChange,
     isDepartmentModalOpen,
     isSavingDepartment,
     isSavingDoctor,
@@ -47,13 +55,9 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
     selectedDoctor,
     selectedPatient,
     selectedUser,
-    setDepartmentSearchQuery,
-    setDoctorSearchQuery,
-    setPatientSearchQuery,
     setSelectedDoctor,
     setSelectedPatient,
     setSelectedUser,
-    setUserSearchQuery,
     userSearchQuery,
     userEditError,
     userFields,
@@ -69,8 +73,10 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         analyticsData={dashboard.analyticsData}
         analyticsStatus={dashboard.analyticsStatus}
         departments={visibleDepartments}
+        departmentPagination={dashboard.departmentPagination}
         departmentSearchQuery={departmentSearchQuery}
         departmentStatus={dashboard.departmentStatus}
+        doctorPagination={dashboard.doctorPagination}
         doctorSearchQuery={doctorSearchQuery}
         doctors={visibleDoctors}
         doctorStatus={dashboard.doctorStatus}
@@ -81,13 +87,18 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         onEditDoctor={handleEditDoctor}
         onEditUser={handleEditUser}
         onLogout={onLogout}
-        onDepartmentSearchQueryChange={setDepartmentSearchQuery}
-        onDoctorSearchQueryChange={setDoctorSearchQuery}
-        onPatientSearchQueryChange={setPatientSearchQuery}
-        onUserSearchQueryChange={setUserSearchQuery}
+        onDepartmentPageChange={handleDepartmentPageChange}
+        onDepartmentSearchQueryChange={handleDepartmentSearchQueryChange}
+        onDoctorPageChange={handleDoctorPageChange}
+        onDoctorSearchQueryChange={handleDoctorSearchQueryChange}
+        onPatientPageChange={handlePatientPageChange}
+        onPatientSearchQueryChange={handlePatientSearchQueryChange}
+        onUserPageChange={handleUserPageChange}
+        onUserSearchQueryChange={handleUserSearchQueryChange}
         onViewDoctor={setSelectedDoctor}
         onViewPatient={setSelectedPatient}
         onViewUser={setSelectedUser}
+        patientPagination={dashboard.patientPagination}
         patientStatus={dashboard.patientStatus}
         patientSearchQuery={patientSearchQuery}
         patients={visiblePatients}
@@ -96,6 +107,8 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         totalDepartments={dashboard.totalDepartments}
         totalDoctors={dashboard.totalDoctors}
         totalPatients={dashboard.totalPatients}
+        totalUsers={dashboard.totalUsers}
+        userPagination={dashboard.userPagination}
         userStatus={dashboard.userStatus}
         userSearchQuery={userSearchQuery}
         users={visibleUsers}
