@@ -106,7 +106,7 @@ const DepartmentDetailPage = () => {
   if (!id) return <Navigate replace to="/departments" />
 
   return (
-    <div className="min-h-screen bg-background text-on-background">
+    <div className="min-h-screen text-on-background">
       <TopNavBar active="departments" />
       <main className="mx-auto flex max-w-7xl flex-col gap-xxl px-lg py-xxl md:px-xxl">
         <Link className="inline-flex items-center gap-xs self-start font-label-md text-label-md text-primary transition-all hover:gap-sm hover:underline" to="/departments">

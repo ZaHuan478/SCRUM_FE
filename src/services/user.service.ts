@@ -17,6 +17,25 @@ type UserQuery = {
   keyword?: string
 }
 
+const normalizeUsersResult = (data: UsersResult | User[], query: UserQuery): UsersResult => {
+  if (Array.isArray(data)) {
+    const page = query.page || 1
+    const limit = query.limit || data.length || 1
+
+    return {
+      users: data,
+      pagination: {
+        page,
+        limit,
+        total: data.length,
+        total_pages: Math.max(Math.ceil(data.length / limit), 1),
+      },
+    }
+  }
+
+  return data
+}
+
 export type CreateUserPayload = {
   full_name?: string | null
   email: string
@@ -43,7 +62,7 @@ export type UpdateUserPayload = {
   role?: User['role']
 }
 
-export const getUsers = (query: UserQuery = {}) => {
+export const getUsers = async (query: UserQuery = {}) => {
   const params = new URLSearchParams()
 
   if (query.page) params.set('page', String(query.page))
@@ -51,8 +70,9 @@ export const getUsers = (query: UserQuery = {}) => {
   if (query.keyword) params.set('keyword', query.keyword)
 
   const search = params.toString()
+  const data = await apiRequest<UsersResult | User[]>(`/users${search ? `?${search}` : ''}`)
 
-  return apiRequest<UsersResult>(`/users${search ? `?${search}` : ''}`)
+  return normalizeUsersResult(data, query)
 }
 
 export const getCurrentUser = () => apiRequest<User>('/users/me')

@@ -110,3 +110,13 @@ export const cancelAppointment = (id: number | string, payload: CancelAppointmen
     method: 'PATCH',
     body: JSON.stringify(payload),
   })
+
+export const confirmAppointment = (id: number | string) =>
+  apiRequest<Appointment>(`/appointments/${id}/confirm`, {
+    method: 'PATCH',
+  })
+
+export const completeAppointment = (id: number | string) =>
+  apiRequest<Appointment>(`/appointments/${id}/complete`, {
+    method: 'PATCH',
+  })
