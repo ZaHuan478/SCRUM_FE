@@ -11,11 +11,13 @@ type PatientAppointmentsTemplateProps = PatientAppointmentsState & {
 
 const PatientAppointmentsTemplate = ({
   appointmentActionId,
+  appointmentPagination,
   appointmentStatus,
   appointments,
   bookingError,
   bookingSuccess,
   cancelMyAppointment,
+  changeAppointmentPage,
   clearSelectedDoctor,
   departmentStatus,
   departments,
@@ -90,9 +92,11 @@ const PatientAppointmentsTemplate = ({
             onCancel={(appointment) => {
               void cancelMyAppointment(appointment)
             }}
+            onPageChange={changeAppointmentPage}
             onRefresh={() => {
-              void loadAppointments()
+              void loadAppointments(appointmentPagination.page)
             }}
+            pagination={appointmentPagination}
             status={appointmentStatus}
           />
         ) : (

@@ -14,12 +14,15 @@ import { getSymptoms } from '../services/symptom.service'
 import {
   buildAppointmentStats,
   buildUpcomingDays,
+  emptyPatientAppointmentPagination,
   findMatchingSymptoms,
   isAuthFailure,
+  patientAppointmentPageLimit,
   sortAppointmentsByTime,
   sortSlotsByTime,
+  toPatientAppointmentPagination,
 } from '../utils/patientAppointments'
-import type { LoadStatus, PatientAppointmentStat } from '../utils/patientAppointments'
+import type { LoadStatus, PatientAppointmentPagination, PatientAppointmentStat } from '../utils/patientAppointments'
 
 type UsePatientAppointmentsOptions = {
   storedUser: User | null
@@ -44,6 +47,7 @@ const loadActiveSymptoms = async () => {
 
 export type PatientAppointmentsState = {
   appointmentActionId: number | string | null
+  appointmentPagination: PatientAppointmentPagination
   appointmentStatus: LoadStatus
   appointments: Appointment[]
   bookingError: string
@@ -65,7 +69,8 @@ export type PatientAppointmentsState = {
   stats: PatientAppointmentStat[]
   upcomingDays: Date[]
   cancelMyAppointment: (appointment: Appointment) => Promise<void>
-  loadAppointments: () => Promise<void>
+  changeAppointmentPage: (page: number) => void
+  loadAppointments: (page?: number) => Promise<void>
   loadSlots: () => Promise<void>
   selectDate: (date: string) => void
   selectDepartment: (departmentId: string) => void
@@ -87,6 +92,8 @@ export const usePatientAppointments = ({
   const [symptoms, setSymptoms] = useState<Symptom[]>([])
   const [recommendedDepartments, setRecommendedDepartments] = useState<RecommendedDepartment[]>([])
   const [appointments, setAppointments] = useState<Appointment[]>([])
+  const [statAppointments, setStatAppointments] = useState<Appointment[]>([])
+  const [appointmentPagination, setAppointmentPagination] = useState<PatientAppointmentPagination>(emptyPatientAppointmentPagination)
   const [slots, setSlots] = useState<AppointmentSlot[]>([])
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedDepartmentId, setSelectedDepartmentId] = useState('')
@@ -111,9 +118,11 @@ export const usePatientAppointments = ({
     setBookingError(requestError instanceof Error ? requestError.message : fallback)
   }, [onAuthFailure])
 
-  const loadAppointments = useCallback(async () => {
+  const loadAppointments = useCallback(async (page = 1) => {
     if (storedUser?.role !== 'PATIENT') {
       setAppointments([])
+      setStatAppointments([])
+      setAppointmentPagination(emptyPatientAppointmentPagination)
       setAppointmentStatus('ready')
       return
     }
@@ -121,8 +130,13 @@ export const usePatientAppointments = ({
     setAppointmentStatus('loading')
 
     try {
-      const result = await getMyAppointments({ limit: 100 })
+      const [result, statsResult] = await Promise.all([
+        getMyAppointments({ page, limit: patientAppointmentPageLimit }),
+        getMyAppointments({ limit: 100 }),
+      ])
       setAppointments(sortAppointmentsByTime(result.appointments))
+      setStatAppointments(sortAppointmentsByTime(statsResult.appointments))
+      setAppointmentPagination(toPatientAppointmentPagination(result.pagination))
       setAppointmentStatus('ready')
     } catch (requestError) {
       if (isAuthFailure(requestError)) {
@@ -274,6 +288,8 @@ export const usePatientAppointments = ({
       const timeoutId = window.setTimeout(() => {
         if (!active) return
         setAppointments([])
+        setStatAppointments([])
+        setAppointmentPagination(emptyPatientAppointmentPagination)
         setAppointmentStatus('ready')
       }, 0)
 
@@ -283,11 +299,16 @@ export const usePatientAppointments = ({
       }
     }
 
-    getMyAppointments({ limit: 100 })
-      .then((result) => {
+    Promise.all([
+      getMyAppointments({ page: 1, limit: patientAppointmentPageLimit }),
+      getMyAppointments({ limit: 100 }),
+    ])
+      .then(([result, statsResult]) => {
         if (!active) return
 
         setAppointments(sortAppointmentsByTime(result.appointments))
+        setStatAppointments(sortAppointmentsByTime(statsResult.appointments))
+        setAppointmentPagination(toPatientAppointmentPagination(result.pagination))
         setAppointmentStatus('ready')
       })
       .catch((requestError: unknown) => {
@@ -346,7 +367,11 @@ export const usePatientAppointments = ({
     slots.find((slot) => String(slot.id) === String(selectedSlotId)) || null
   ), [selectedSlotId, slots])
 
-  const stats = useMemo(() => buildAppointmentStats(appointments), [appointments])
+  const stats = useMemo(() => buildAppointmentStats(statAppointments), [statAppointments])
+
+  const changeAppointmentPage = useCallback((page: number) => {
+    void loadAppointments(page)
+  }, [loadAppointments])
 
   const selectDate = useCallback((date: string) => {
     setSelectedDate(date)
@@ -414,7 +439,7 @@ export const usePatientAppointments = ({
       setReason('')
       setSelectedSlotId(null)
       setBookingSuccess('Lịch hẹn đã được gửi, vui lòng chờ xác nhận.')
-      await Promise.all([loadSlots(), loadAppointments()])
+      await Promise.all([loadSlots(), loadAppointments(1)])
     } catch (requestError) {
       handleRequestError(requestError, 'Không thể đặt lịch hẹn.')
     }
@@ -432,21 +457,26 @@ export const usePatientAppointments = ({
     try {
       await cancelAppointment(appointment.id, { cancel_reason: 'Bệnh nhân hủy lịch hẹn' })
       setBookingSuccess('Lịch hẹn đã được hủy.')
-      await Promise.all([loadAppointments(), loadSlots()])
+      const nextPage = appointments.length === 1 && appointmentPagination.page > 1
+        ? appointmentPagination.page - 1
+        : appointmentPagination.page
+      await Promise.all([loadAppointments(nextPage), loadSlots()])
     } catch (requestError) {
       handleRequestError(requestError, 'Không thể hủy lịch hẹn.')
     } finally {
       setAppointmentActionId(null)
     }
-  }, [handleRequestError, loadAppointments, loadSlots])
+  }, [appointmentPagination.page, appointments.length, handleRequestError, loadAppointments, loadSlots])
 
   return {
     appointmentActionId,
+    appointmentPagination,
     appointmentStatus,
     appointments,
     bookingError,
     bookingSuccess,
     cancelMyAppointment,
+    changeAppointmentPage,
     departmentStatus,
     departments,
     loadAppointments,

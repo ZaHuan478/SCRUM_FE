@@ -1,4 +1,4 @@
-import type { Appointment, AppointmentStatus } from '../services/appointment.service'
+import type { Appointment, AppointmentsResult, AppointmentStatus } from '../services/appointment.service'
 import type { AppointmentSlot } from '../services/appointmentSlot.service'
 import type { Symptom } from '../services/symptom.service'
 
@@ -10,6 +10,31 @@ export type PatientAppointmentStat = {
   value: string
   helper: string
 }
+
+export type PatientAppointmentPagination = {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+export const patientAppointmentPageLimit = 5
+
+export const emptyPatientAppointmentPagination: PatientAppointmentPagination = {
+  page: 1,
+  limit: patientAppointmentPageLimit,
+  total: 0,
+  totalPages: 0,
+}
+
+export const toPatientAppointmentPagination = (
+  pagination?: AppointmentsResult['pagination']
+): PatientAppointmentPagination => ({
+  page: pagination?.page || emptyPatientAppointmentPagination.page,
+  limit: pagination?.limit || emptyPatientAppointmentPagination.limit,
+  total: pagination?.total || emptyPatientAppointmentPagination.total,
+  totalPages: pagination?.total_pages || emptyPatientAppointmentPagination.totalPages,
+})
 
 export const appointmentStatusMeta: Record<AppointmentStatus, { label: string; className: string; icon: string }> = {
   PENDING: {
