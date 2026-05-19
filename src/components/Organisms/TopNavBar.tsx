@@ -70,14 +70,21 @@ const TopNavBar = ({ active = 'doctors' }: TopNavBarProps) => {
           )}
           {user ? (
             <>
-              <NotificationBell />
-              <AccountMenu onLogout={handleLogout} user={user} />
+              <span className="hidden max-w-40 truncate font-label-md text-label-md text-on-surface-variant sm:inline">
+                {user.full_name || user.email}
+              </span>
+              <button className="font-label-md text-label-md text-on-surface-variant transition-colors hover:text-primary" onClick={handleLogout} type="button">
+                Đăng xuất
+              </button>
             </>
           ) : (
             <Link className="hidden font-label-md text-label-md text-primary transition-colors hover:opacity-80 lg:block" to="/login">
               Đăng nhập
             </Link>
           )}
+          <a className="rounded-lg bg-primary-container px-lg py-sm font-label-md text-label-md text-on-primary-container transition-all hover:shadow-lg active:scale-95" href="#featured-doctors">
+            Đặt lịch ngay
+          </a>
         </div>
       </nav>
     </header>

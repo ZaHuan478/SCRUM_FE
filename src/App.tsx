@@ -36,7 +36,10 @@ function App() {
           <Route path="/symptoms" element={<SymptomCheckerPage />} />
           <Route path="/login" element={<AuthPage />} />
           <Route path="/signup" element={<SignupPage />} />
-        </Routes>
+          <Route path="/appointments/new" element={<AppointmentPage />} />
+        <Route path="/patient-dashboard" element={<PatientDashboardPage />} />
+        <Route path="/doctors/:doctorId" element={<DoctorDetailPage />} />
+      </Routes>
       </BrowserRouter>
     </NotificationProvider>
   )
