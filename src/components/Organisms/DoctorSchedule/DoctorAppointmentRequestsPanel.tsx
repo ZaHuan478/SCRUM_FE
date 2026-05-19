@@ -12,6 +12,10 @@ type DoctorAppointmentRequestsPanelProps = {
 }
 
 const statusMeta: Record<Appointment['status'], { label: string; className: string }> = {
+  PENDING_PAYMENT: {
+    className: 'bg-tertiary-container text-on-tertiary-container',
+    label: 'Chờ thanh toán',
+  },
   CANCELLED: {
     className: 'bg-error-container text-on-error-container',
     label: 'Đã hủy',

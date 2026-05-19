@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import type { Appointment } from '../services/appointment.service'
 import { cancelAppointment, createMyAppointment, getMyAppointments } from '../services/appointment.service'
 import type { AppointmentSlot } from '../services/appointmentSlot.service'
@@ -80,6 +80,7 @@ export const usePatientAppointments = ({
   onAuthFailure,
 }: UsePatientAppointmentsOptions): PatientAppointmentsState => {
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const initialDoctorId = searchParams.get('doctor_id') || ''
   const initialDoctorName = searchParams.get('doctor_name') || ''
   const upcomingDays = useMemo(() => buildUpcomingDays(), [])
@@ -407,21 +408,28 @@ export const usePatientAppointments = ({
     }
 
     try {
-      await createMyAppointment({
+      const result = await createMyAppointment({
         reason: reason.trim() || null,
         slot_id: selectedSlot.id,
       })
       setReason('')
       setSelectedSlotId(null)
-      setBookingSuccess('Lịch hẹn đã được gửi, vui lòng chờ xác nhận.')
+      setBookingSuccess('Lịch hẹn đã được tạo, vui lòng quét QR để thanh toán.')
       await Promise.all([loadSlots(), loadAppointments()])
+      const paymentId = result.payment?.id
+
+      if (!paymentId) {
+        throw new Error('Lá»‹ch háº¹n Ä‘Ã£ táº¡o nhÆ°ng chÆ°a nháº­n Ä‘Æ°á»£c mÃ£ thanh toÃ¡n. Vui lÃ²ng kiá»ƒm tra API táº¡o payment.')
+      }
+
+      navigate(`/payments/${paymentId}`)
     } catch (requestError) {
       handleRequestError(requestError, 'Không thể đặt lịch hẹn.')
     }
-  }, [handleRequestError, loadAppointments, loadSlots, reason, selectedSlot, storedUser])
+  }, [handleRequestError, loadAppointments, loadSlots, navigate, reason, selectedSlot, storedUser])
 
   const cancelMyAppointment = useCallback(async (appointment: Appointment) => {
-    if (!['PENDING', 'CONFIRMED'].includes(appointment.status)) return
+    if (!['PENDING_PAYMENT', 'PENDING', 'CONFIRMED'].includes(appointment.status)) return
 
     if (!window.confirm('Bạn muốn hủy lịch hẹn này?')) return
 

@@ -102,7 +102,7 @@ const ProfileTemplate = ({
 
   return (
     <div className="min-h-screen bg-background text-on-background">
-      <TopNavBar active="about" />
+      <TopNavBar active="homepage" />
       {profileContent}
     </div>
   )

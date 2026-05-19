@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react'
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import Input from '../../Atoms/Input'
@@ -36,6 +37,8 @@ type PatientAppointmentBookingPanelProps = {
   onSubmit: () => void
 }
 
+const SLOT_PAGE_SIZE = 6
+
 const PatientAppointmentBookingPanel = ({
   bookingError,
   bookingSuccess,
@@ -60,8 +63,24 @@ const PatientAppointmentBookingPanel = ({
   onReasonChange,
   onSelectSlot,
   onSubmit,
-}: PatientAppointmentBookingPanelProps) => (
-  <section className="flex flex-col gap-lg rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-md shadow-sm lg:col-span-7">
+}: PatientAppointmentBookingPanelProps) => {
+  const [slotPage, setSlotPage] = useState(1)
+  const slotTotalPages = Math.max(Math.ceil(slots.length / SLOT_PAGE_SIZE), 1)
+  const slotFirstItem = slots.length === 0 ? 0 : (slotPage - 1) * SLOT_PAGE_SIZE + 1
+  const slotLastItem = Math.min(slotPage * SLOT_PAGE_SIZE, slots.length)
+  const hasPreviousSlotPage = slotPage > 1
+  const hasNextSlotPage = slotPage < slotTotalPages
+  const paginatedSlots = useMemo(() => {
+    const startIndex = (slotPage - 1) * SLOT_PAGE_SIZE
+    return slots.slice(startIndex, startIndex + SLOT_PAGE_SIZE)
+  }, [slotPage, slots])
+
+  useEffect(() => {
+    setSlotPage(1)
+  }, [selectedDate, selectedDepartmentId, selectedDoctorId, slots.length])
+
+  return (
+    <section className="flex flex-col gap-lg rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-md shadow-sm lg:col-span-7">
     <div className="flex flex-col gap-md md:flex-row md:items-end md:justify-between">
       <div>
         <div className="flex items-center gap-sm">
@@ -228,15 +247,44 @@ const PatientAppointmentBookingPanel = ({
     )}
 
     {slots.length > 0 && (
-      <div className="grid grid-cols-1 gap-md xl:grid-cols-2">
-        {slots.map((slot) => (
-          <PatientAppointmentSlotCard
-            active={String(selectedSlotId || '') === String(slot.id)}
-            key={slot.id}
-            onSelect={onSelectSlot}
-            slot={slot}
-          />
-        ))}
+      <div className="flex flex-col gap-md">
+        <div className="grid grid-cols-1 gap-md xl:grid-cols-2">
+          {paginatedSlots.map((slot) => (
+            <PatientAppointmentSlotCard
+              active={String(selectedSlotId || '') === String(slot.id)}
+              key={slot.id}
+              onSelect={onSelectSlot}
+              slot={slot}
+            />
+          ))}
+        </div>
+
+        <div className="flex flex-col justify-between gap-md rounded-lg border border-outline-variant/20 bg-surface-container-low px-md py-sm sm:flex-row sm:items-center">
+          <p className="font-body-sm text-body-sm text-on-surface-variant">
+            Đang hiển thị {slotFirstItem}-{slotLastItem} trên {slots.length} khung giờ
+          </p>
+          <div className="flex items-center gap-sm">
+            <button
+              className="rounded-lg border border-outline-variant px-md py-sm font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={!hasPreviousSlotPage || slotStatus === 'loading'}
+              onClick={() => setSlotPage((currentPage) => Math.max(currentPage - 1, 1))}
+              type="button"
+            >
+              Trước
+            </button>
+            <span className="min-w-20 text-center font-label-md text-label-md text-on-surface-variant">
+              Trang {slotPage}/{slotTotalPages}
+            </span>
+            <button
+              className="rounded-lg border border-outline-variant px-md py-sm font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={!hasNextSlotPage || slotStatus === 'loading'}
+              onClick={() => setSlotPage((currentPage) => Math.min(currentPage + 1, slotTotalPages))}
+              type="button"
+            >
+              Tiếp theo
+            </button>
+          </div>
+        </div>
       </div>
     )}
 
@@ -257,7 +305,8 @@ const PatientAppointmentBookingPanel = ({
         </Button>
       </div>
     </div>
-  </section>
-)
+    </section>
+  )
+}
 
 export default PatientAppointmentBookingPanel
