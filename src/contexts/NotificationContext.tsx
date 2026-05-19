@@ -5,7 +5,7 @@ import {
   getUnreadCount,
   markAllNotificationsAsRead,
   markNotificationAsRead,
-} from './../api/notificationApi'
+} from '../api/notificationApi'
 import { AUTH_USER_CHANGED_EVENT, getStoredUser } from '../services/auth.service'
 import { connectSocket, disconnectSocket, onNewNotification } from '../services/socket'
 import type { Notification } from '../types/notification'
