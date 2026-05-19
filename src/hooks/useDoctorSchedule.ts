@@ -15,6 +15,8 @@ import { getDoctorAssignments } from '../services/doctorAssignment.service'
 import type { DoctorAssignment } from '../services/doctorAssignment.service'
 import { getDoctorByUserId } from '../services/doctor.service'
 import type { Doctor } from '../services/doctor.service'
+import type { Feedback } from '../services/feedback.service'
+import { getDoctorFeedback } from '../services/feedback.service'
 import {
   buildDaySummaryMap,
   buildEmptySlotForm,
@@ -46,6 +48,7 @@ type DoctorScheduleData = {
   activeAssignment: DoctorAssignment | null
   appointments: Appointment[]
   doctor: Doctor
+  feedback: Feedback[]
   slots: AppointmentSlot[]
 }
 
@@ -58,6 +61,7 @@ export type DoctorScheduleState = {
   doctor: Doctor | null
   editingSlot: AppointmentSlot | null
   error: string
+  feedback: Feedback[]
   form: SlotFormState
   isSaving: boolean
   loadSchedule: () => Promise<void>
@@ -91,6 +95,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
   const [doctor, setDoctor] = useState<Doctor | null>(null)
   const [activeAssignment, setActiveAssignment] = useState<DoctorAssignment | null>(null)
   const [appointments, setAppointments] = useState<Appointment[]>([])
+  const [feedback, setFeedback] = useState<Feedback[]>([])
   const [slots, setSlots] = useState<AppointmentSlot[]>([])
   const [selectedDate, setSelectedDate] = useState(todayKey)
   const [form, setForm] = useState<SlotFormState>(() => buildEmptySlotForm(todayKey))
@@ -114,11 +119,14 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
 
   const fetchSchedule = useCallback(async (): Promise<DoctorScheduleData> => {
     const doctorProfile = await getDoctorByUserId(storedUser.id)
-    const assignmentsResult = await getDoctorAssignments({
-      doctor_id: doctorProfile.id,
-      limit: 10,
-      status: 'ACTIVE',
-    })
+    const [assignmentsResult, feedbackResult] = await Promise.all([
+      getDoctorAssignments({
+        doctor_id: doctorProfile.id,
+        limit: 10,
+        status: 'ACTIVE',
+      }),
+      getDoctorFeedback(doctorProfile.id, { limit: 100 }),
+    ])
     const assignment = assignmentsResult.doctor_assignments[0] || null
     const [slotsResult, appointmentsResult] = assignment
       ? await Promise.all([
@@ -131,6 +139,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
       activeAssignment: assignment,
       appointments: appointmentsResult?.appointments || [],
       doctor: doctorProfile,
+      feedback: feedbackResult.feedback,
       slots: sortSlots(slotsResult?.appointment_slots || []),
     }
   }, [storedUser.id])
@@ -139,6 +148,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
     setDoctor(scheduleData.doctor)
     setActiveAssignment(scheduleData.activeAssignment)
     setAppointments(scheduleData.appointments)
+    setFeedback(scheduleData.feedback)
     setSlots(scheduleData.slots)
     setStatus('ready')
   }, [])
@@ -452,6 +462,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
     doctor,
     editingSlot,
     error,
+    feedback,
     form,
     handleDateChange,
     handleDeleteSlot,

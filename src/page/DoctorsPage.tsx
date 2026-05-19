@@ -19,6 +19,8 @@ type DoctorDirectoryItem = DoctorCardData & {
   feeValue?: number
 }
 
+const DOCTORS_PER_PAGE = 4
+
 const formatFee = (fee?: string | number | null) => {
   if (fee === undefined || fee === null || fee === '') return undefined
 
@@ -105,6 +107,7 @@ const DoctorsPage = () => {
   const [selectedDepartmentId, setSelectedDepartmentId] = useState(searchParams.get('department_id') || 'all')
   const [selectedExperience, setSelectedExperience] = useState('all')
   const [selectedFee, setSelectedFee] = useState('all')
+  const [currentPage, setCurrentPage] = useState(1)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
 
   useEffect(() => {
@@ -194,6 +197,27 @@ const DoctorsPage = () => {
     })
   }, [doctors, query, recommendedDepartmentIds, selectedDepartmentId, selectedExperience, selectedFee])
 
+  const totalPages = useMemo(() => (
+    Math.max(Math.ceil(visibleDoctors.length / DOCTORS_PER_PAGE), 1)
+  ), [visibleDoctors.length])
+
+  const paginatedDoctors = useMemo(() => (
+    visibleDoctors.slice(
+      (currentPage - 1) * DOCTORS_PER_PAGE,
+      currentPage * DOCTORS_PER_PAGE
+    )
+  ), [currentPage, visibleDoctors])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [query, selectedDepartmentId, selectedExperience, selectedFee, recommendedDepartmentIds])
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
+
   const departmentOptions = useMemo(() => (
     [...new Map(doctors.map((doctor) => [String(doctor.departmentId), doctor.departmentName])).entries()]
       .filter(([departmentId]) => departmentId !== 'undefined')
@@ -205,6 +229,7 @@ const DoctorsPage = () => {
     setSelectedExperience('all')
     setSelectedFee('all')
     setQuery('')
+    setCurrentPage(1)
   }
 
   return (
@@ -268,7 +293,7 @@ const DoctorsPage = () => {
               </label>
             </div>
             <div className="rounded-lg bg-surface-container-low px-md py-sm font-label-md text-label-md text-on-surface-variant">
-              {visibleDoctors.length}/{doctors.length} bác sĩ
+              Hiển thị {paginatedDoctors.length}/{visibleDoctors.length} bác sĩ phù hợp
             </div>
           </div>
           <button className="self-start font-label-sm text-label-sm text-primary hover:underline" onClick={resetFilters} type="button">
@@ -307,11 +332,55 @@ const DoctorsPage = () => {
             )}
 
             {visibleDoctors.length > 0 && (
-              <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {visibleDoctors.map((doctor) => (
-                  <DoctorCard doctor={doctor} key={`${doctor.departmentId}-${doctor.id}`} />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {paginatedDoctors.map((doctor) => (
+                    <DoctorCard doctor={doctor} key={`${doctor.departmentId}-${doctor.id}`} />
+                  ))}
+                </div>
+
+                {visibleDoctors.length > DOCTORS_PER_PAGE && (
+                  <div className="flex flex-wrap items-center justify-center gap-sm">
+                    <button
+                      className="rounded-full border border-outline-variant px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
+                      type="button"
+                    >
+                      Trước
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, index) => {
+                      const pageNumber = index + 1
+                      const isActive = pageNumber === currentPage
+
+                      return (
+                        <button
+                          className={`h-10 min-w-10 rounded-full px-sm font-label-md text-label-md transition-colors ${
+                            isActive
+                              ? 'bg-primary text-on-primary shadow-sm'
+                              : 'border border-outline-variant text-on-surface hover:bg-surface-container'
+                          }`}
+                          key={pageNumber}
+                          onClick={() => setCurrentPage(pageNumber)}
+                          type="button"
+                        >
+                          {pageNumber}
+                        </button>
+                      )
+                    })}
+
+                    <button
+                      className="rounded-full border border-outline-variant px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage((page) => Math.min(page + 1, totalPages))}
+                      type="button"
+                    >
+                      Sau
+                    </button>
+                  </div>
+                )}
+              </>
             )}
         </section>
       </main>

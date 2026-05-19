@@ -1,6 +1,7 @@
 import DoctorScheduleDayPicker from '../Organisms/DoctorSchedule/DoctorScheduleDayPicker'
 import DoctorScheduleForm from '../Organisms/DoctorSchedule/DoctorScheduleForm'
 import DoctorAppointmentRequestsPanel from '../Organisms/DoctorSchedule/DoctorAppointmentRequestsPanel'
+import DoctorFeedbackPanel from '../Organisms/DoctorSchedule/DoctorFeedbackPanel'
 import DoctorScheduleSlotList from '../Organisms/DoctorSchedule/DoctorScheduleSlotList'
 import DoctorScheduleStatsGrid from '../Organisms/DoctorSchedule/DoctorScheduleStatsGrid'
 import DoctorScheduleTopBar from '../Organisms/DoctorSchedule/DoctorScheduleTopBar'
@@ -21,6 +22,7 @@ const DoctorScheduleTemplate = ({
   doctor,
   editingSlot,
   error,
+  feedback,
   form,
   handleDateChange,
   handleDeleteSlot,
@@ -100,6 +102,8 @@ const DoctorScheduleTemplate = ({
           }}
           selectedDateLabel={selectedDateLabel}
         />
+
+        <DoctorFeedbackPanel feedback={feedback} />
 
         <div className="grid grid-cols-1 items-start gap-xl lg:grid-cols-5">
           <DoctorScheduleForm
