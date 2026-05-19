@@ -1,5 +1,6 @@
 import React from 'react'
 import { GoogleLogin } from '@react-oauth/google'
+import type { CredentialResponse } from '@react-oauth/google'
 
 type SocialLoginProps = {
   onSuccess: (message: string) => void
@@ -42,7 +43,7 @@ export const SocialLogin: React.FC<SocialLoginProps> = ({ onSuccess, onError }) 
   return (
     <div className="flex justify-center">
       <GoogleLogin
-        onSuccess={(credentialResponse) => handleGoogleLogin(credentialResponse.credential)}
+        onSuccess={(credentialResponse: CredentialResponse) => handleGoogleLogin(credentialResponse.credential)}
         onError={() => onError('Google login failed')}
       />
     </div>

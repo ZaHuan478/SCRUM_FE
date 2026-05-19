@@ -1,4 +1,5 @@
 import { GoogleLogin } from '@react-oauth/google'
+import type { CredentialResponse } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
 import { loginWithGoogle, saveAuthSession } from '../../../services/auth.service'
 
@@ -29,7 +30,7 @@ export const SocialLogin = ({ remember = true, onError }: SocialLoginProps) => {
   return (
     <div className="flex w-full justify-center [&>div]:w-full [&_iframe]:w-full">
       <GoogleLogin
-        onSuccess={(credentialResponse) => handleGoogleLogin(credentialResponse.credential)}
+        onSuccess={(credentialResponse: CredentialResponse) => handleGoogleLogin(credentialResponse.credential)}
         onError={() => onError?.('Google login failed.')}
         shape="rectangular"
         size="large"
