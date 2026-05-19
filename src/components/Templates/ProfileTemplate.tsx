@@ -6,6 +6,7 @@ import ProfileHero from '../Organisms/Profile/ProfileHero'
 import ProfileIdentitySection from '../Organisms/Profile/ProfileIdentitySection'
 import ProfileTopBar from '../Organisms/Profile/ProfileTopBar'
 import type { ProfileState } from '../../hooks/useProfile'
+import ProfilePasswordSection from '../Organisms/Profile/ProfilePasswordSection'
 
 type ProfileTemplateProps = ProfileState & {
   onLogout: () => void
@@ -35,24 +36,26 @@ const ProfileTemplate = ({
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-xl px-lg py-xl md:px-xxl md:py-xxl">
       <ProfileHero avatarUrl={form.avatarUrl} user={user} />
 
-      <form className="grid grid-cols-1 items-start gap-xl lg:grid-cols-3" onSubmit={(event) => {
-        void handleSubmit(event)
-      }}>
-        <ProfileIdentitySection
-          cccdValid={cccdValid}
-          doctorDepartmentValue={doctorDepartmentValue}
-          doctorDescriptionValue={doctorDescriptionValue}
-          emailMatches={emailMatches}
-          error={error}
-          form={form}
-          isSaving={isSaving}
-          onFieldChange={updateField}
-          phoneValid={phoneValid}
-          status={status}
-          success={success}
-          userRole={user.role}
-        />
-
+      <div className="grid grid-cols-1 items-start gap-xl lg:grid-cols-3">
+        <form className="lg:col-span-3" onSubmit={(event) => {
+          void handleSubmit(event)
+        }}>
+          <ProfileIdentitySection
+            cccdValid={cccdValid}
+            doctorDepartmentValue={doctorDepartmentValue}
+            doctorDescriptionValue={doctorDescriptionValue}
+            emailMatches={emailMatches}
+            error={error}
+            form={form}
+            isSaving={isSaving}
+            onFieldChange={updateField}
+            phoneValid={phoneValid}
+            status={status}
+            success={success}
+            userRole={user.role}
+          />
+        </form>
+        <ProfilePasswordSection onAuthFailure={onLogout} />
         <ProfileAvatarCard
           avatarInputRef={avatarInputRef}
           avatarUrl={form.avatarUrl}
@@ -84,7 +87,9 @@ const ProfileTemplate = ({
           onClear={() => clearImage('cccdBackImage')}
           title="CCCD mặt sau"
         />
-      </form>
+
+
+      </div>
     </main>
   )
 
