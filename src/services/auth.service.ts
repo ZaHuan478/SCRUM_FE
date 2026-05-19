@@ -21,6 +21,10 @@ export type LoginPayload = {
   password: string
 }
 
+export type GoogleLoginPayload = {
+  credential: string
+}
+
 export type LoginResponse = {
   token: string
   user: User
@@ -46,6 +50,12 @@ const notifyAuthUserChange = (user: User | null) => {
 
 export const login = (payload: LoginPayload) =>
   apiRequest<LoginResponse>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+
+export const loginWithGoogle = (payload: GoogleLoginPayload) =>
+  apiRequest<LoginResponse>('/auth/google', {
     method: 'POST',
     body: JSON.stringify(payload),
   })

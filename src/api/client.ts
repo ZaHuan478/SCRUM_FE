@@ -3,7 +3,7 @@ export type ApiError = Error & {
   details?: unknown
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '/api'
 
 const buildUrl = (path: string) => {
   const base = API_BASE_URL.replace(/\/$/, '')

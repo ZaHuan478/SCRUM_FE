@@ -6,6 +6,7 @@ import Input from '../../Atoms/Input'
 import Button from '../../Atoms/Button'
 import Checkbox from '../../Atoms/Checkbox'
 import SocialLogin from '../../Molecules/Auth/SocialLogin'
+import Divider from '../../Molecules/Common/Divider'
 import { register } from '../../../services/auth.service'
 
 const SignupForm = () => {
@@ -70,9 +71,9 @@ const SignupForm = () => {
         <p className="font-body-md text-body-md text-on-surface-variant">Tạo tài khoản mới để bắt đầu sử dụng nền tảng.</p>
       </header>
 
-      <SocialLogin />
+      <SocialLogin onError={setError} />
 
-      {/* <Divider /> */}
+      <Divider />
 
       <form className="space-y-lg" onSubmit={handleSubmit}>
         {error && <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">{error}</p>}

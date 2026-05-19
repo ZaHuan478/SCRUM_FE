@@ -6,6 +6,7 @@ import Input from '../../Atoms/Input'
 import Button from '../../Atoms/Button'
 import Checkbox from '../../Atoms/Checkbox'
 import SocialLogin from '../../Molecules/Auth/SocialLogin'
+import Divider from '../../Molecules/Common/Divider'
 import { login, saveAuthSession } from '../../../services/auth.service'
 
 const AuthForm = () => {
@@ -50,9 +51,9 @@ const AuthForm = () => {
         <p className="font-body-md text-body-md text-on-surface-variant">Nhập thông tin để truy cập cổng thông tin MedPrecision.</p>
       </header>
 
-      <SocialLogin />
+      <SocialLogin remember={remember} onError={setError} />
 
-      {/* <Divider /> */}
+      <Divider />
 
       <form className="space-y-lg" onSubmit={handleSubmit}>
         {error && <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">{error}</p>}
