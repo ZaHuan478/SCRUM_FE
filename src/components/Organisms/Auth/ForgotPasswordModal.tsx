@@ -36,19 +36,31 @@ const ForgotPasswordModal = ({
       <button aria-label="Đóng popup" className="absolute inset-0 cursor-default" onClick={onClose} type="button" />
       <form
         aria-modal="true"
-        className="relative w-full max-w-lg overflow-hidden rounded-xl bg-surface-container-lowest shadow-[0px_20px_50px_rgba(15,23,42,0.12)]"
+        className="relative w-full max-w-md overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0px_24px_60px_rgba(15,23,42,0.16)]"
         onSubmit={handleSubmit}
         role="dialog"
       >
-        <div className="bg-primary-container px-lg py-lg text-center text-on-primary-container">
-          <div className="mx-auto mb-md flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary text-4xl">
-            <Icon name="mail" />
+        <div className="flex items-start justify-between gap-md border-b border-outline-variant/20 px-xl py-lg">
+          <div className="flex items-center gap-md">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary-fixed text-primary">
+              <Icon className="text-3xl" name="lock_reset" />
+            </div>
+            <div>
+              <p className="font-label-sm text-label-sm text-primary">Quên mật khẩu</p>
+              <h2 className="mt-xs font-headline-sm text-headline-sm text-on-surface">Nhận mã xác thực</h2>
+            </div>
           </div>
-          <p className="font-label-md text-label-md uppercase tracking-[0.12em]">Quên mật khẩu</p>
-          <h2 className="mt-sm font-headline-sm text-headline-sm text-on-primary-container">Nhận mã xác thực</h2>
+          <button
+            aria-label="Đóng"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
+            onClick={onClose}
+            type="button"
+          >
+            <Icon name="close" />
+          </button>
         </div>
 
-        <div className="p-xl space-y-lg">
+        <div className="space-y-lg p-xl">
           <p className="font-body-md text-body-md text-on-surface-variant">
             Nhập email bạn đã dùng để đăng ký. Hệ thống sẽ gửi mã xác thực 6 chữ số vào địa chỉ này để đặt lại mật khẩu.
           </p>
@@ -60,7 +72,7 @@ const ForgotPasswordModal = ({
           )}
 
           {success && (
-            <p className="rounded-lg bg-surface-2 px-md py-sm font-body-sm text-body-sm text-on-surface">
+            <p className="rounded-lg bg-secondary-fixed px-md py-sm font-body-sm text-body-sm text-on-secondary-fixed">
               {success}
             </p>
           )}
@@ -69,7 +81,7 @@ const ForgotPasswordModal = ({
             autoComplete="email"
             icon="mail"
             id="forgot-email"
-            label="Email nhận liên kết"
+            label="Email"
             name="email"
             onChange={(event) => onEmailChange(event.target.value)}
             placeholder="name@email.com"
@@ -78,20 +90,11 @@ const ForgotPasswordModal = ({
             value={email}
           />
 
-          <div className="rounded-xl border border-outline-variant bg-surface-container p-md">
-            <p className="font-label-sm text-label-sm text-on-surface-variant">Lưu ý:</p>
-            <ul className="mt-sm space-y-2 text-body-sm text-body-sm text-on-surface-variant list-disc pl-md">
-              <li>Link sẽ được gửi vào email cá nhân của bạn.</li>
-              <li>Link chỉ có giá trị trong thời gian giới hạn.</li>
-              <li>Kiểm tra hộp thư đến hoặc mục spam nếu không nhận được.</li>
-            </ul>
-          </div>
-
-          <div className="flex flex-col gap-sm sm:flex-row sm:justify-end">
-            <Button fullWidth={false} onClick={onClose} type="button" variant="ghost">
+          <div className="flex flex-col-reverse gap-sm sm:flex-row sm:justify-end">
+            <Button className="px-lg" fullWidth={false} onClick={onClose} type="button" variant="ghost">
               Hủy
             </Button>
-            <Button fullWidth={false} isLoading={isLoading} type="submit">
+            <Button className="px-lg" fullWidth={false} isLoading={isLoading} type="submit">
               Gửi mã xác thực
             </Button>
           </div>
