@@ -5,6 +5,7 @@ import DoctorCard from '../components/Molecules/Home/DoctorCard'
 import type { DoctorCardData } from '../components/Molecules/Home/DoctorCard'
 import Icon from '../components/Atoms/Icon'
 import Input from '../components/Atoms/Input'
+import PaginationControls from '../components/Molecules/Common/PaginationControls'
 import { getDoctorAssignments } from '../services/doctorAssignment.service'
 import type { DoctorAssignment } from '../services/doctorAssignment.service'
 import type { Doctor } from '../services/doctor.service'
@@ -209,12 +210,24 @@ const DoctorsPage = () => {
   ), [currentPage, visibleDoctors])
 
   useEffect(() => {
-    setCurrentPage(1)
+    const timeoutId = window.setTimeout(() => {
+      setCurrentPage(1)
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
   }, [query, selectedDepartmentId, selectedExperience, selectedFee, recommendedDepartmentIds])
 
   useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages)
+    const timeoutId = window.setTimeout(() => {
+      if (currentPage > totalPages) {
+        setCurrentPage(totalPages)
+      }
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timeoutId)
     }
   }, [currentPage, totalPages])
 
@@ -233,7 +246,7 @@ const DoctorsPage = () => {
   }
 
   return (
-    <div className="min-h-screen  text-on-background">
+    <div className="min-h-screen text-on-background">
       <TopNavBar active="doctors" />
       <main className="mx-auto flex max-w-7xl flex-col gap-xxl px-lg py-xxl md:px-xxl">
         <section className="flex flex-col gap-lg border-b border-outline-variant/30 pb-xl">
@@ -292,8 +305,8 @@ const DoctorsPage = () => {
                 </select>
               </label>
             </div>
-            <div className="rounded-lg bg-surface-container-low px-md py-sm font-label-md text-label-md text-on-surface-variant">
-              Hiển thị {paginatedDoctors.length}/{visibleDoctors.length} bác sĩ phù hợp
+            <div className="w-fit whitespace-nowrap rounded-lg bg-surface-container-low px-md py-sm font-label-md text-label-md text-on-surface-variant">
+              {visibleDoctors.length}/{doctors.length} bác sĩ
             </div>
           </div>
           <button className="self-start font-label-sm text-label-sm text-primary hover:underline" onClick={resetFilters} type="button">
@@ -311,77 +324,44 @@ const DoctorsPage = () => {
         </section>
 
         <section className="space-y-xl">
-            {status === 'loading' && (
-              <p className="rounded-lg border border-outline-variant/30 bg-surface p-md font-body-md text-body-md text-on-surface-variant">
-                Đang tải danh sách bác sĩ...
-              </p>
-            )}
+          {status === 'loading' && (
+            <p className="rounded-lg border border-outline-variant/30 bg-surface p-md font-body-md text-body-md text-on-surface-variant">
+              Đang tải danh sách bác sĩ...
+            </p>
+          )}
 
-            {status === 'error' && (
-              <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
-                Không thể tải danh sách bác sĩ.
-              </p>
-            )}
+          {status === 'error' && (
+            <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
+              Không thể tải danh sách bác sĩ.
+            </p>
+          )}
 
-            {status !== 'loading' && visibleDoctors.length === 0 && (
-              <div className="rounded-lg border border-dashed border-outline-variant p-xl text-center">
-                <Icon className="text-4xl text-outline" name="person_off" />
-                <p className="mt-sm font-label-md text-label-md text-on-surface">Không tìm thấy bác sĩ phù hợp</p>
-                <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">Thử nhập triệu chứng khác hoặc xóa bộ lọc tìm kiếm.</p>
+          {status !== 'loading' && visibleDoctors.length === 0 && (
+            <div className="rounded-lg border border-dashed border-outline-variant p-xl text-center">
+              <Icon className="text-4xl text-outline" name="person_off" />
+              <p className="mt-sm font-label-md text-label-md text-on-surface">Không tìm thấy bác sĩ phù hợp</p>
+              <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">Thử nhập triệu chứng khác hoặc xóa bộ lọc tìm kiếm.</p>
+            </div>
+          )}
+
+          {visibleDoctors.length > 0 && (
+            <>
+              <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {paginatedDoctors.map((doctor) => (
+                  <DoctorCard doctor={doctor} key={`${doctor.departmentId}-${doctor.id}`} />
+                ))}
               </div>
-            )}
 
-            {visibleDoctors.length > 0 && (
-              <>
-                <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {paginatedDoctors.map((doctor) => (
-                    <DoctorCard doctor={doctor} key={`${doctor.departmentId}-${doctor.id}`} />
-                  ))}
-                </div>
-
-                {visibleDoctors.length > DOCTORS_PER_PAGE && (
-                  <div className="flex flex-wrap items-center justify-center gap-sm">
-                    <button
-                      className="rounded-full border border-outline-variant px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
-                      disabled={currentPage === 1}
-                      onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
-                      type="button"
-                    >
-                      Trước
-                    </button>
-
-                    {Array.from({ length: totalPages }, (_, index) => {
-                      const pageNumber = index + 1
-                      const isActive = pageNumber === currentPage
-
-                      return (
-                        <button
-                          className={`h-10 min-w-10 rounded-full px-sm font-label-md text-label-md transition-colors ${
-                            isActive
-                              ? 'bg-primary text-on-primary shadow-sm'
-                              : 'border border-outline-variant text-on-surface hover:bg-surface-container'
-                          }`}
-                          key={pageNumber}
-                          onClick={() => setCurrentPage(pageNumber)}
-                          type="button"
-                        >
-                          {pageNumber}
-                        </button>
-                      )
-                    })}
-
-                    <button
-                      className="rounded-full border border-outline-variant px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
-                      disabled={currentPage === totalPages}
-                      onClick={() => setCurrentPage((page) => Math.min(page + 1, totalPages))}
-                      type="button"
-                    >
-                      Sau
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
+              <PaginationControls
+                itemLabel="bác sĩ"
+                limit={DOCTORS_PER_PAGE}
+                onPageChange={setCurrentPage}
+                page={currentPage}
+                totalItems={visibleDoctors.length}
+                totalPages={totalPages}
+              />
+            </>
+          )}
         </section>
       </main>
     </div>

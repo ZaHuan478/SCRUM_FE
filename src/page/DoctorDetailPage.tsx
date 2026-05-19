@@ -131,7 +131,7 @@ const DoctorDetailPage = () => {
 
         {status === 'ready' && doctor && (
           <>
-            <section className="grid gap-xl rounded-xl border bg-white border-outline-variant/30 bg-surface p-lg shadow-sm lg:grid-cols-[280px_minmax(0,1fr)] lg:p-xl">
+            <section className="grid gap-xl rounded-xl border border-outline-variant/30 bg-surface p-lg shadow-sm lg:grid-cols-[280px_minmax(0,1fr)] lg:p-xl">
               <div className="overflow-hidden rounded-xl bg-surface-variant">
                 <Image
                   alt={doctor.user?.full_name || doctor.license_number}
@@ -184,17 +184,17 @@ const DoctorDetailPage = () => {
               </div>
             </section>
 
-            <section className="rounded-xl border bg-white border-outline-variant/30 bg-surface p-lg shadow-sm lg:p-xl">
+            <section className="rounded-xl border border-outline-variant/30 bg-surface p-lg shadow-sm lg:p-xl">
               <div className="mb-lg flex flex-wrap gap-sm border-b border-outline-variant/30 pb-md">
                 {[
                   { id: 'biography', label: 'Tiểu sử' },
                   { id: 'education', label: 'Đào tạo' },
                 ].map((tab) => (
                   <Button
-                    className={`rounded-none border-x-0 border-t-0 bg-transparent px-md py-sm shadow-none hover:bg-transparent ${
+                    className={`rounded-none border-x-0 border-t-0 px-md py-sm shadow-none ${
                       activeTab === tab.id
                         ? 'border-b-2 border-primary text-primary'
-                        : 'border-b-2 border-transparent text-on-surface-variant hover:border-primary/40 hover:text-primary'
+                        : 'border-b-2 border-transparent text-on-surface-variant hover:bg-surface-container-low hover:text-primary'
                     }`}
                     fullWidth={false}
                     key={tab.id}

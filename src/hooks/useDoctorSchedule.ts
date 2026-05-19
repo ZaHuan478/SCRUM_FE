@@ -119,27 +119,25 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
 
   const fetchSchedule = useCallback(async (): Promise<DoctorScheduleData> => {
     const doctorProfile = await getDoctorByUserId(storedUser.id)
-    const [assignmentsResult, feedbackResult] = await Promise.all([
-      getDoctorAssignments({
-        doctor_id: doctorProfile.id,
-        limit: 10,
-        status: 'ACTIVE',
-      }),
-      getDoctorFeedback(doctorProfile.id, { limit: 100 }),
-    ])
+    const assignmentsResult = await getDoctorAssignments({
+      doctor_id: doctorProfile.id,
+      limit: 10,
+      status: 'ACTIVE',
+    })
     const assignment = assignmentsResult.doctor_assignments[0] || null
-    const [slotsResult, appointmentsResult] = assignment
+    const [slotsResult, appointmentsResult, doctorFeedbackResult] = assignment
       ? await Promise.all([
         getAppointmentSlots({ doctor_id: doctorProfile.id, limit: 100 }),
         getAppointments({ doctor_id: doctorProfile.id, limit: 100 }),
+        getDoctorFeedback(doctorProfile.id, { limit: 100 }),
       ])
-      : [null, null]
+      : [null, null, { feedback: [] }]
 
     return {
       activeAssignment: assignment,
       appointments: appointmentsResult?.appointments || [],
       doctor: doctorProfile,
-      feedback: feedbackResult.feedback,
+      feedback: doctorFeedbackResult.feedback,
       slots: sortSlots(slotsResult?.appointment_slots || []),
     }
   }, [storedUser.id])

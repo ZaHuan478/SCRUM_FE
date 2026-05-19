@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
@@ -95,14 +96,21 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
     if (!user || !token) {
       disconnectSocket()
-      setNotifications([])
-      setUnreadCount(0)
-      return undefined
+      const timeoutId = window.setTimeout(() => {
+        setNotifications([])
+        setUnreadCount(0)
+      }, 0)
+
+      return () => {
+        window.clearTimeout(timeoutId)
+      }
     }
 
     connectSocket(token)
-    fetchNotifications()
-    fetchUnreadCount()
+    const timeoutId = window.setTimeout(() => {
+      void fetchNotifications()
+      void fetchUnreadCount()
+    }, 0)
 
     const unsubscribe = onNewNotification((notification) => {
       setNotifications((current) => [notification, ...current.filter((item) => String(item.id) !== String(notification.id))])
@@ -110,6 +118,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     })
 
     return () => {
+      window.clearTimeout(timeoutId)
       unsubscribe()
     }
   }, [fetchNotifications, fetchUnreadCount, user])

@@ -65,10 +65,6 @@ const DepartmentsSection = () => {
     })
   }
 
-  const goToSlide = (slideIndex: number) => {
-    setCurrentSlide(slideIndex)
-  }
-
   if (status === 'ready' && departments.length === 0) return null
 
   return (
@@ -98,7 +94,7 @@ const DepartmentsSection = () => {
                 style={{ transform: `translateX(-${activeSlide * 100}%)` }}
               >
                 {departmentSlides.map((slideDepartments, slideIndex) => (
-                  <div className="min-w-full px-1" key={`department-slide-${slideIndex}`}> 
+                  <div className="min-w-full px-1" key={`department-slide-${slideIndex}`}>
                     <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-4">
                       {slideDepartments.map((department, departmentIndex) => (
                         <DepartmentCard
@@ -124,7 +120,7 @@ const DepartmentsSection = () => {
                   onClick={goToPreviousSlide}
                   type="button"
                 >
-                  <Icon name="chevron_left" className="text-3xl" />
+                  <Icon className="text-3xl" name="chevron_left" />
                 </button>
                 <button
                   aria-label="Xem slide khoa tiếp theo"
@@ -132,7 +128,7 @@ const DepartmentsSection = () => {
                   onClick={goToNextSlide}
                   type="button"
                 >
-                  <Icon name="chevron_right" className="text-3xl" />
+                  <Icon className="text-3xl" name="chevron_right" />
                 </button>
               </>
             )}
@@ -150,7 +146,7 @@ const DepartmentsSection = () => {
                     : 'w-2.5 border border-outline-variant bg-surface-variant hover:bg-primary/30'
                 }`}
                 key={`department-dot-${slideIndex}`}
-                onClick={() => goToSlide(slideIndex)}
+                onClick={() => setCurrentSlide(slideIndex)}
                 type="button"
               />
             ))}

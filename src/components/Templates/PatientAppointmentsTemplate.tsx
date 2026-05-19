@@ -43,8 +43,8 @@ const PatientAppointmentsTemplate = ({
   slotStatus,
   slots,
   stats,
-  submitAppointmentFeedback,
   submitAppointment,
+  submitAppointmentFeedback,
   upcomingDays,
   user,
 }: PatientAppointmentsTemplateProps) => (
@@ -67,6 +67,8 @@ const PatientAppointmentsTemplate = ({
           bookingSuccess={bookingSuccess}
           departmentStatus={departmentStatus}
           departments={departments}
+          matchedSymptoms={matchedSymptoms}
+          onClearDoctor={clearSelectedDoctor}
           onDateChange={selectDate}
           onDepartmentChange={selectDepartment}
           onReasonChange={setReason}
@@ -74,7 +76,6 @@ const PatientAppointmentsTemplate = ({
           onSubmit={() => {
             void submitAppointment()
           }}
-          matchedSymptoms={matchedSymptoms}
           reason={reason}
           recommendedDepartments={recommendedDepartments}
           recommendationStatus={recommendationStatus}
@@ -87,7 +88,6 @@ const PatientAppointmentsTemplate = ({
           slotStatus={slotStatus}
           slots={slots}
           upcomingDays={upcomingDays}
-          onClearDoctor={clearSelectedDoctor}
         />
 
         {user?.role === 'PATIENT' ? (
@@ -102,10 +102,10 @@ const PatientAppointmentsTemplate = ({
             onCancel={(appointment) => {
               void cancelMyAppointment(appointment)
             }}
-            onSubmitFeedback={(appointment, payload) => submitAppointmentFeedback(appointment, payload)}
             onRefresh={() => {
               void Promise.all([loadAppointments(), loadFeedback()])
             }}
+            onSubmitFeedback={(appointment, payload) => submitAppointmentFeedback(appointment, payload)}
             status={appointmentStatus}
           />
         ) : (

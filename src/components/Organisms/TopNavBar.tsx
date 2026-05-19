@@ -6,7 +6,7 @@ import NotificationBell from '../Notifications/NotificationBell'
 import { AUTH_USER_CHANGED_EVENT, clearAuthSession, getStoredUser } from '../../services/auth.service'
 import type { User } from '../../services/auth.service'
 
-type NavKey = 'doctors' | 'departments' | 'symptoms' | 'homepage'
+type NavKey = 'homepage' | 'doctors' | 'departments' | 'symptoms'
 
 type TopNavBarProps = {
   active?: NavKey

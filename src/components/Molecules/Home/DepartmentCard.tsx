@@ -5,9 +5,9 @@ type DepartmentCardProps = {
   icon: string
   label: string
   tone: 'primary' | 'secondary' | 'tertiary' | 'neutral'
+  className?: string
   description?: string | null
   to?: string
-  className?: string
 }
 
 const toneClasses: Record<DepartmentCardProps['tone'], string> = {
@@ -23,14 +23,14 @@ const DepartmentCard = ({ className = '', description, icon, label, tone, to }: 
   const content = (
     <>
       <div className={`mb-md flex h-14 w-14 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-105 ${toneClasses[tone]}`}>
-        <Icon name={icon} className="text-3xl" />
+        <Icon className="text-3xl" name={icon} />
       </div>
       <h3 className="font-headline-sm text-headline-sm text-on-background">{label}</h3>
       <p className="mt-sm min-h-20 font-body-sm text-body-sm text-on-surface-variant">
         {cardDescription}
       </p>
       <span className="mt-auto inline-flex items-center gap-xs pt-md font-label-md text-label-md text-primary transition-all duration-300 group-hover:gap-sm group-hover:underline">
-        Xem chi tiết <Icon name="arrow_forward" className="text-lg" />
+        Xem chi tiết <Icon className="text-lg" name="arrow_forward" />
       </span>
     </>
   )

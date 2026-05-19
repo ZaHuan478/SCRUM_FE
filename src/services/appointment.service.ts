@@ -104,7 +104,7 @@ export const getMyAppointments = (query: Omit<AppointmentQuery, 'patient_id'> = 
 }
 
 export const createAppointment = (payload: CreateAppointmentPayload) =>
-  apiRequest<CreateAppointmentResult>('/appointments', {
+  apiRequest<Appointment>('/appointments', {
     method: 'POST',
     body: JSON.stringify(payload),
   })

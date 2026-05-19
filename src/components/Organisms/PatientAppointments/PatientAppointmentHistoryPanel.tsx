@@ -15,11 +15,11 @@ type PatientAppointmentHistoryPanelProps = {
   feedbackSuccess: string
   status: LoadStatus
   onCancel: (appointment: Appointment) => void
+  onRefresh: () => void
   onSubmitFeedback: (
     appointment: Appointment,
     payload: { rating: number; comment?: string | null }
   ) => Promise<boolean>
-  onRefresh: () => void
 }
 
 const PatientAppointmentHistoryPanel = ({
@@ -32,8 +32,8 @@ const PatientAppointmentHistoryPanel = ({
   feedbackSuccess,
   status,
   onCancel,
-  onSubmitFeedback,
   onRefresh,
+  onSubmitFeedback,
 }: PatientAppointmentHistoryPanelProps) => (
   <section className="flex flex-col gap-md rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-md shadow-sm lg:col-span-5">
     <div className="flex flex-col gap-md sm:flex-row sm:items-start sm:justify-between">
@@ -102,8 +102,8 @@ const PatientAppointmentHistoryPanel = ({
             appointment={appointment}
             feedback={feedback.find((item) => String(item.appointment_id) === String(appointment.id))}
             feedbackActionId={feedbackActionId}
-            isFeedbackLoading={feedbackStatus === 'loading'}
             isActing={String(actionId || '') === String(appointment.id)}
+            isFeedbackLoading={feedbackStatus === 'loading'}
             key={appointment.id}
             onCancel={onCancel}
             onSubmitFeedback={onSubmitFeedback}

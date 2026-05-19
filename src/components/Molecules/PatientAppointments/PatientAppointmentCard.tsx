@@ -16,8 +16,8 @@ type PatientAppointmentCardProps = {
   appointment: Appointment
   feedback?: Feedback
   feedbackActionId: number | string | null
-  isFeedbackLoading: boolean
   isActing: boolean
+  isFeedbackLoading: boolean
   onCancel: (appointment: Appointment) => void
   onSubmitFeedback: (
     appointment: Appointment,
@@ -37,8 +37,8 @@ const PatientAppointmentCard = ({
   appointment,
   feedback,
   feedbackActionId,
-  isFeedbackLoading,
   isActing,
+  isFeedbackLoading,
   onCancel,
   onSubmitFeedback,
 }: PatientAppointmentCardProps) => {
@@ -47,7 +47,7 @@ const PatientAppointmentCard = ({
   const [comment, setComment] = useState('')
   const [localError, setLocalError] = useState('')
   const meta = appointmentStatusMeta[appointment.status]
-  const canCancel = appointment.status === 'PENDING' || appointment.status === 'CONFIRMED'
+  const canCancel = ['PENDING_PAYMENT', 'PENDING', 'CONFIRMED'].includes(appointment.status)
   const canSubmitFeedback = appointment.status === 'COMPLETED' && !feedback && !isFeedbackLoading
   const isFeedbackActing = String(feedbackActionId || '') === String(appointment.id)
 
@@ -85,6 +85,7 @@ const PatientAppointmentCard = ({
           </div>
           <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">{getAppointmentDepartmentName(appointment)}</p>
         </div>
+
         <div className="flex flex-wrap gap-sm">
           {canSubmitFeedback && (
             <Button
@@ -108,7 +109,7 @@ const PatientAppointmentCard = ({
               type="button"
               variant="ghost"
             >
-              Há»§y lá»‹ch
+              Hủy lịch
             </Button>
           )}
         </div>
