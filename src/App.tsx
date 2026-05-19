@@ -36,6 +36,7 @@ function App() {
           <Route path="/symptoms" element={<SymptomCheckerPage />} />
           <Route path="/login" element={<AuthPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/reset-password" element={<AuthPage />} />
         </Routes>
       </BrowserRouter>
     </NotificationProvider>
