@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import type { Appointment } from '../services/appointment.service'
 import { cancelAppointment, createMyAppointment, getMyAppointments } from '../services/appointment.service'
 import type { AppointmentSlot } from '../services/appointmentSlot.service'
@@ -9,8 +9,6 @@ import type { Department } from '../services/department.service'
 import { getDepartments } from '../services/department.service'
 import { recommendDepartmentsBySymptoms } from '../services/departmentSymptomRule.service'
 import type { RecommendedDepartment } from '../services/departmentSymptomRule.service'
-import type { Feedback } from '../services/feedback.service'
-import { createFeedback, getMyFeedback } from '../services/feedback.service'
 import type { Symptom } from '../services/symptom.service'
 import { getSymptoms } from '../services/symptom.service'
 import {
@@ -52,11 +50,6 @@ export type PatientAppointmentsState = {
   bookingSuccess: string
   departments: Department[]
   departmentStatus: LoadStatus
-  feedback: Feedback[]
-  feedbackActionId: number | string | null
-  feedbackError: string
-  feedbackStatus: LoadStatus
-  feedbackSuccess: string
   matchedSymptoms: Symptom[]
   reason: string
   recommendedDepartments: RecommendedDepartment[]
@@ -74,17 +67,12 @@ export type PatientAppointmentsState = {
   cancelMyAppointment: (appointment: Appointment) => Promise<void>
   clearSelectedDoctor: () => void
   loadAppointments: () => Promise<void>
-  loadFeedback: () => Promise<void>
   loadSlots: () => Promise<void>
   selectDate: (date: string) => void
   selectDepartment: (departmentId: string) => void
   selectSlot: (slot: AppointmentSlot) => void
   setReason: (reason: string) => void
   submitAppointment: () => Promise<void>
-  submitAppointmentFeedback: (
-    appointment: Appointment,
-    payload: { rating: number; comment?: string | null }
-  ) => Promise<boolean>
 }
 
 export const usePatientAppointments = ({
@@ -92,7 +80,6 @@ export const usePatientAppointments = ({
   onAuthFailure,
 }: UsePatientAppointmentsOptions): PatientAppointmentsState => {
   const [searchParams, setSearchParams] = useSearchParams()
-  const navigate = useNavigate()
   const initialDoctorId = searchParams.get('doctor_id') || ''
   const initialDoctorName = searchParams.get('doctor_name') || ''
   const upcomingDays = useMemo(() => buildUpcomingDays(), [])
@@ -100,7 +87,6 @@ export const usePatientAppointments = ({
   const [symptoms, setSymptoms] = useState<Symptom[]>([])
   const [recommendedDepartments, setRecommendedDepartments] = useState<RecommendedDepartment[]>([])
   const [appointments, setAppointments] = useState<Appointment[]>([])
-  const [feedback, setFeedback] = useState<Feedback[]>([])
   const [slots, setSlots] = useState<AppointmentSlot[]>([])
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedDepartmentId, setSelectedDepartmentId] = useState('')
@@ -111,14 +97,10 @@ export const usePatientAppointments = ({
   const [departmentStatus, setDepartmentStatus] = useState<LoadStatus>('loading')
   const [recommendationStatus, setRecommendationStatus] = useState<LoadStatus>('ready')
   const [appointmentStatus, setAppointmentStatus] = useState<LoadStatus>('loading')
-  const [feedbackStatus, setFeedbackStatus] = useState<LoadStatus>('loading')
   const [slotStatus, setSlotStatus] = useState<LoadStatus>('loading')
   const [bookingError, setBookingError] = useState('')
   const [bookingSuccess, setBookingSuccess] = useState('')
-  const [feedbackError, setFeedbackError] = useState('')
-  const [feedbackSuccess, setFeedbackSuccess] = useState('')
   const [appointmentActionId, setAppointmentActionId] = useState<number | string | null>(null)
-  const [feedbackActionId, setFeedbackActionId] = useState<number | string | null>(null)
 
   const handleRequestError = useCallback((requestError: unknown, fallback: string) => {
     if (isAuthFailure(requestError)) {
@@ -127,15 +109,6 @@ export const usePatientAppointments = ({
     }
 
     setBookingError(requestError instanceof Error ? requestError.message : fallback)
-  }, [onAuthFailure])
-
-  const handleFeedbackError = useCallback((requestError: unknown, fallback: string) => {
-    if (isAuthFailure(requestError)) {
-      onAuthFailure()
-      return
-    }
-
-    setFeedbackError(requestError instanceof Error ? requestError.message : fallback)
   }, [onAuthFailure])
 
   const loadAppointments = useCallback(async () => {
@@ -158,30 +131,6 @@ export const usePatientAppointments = ({
       }
 
       setAppointmentStatus('error')
-    }
-  }, [onAuthFailure, storedUser?.role])
-
-  const loadFeedback = useCallback(async () => {
-    if (storedUser?.role !== 'PATIENT') {
-      setFeedback([])
-      setFeedbackStatus('ready')
-      return
-    }
-
-    setFeedbackStatus('loading')
-
-    try {
-      const result = await getMyFeedback({ limit: 100 })
-      setFeedback(result.feedback)
-      setFeedbackStatus('ready')
-    } catch (requestError) {
-      if (isAuthFailure(requestError)) {
-        onAuthFailure()
-        return
-      }
-
-      setFeedback([])
-      setFeedbackStatus('error')
     }
   }, [onAuthFailure, storedUser?.role])
 
@@ -330,16 +279,6 @@ export const usePatientAppointments = ({
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      void loadFeedback()
-    }, 0)
-
-    return () => {
-      window.clearTimeout(timeoutId)
-    }
-  }, [loadFeedback])
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
       void loadSlots()
     }, 0)
 
@@ -413,25 +352,24 @@ export const usePatientAppointments = ({
     }
 
     try {
-      const result = await createMyAppointment({
+      await createMyAppointment({
         reason: reason.trim() || null,
         slot_id: selectedSlot.id,
       })
       setReason('')
       setSelectedSlotId(null)
-      setBookingSuccess('Lịch hẹn đã được tạo, vui lòng quét QR để thanh toán.')
+      setBookingSuccess('Lịch hẹn đã được gửi, vui lòng chờ bác sĩ xác nhận.')
       await Promise.all([loadSlots(), loadAppointments()])
-
-      const paymentId = result.payment?.id
-      if (!paymentId) {
-        throw new Error('Lịch hẹn đã tạo nhưng chưa nhận được mã thanh toán. Vui lòng kiểm tra API tạo payment.')
-      }
-
-      navigate(`/payments/${paymentId}`)
+      // Payment task is not started yet. Re-enable this block when payment flow is ready.
+      // const paymentId = result.payment?.id
+      // if (!paymentId) {
+      //   throw new Error('Lịch hẹn đã tạo nhưng chưa nhận được mã thanh toán. Vui lòng kiểm tra API tạo payment.')
+      // }
+      // navigate(`/payments/${paymentId}`)
     } catch (requestError) {
       handleRequestError(requestError, 'Không thể đặt lịch hẹn.')
     }
-  }, [handleRequestError, loadAppointments, loadSlots, navigate, reason, selectedSlot, storedUser])
+  }, [handleRequestError, loadAppointments, loadSlots, reason, selectedSlot, storedUser])
 
   const cancelMyAppointment = useCallback(async (appointment: Appointment) => {
     if (!['PENDING_PAYMENT', 'PENDING', 'CONFIRMED'].includes(appointment.status)) return
@@ -453,52 +391,6 @@ export const usePatientAppointments = ({
     }
   }, [handleRequestError, loadAppointments, loadSlots])
 
-  const submitAppointmentFeedback = useCallback(async (
-    appointment: Appointment,
-    payload: { rating: number; comment?: string | null }
-  ) => {
-    setFeedbackError('')
-    setFeedbackSuccess('')
-
-    if (!storedUser) {
-      setFeedbackError('Vui lòng đăng nhập bằng tài khoản bệnh nhân để gửi đánh giá.')
-      return false
-    }
-
-    if (storedUser.role !== 'PATIENT') {
-      setFeedbackError('Chỉ tài khoản bệnh nhân mới có thể gửi đánh giá.')
-      return false
-    }
-
-    if (appointment.status !== 'COMPLETED') {
-      setFeedbackError('Chỉ có thể đánh giá lịch hẹn đã hoàn tất.')
-      return false
-    }
-
-    if (!Number.isInteger(payload.rating) || payload.rating < 1 || payload.rating > 5) {
-      setFeedbackError('Vui lòng chọn số sao từ 1 đến 5.')
-      return false
-    }
-
-    setFeedbackActionId(appointment.id)
-
-    try {
-      await createFeedback({
-        appointmentId: appointment.id,
-        comment: payload.comment?.trim() || null,
-        rating: payload.rating,
-      })
-      setFeedbackSuccess('Đánh giá của bạn đã được gửi.')
-      await loadFeedback()
-      return true
-    } catch (requestError) {
-      handleFeedbackError(requestError, 'Không thể gửi đánh giá.')
-      return false
-    } finally {
-      setFeedbackActionId(null)
-    }
-  }, [handleFeedbackError, loadFeedback, storedUser])
-
   return {
     appointmentActionId,
     appointmentStatus,
@@ -509,13 +401,7 @@ export const usePatientAppointments = ({
     clearSelectedDoctor,
     departmentStatus,
     departments,
-    feedback,
-    feedbackActionId,
-    feedbackError,
-    feedbackStatus,
-    feedbackSuccess,
     loadAppointments,
-    loadFeedback,
     loadSlots,
     matchedSymptoms,
     reason,
@@ -535,7 +421,6 @@ export const usePatientAppointments = ({
     slots,
     stats,
     submitAppointment,
-    submitAppointmentFeedback,
     upcomingDays,
   }
 }

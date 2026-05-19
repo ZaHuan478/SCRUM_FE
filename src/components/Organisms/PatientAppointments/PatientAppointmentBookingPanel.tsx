@@ -94,7 +94,7 @@ const PatientAppointmentBookingPanel = ({
             <h2 className="font-headline-sm text-headline-sm text-on-surface">Đặt lịch hẹn</h2>
           </div>
           <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
-            {selectedDate ? longDateFormatter.format(new Date(selectedDate)) : 'Hiển thị lịch khám trống gần nhất của các bác sĩ'}
+            {selectedDate ? longDateFormatter.format(new Date(selectedDate)) : ""}
           </p>
         </div>
         <div className="grid w-full grid-cols-1 gap-md md:w-auto md:grid-cols-2">

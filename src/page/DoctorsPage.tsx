@@ -18,6 +18,7 @@ type DoctorDirectoryItem = DoctorCardData & {
   departmentId?: number | string
   departmentName: string
   feeValue?: number
+  licenseNumber?: string
 }
 
 const DOCTORS_PER_PAGE = 4
@@ -34,6 +35,15 @@ const formatFee = (fee?: string | number | null) => {
     style: 'currency',
   }).format(amount)
 }
+
+const normalizeSearchText = (value: string) => (
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+)
 
 const loadActiveSymptoms = async () => {
   const firstPage = await getSymptoms({ limit: 100, status: 'ACTIVE' })
@@ -67,6 +77,7 @@ const mapAssignment = (assignment: DoctorAssignment): DoctorDirectoryItem | null
       : Number(doctor.consultation_fee),
     id: doctor.id,
     image: doctor.image_url || '',
+    licenseNumber: doctor.license_number,
     name: doctor.user?.full_name || doctor.license_number,
     phone: doctor.user?.phone,
     specialty: assignment.department?.name || '',
@@ -175,7 +186,7 @@ const DoctorsPage = () => {
   }, [matchedSymptoms])
 
   const visibleDoctors = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase()
+    const normalizedQuery = normalizeSearchText(query.trim())
     const hasRecommendedDepartments = recommendedDepartmentIds.size > 0
 
     return doctors.filter((doctor) => {
@@ -186,15 +197,26 @@ const DoctorsPage = () => {
       const feeMatches = matchesFeeFilter(doctor, selectedFee)
       const departmentMatches = hasRecommendedDepartments
         ? recommendedDepartmentIds.has(String(doctor.departmentId))
-        : true
+        : false
       const textMatches = normalizedQuery
-        ? `${doctor.name || ''} ${doctor.departmentName} ${doctor.description || ''}`.toLowerCase().includes(normalizedQuery)
+        ? normalizeSearchText([
+          doctor.name,
+          doctor.departmentName,
+          doctor.specialty,
+          doctor.description,
+          doctor.email,
+          doctor.phone,
+          doctor.licenseNumber,
+        ].filter(Boolean).join(' ')).includes(normalizedQuery)
+        : true
+      const queryMatches = normalizedQuery
+        ? textMatches || departmentMatches
         : true
 
       return selectedDepartmentMatches
         && experienceMatches
         && feeMatches
-        && (departmentMatches || textMatches)
+        && queryMatches
     })
   }, [doctors, query, recommendedDepartmentIds, selectedDepartmentId, selectedExperience, selectedFee])
 
@@ -260,9 +282,9 @@ const DoctorsPage = () => {
           <div className="grid gap-md lg:grid-cols-[minmax(260px,420px)_minmax(0,1fr)_auto] lg:items-end">
             <Input
               icon="search"
-              label="Tìm theo triệu chứng"
+              label="Tìm kiếm bác sĩ"
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Ví dụ: đau ngực, mất ngủ, đau lưng..."
+              placeholder="Nhập tên bác sĩ, khoa hoặc chuyên môn..."
               type="search"
               value={query}
             />

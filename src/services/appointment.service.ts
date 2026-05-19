@@ -52,21 +52,22 @@ export type CreateMyAppointmentPayload = {
   reason?: string | null
 }
 
-export type AppointmentPayment = {
-  id: number | string
-  appointment_id: number | string
-  amount: string | number
-  currency: string
-  method: string
-  status: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED'
-  qr_code_url?: string | null
-}
-
-export type CreateAppointmentResult = {
-  appointment: Appointment
-  payment: AppointmentPayment
-  qr_code_url?: string | null
-}
+// Payment task is not started yet. Re-enable these types when payment flow is ready.
+// export type AppointmentPayment = {
+//   id: number | string
+//   appointment_id: number | string
+//   amount: string | number
+//   currency: string
+//   method: string
+//   status: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED'
+//   qr_code_url?: string | null
+// }
+//
+// export type CreateAppointmentResult = {
+//   appointment: Appointment
+//   payment: AppointmentPayment
+//   qr_code_url?: string | null
+// }
 
 export type CancelAppointmentPayload = {
   cancel_reason?: string | null
@@ -110,7 +111,7 @@ export const createAppointment = (payload: CreateAppointmentPayload) =>
   })
 
 export const createMyAppointment = (payload: CreateMyAppointmentPayload) =>
-  apiRequest<CreateAppointmentResult>('/appointments/me', {
+  apiRequest<Appointment>('/appointments/me', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
