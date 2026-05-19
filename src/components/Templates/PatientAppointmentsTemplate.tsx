@@ -19,7 +19,13 @@ const PatientAppointmentsTemplate = ({
   clearSelectedDoctor,
   departmentStatus,
   departments,
+  feedback,
+  feedbackActionId,
+  feedbackError,
+  feedbackStatus,
+  feedbackSuccess,
   loadAppointments,
+  loadFeedback,
   matchedSymptoms,
   reason,
   recommendedDepartments,
@@ -37,6 +43,7 @@ const PatientAppointmentsTemplate = ({
   slotStatus,
   slots,
   stats,
+  submitAppointmentFeedback,
   submitAppointment,
   upcomingDays,
   user,
@@ -87,11 +94,17 @@ const PatientAppointmentsTemplate = ({
           <PatientAppointmentHistoryPanel
             actionId={appointmentActionId}
             appointments={appointments}
+            feedback={feedback}
+            feedbackActionId={feedbackActionId}
+            feedbackError={feedbackError}
+            feedbackStatus={feedbackStatus}
+            feedbackSuccess={feedbackSuccess}
             onCancel={(appointment) => {
               void cancelMyAppointment(appointment)
             }}
+            onSubmitFeedback={(appointment, payload) => submitAppointmentFeedback(appointment, payload)}
             onRefresh={() => {
-              void loadAppointments()
+              void Promise.all([loadAppointments(), loadFeedback()])
             }}
             status={appointmentStatus}
           />

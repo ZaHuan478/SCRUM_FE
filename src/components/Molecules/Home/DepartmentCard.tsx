@@ -1,9 +1,13 @@
+import { Link } from 'react-router-dom'
 import Icon from '../../Atoms/Icon'
 
 type DepartmentCardProps = {
   icon: string
   label: string
   tone: 'primary' | 'secondary' | 'tertiary' | 'neutral'
+  description?: string | null
+  to?: string
+  className?: string
 }
 
 const toneClasses: Record<DepartmentCardProps['tone'], string> = {
@@ -13,15 +17,33 @@ const toneClasses: Record<DepartmentCardProps['tone'], string> = {
   neutral: 'bg-surface-variant text-outline',
 }
 
-const DepartmentCard = ({ icon, label, tone }: DepartmentCardProps) => {
-  return (
-    <article className="rounded-xl border border-outline-variant/20 bg-surface p-xl text-center shadow-sm transition-all hover:-translate-y-1 hover:border-primary/40">
-      <div className={`mx-auto mb-md flex h-16 w-16 items-center justify-center rounded-full ${toneClasses[tone]}`}>
+const DepartmentCard = ({ className = '', description, icon, label, tone, to }: DepartmentCardProps) => {
+  const cardDescription = description || 'Khoa đang tiếp nhận lịch khám trong hệ thống.'
+  const cardClasses = `group flex h-full flex-col rounded-2xl border border-outline-variant/30 bg-surface p-lg text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg ${className}`
+  const content = (
+    <>
+      <div className={`mb-md flex h-14 w-14 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-105 ${toneClasses[tone]}`}>
         <Icon name={icon} className="text-3xl" />
       </div>
-      <p className="font-label-md text-label-md text-on-background">{label}</p>
-    </article>
+      <h3 className="font-headline-sm text-headline-sm text-on-background">{label}</h3>
+      <p className="mt-sm min-h-20 font-body-sm text-body-sm text-on-surface-variant">
+        {cardDescription}
+      </p>
+      <span className="mt-auto inline-flex items-center gap-xs pt-md font-label-md text-label-md text-primary transition-all duration-300 group-hover:gap-sm group-hover:underline">
+        Xem chi tiết <Icon name="arrow_forward" className="text-lg" />
+      </span>
+    </>
   )
+
+  if (to) {
+    return (
+      <Link className={cardClasses} to={to}>
+        {content}
+      </Link>
+    )
+  }
+
+  return <article className={cardClasses}>{content}</article>
 }
 
 export default DepartmentCard

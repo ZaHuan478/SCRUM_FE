@@ -2,21 +2,37 @@ import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import PatientAppointmentCard from '../../Molecules/PatientAppointments/PatientAppointmentCard'
 import type { Appointment } from '../../../services/appointment.service'
+import type { Feedback } from '../../../services/feedback.service'
 import type { LoadStatus } from '../../../utils/patientAppointments'
 
 type PatientAppointmentHistoryPanelProps = {
   actionId: number | string | null
   appointments: Appointment[]
+  feedback: Feedback[]
+  feedbackActionId: number | string | null
+  feedbackError: string
+  feedbackStatus: LoadStatus
+  feedbackSuccess: string
   status: LoadStatus
   onCancel: (appointment: Appointment) => void
+  onSubmitFeedback: (
+    appointment: Appointment,
+    payload: { rating: number; comment?: string | null }
+  ) => Promise<boolean>
   onRefresh: () => void
 }
 
 const PatientAppointmentHistoryPanel = ({
   actionId,
   appointments,
+  feedback,
+  feedbackActionId,
+  feedbackError,
+  feedbackStatus,
+  feedbackSuccess,
   status,
   onCancel,
+  onSubmitFeedback,
   onRefresh,
 }: PatientAppointmentHistoryPanelProps) => (
   <section className="flex flex-col gap-md rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-md shadow-sm lg:col-span-5">
@@ -30,7 +46,7 @@ const PatientAppointmentHistoryPanel = ({
       </div>
       <Button
         className="inline-flex items-center justify-center gap-xs px-md py-sm"
-        disabled={status === 'loading'}
+        disabled={status === 'loading' || feedbackStatus === 'loading'}
         fullWidth={false}
         onClick={onRefresh}
         type="button"
@@ -53,6 +69,24 @@ const PatientAppointmentHistoryPanel = ({
       </p>
     )}
 
+    {feedbackStatus === 'error' && (
+      <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
+        Không thể tải đánh giá của bạn.
+      </p>
+    )}
+
+    {feedbackError && (
+      <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
+        {feedbackError}
+      </p>
+    )}
+
+    {feedbackSuccess && (
+      <p className="rounded-lg bg-secondary-fixed px-md py-sm font-body-sm text-body-sm text-on-secondary-fixed">
+        {feedbackSuccess}
+      </p>
+    )}
+
     {status !== 'loading' && appointments.length === 0 && (
       <div className="rounded-lg border border-dashed border-outline-variant px-md py-xl text-center">
         <Icon className="text-4xl text-outline" name="calendar_add_on" />
@@ -66,9 +100,13 @@ const PatientAppointmentHistoryPanel = ({
         {appointments.map((appointment) => (
           <PatientAppointmentCard
             appointment={appointment}
+            feedback={feedback.find((item) => String(item.appointment_id) === String(appointment.id))}
+            feedbackActionId={feedbackActionId}
+            isFeedbackLoading={feedbackStatus === 'loading'}
             isActing={String(actionId || '') === String(appointment.id)}
             key={appointment.id}
             onCancel={onCancel}
+            onSubmitFeedback={onSubmitFeedback}
           />
         ))}
       </div>
