@@ -4,10 +4,28 @@ import Image from '../components/Atoms/Image'
 import Icon from '../components/Atoms/Icon'
 import Button from '../components/Atoms/Button'
 import TopNavBar from '../components/Organisms/TopNavBar'
+import DoctorRatingForm from '../components/DoctorRating/DoctorRatingForm'
+import DoctorRatingList from '../components/DoctorRating/DoctorRatingList'
+import DoctorRatingSummary from '../components/DoctorRating/DoctorRatingSummary'
 import { getDoctorAssignments } from '../services/doctorAssignment.service'
 import type { DoctorAssignment } from '../services/doctorAssignment.service'
 import { getDoctorById } from '../services/doctor.service'
 import type { Doctor } from '../services/doctor.service'
+import { getMyAppointments } from '../services/appointment.service'
+import { AUTH_USER_CHANGED_EVENT, getStoredUser } from '../services/auth.service'
+import type { User } from '../services/auth.service'
+import {
+  createOrUpdateDoctorRating,
+  deleteMyDoctorRating,
+  getDoctorRatings,
+  getDoctorRatingSummary,
+  getMyDoctorRating,
+} from '../services/doctorRating.api'
+import type {
+  DoctorRatingItem,
+  DoctorRatingSummary as DoctorRatingSummaryData,
+  MyDoctorRating,
+} from '../services/doctorRating.api'
 
 type DetailTab = 'biography' | 'education'
 
@@ -69,6 +87,19 @@ const DoctorDetailPage = () => {
   const [assignments, setAssignments] = useState<DoctorAssignment[]>([])
   const [activeTab, setActiveTab] = useState<DetailTab>('biography')
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
+  const [currentUser, setCurrentUser] = useState<User | null>(() => getStoredUser())
+  const [ratingSummary, setRatingSummary] = useState<DoctorRatingSummaryData | null>(null)
+  const [ratingList, setRatingList] = useState<DoctorRatingItem[]>([])
+  const [ratingPage, setRatingPage] = useState(1)
+  const [ratingHasMore, setRatingHasMore] = useState(false)
+  const [ratingLoading, setRatingLoading] = useState(false)
+  const [ratingListLoading, setRatingListLoading] = useState(false)
+  const [ratingError, setRatingError] = useState('')
+  const [ratingSuccess, setRatingSuccess] = useState('')
+  const [isSubmittingRating, setIsSubmittingRating] = useState(false)
+  const [myRating, setMyRating] = useState<MyDoctorRating | null>(null)
+  const [canRate, setCanRate] = useState(false)
+  const [appointmentId, setAppointmentId] = useState<number | string | null>(null)
 
   useEffect(() => {
     if (!doctorId) return
@@ -99,6 +130,92 @@ const DoctorDetailPage = () => {
     }
   }, [doctorId])
 
+  useEffect(() => {
+    const handleUserChange = (event: Event) => {
+      const nextUser = (event as CustomEvent<User | null>).detail
+      setCurrentUser(nextUser ?? getStoredUser())
+    }
+
+    window.addEventListener(AUTH_USER_CHANGED_EVENT, handleUserChange)
+
+    return () => {
+      window.removeEventListener(AUTH_USER_CHANGED_EVENT, handleUserChange)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!doctorId) return
+
+    let active = true
+    setRatingLoading(true)
+    setRatingPage(1)
+
+    Promise.all([
+      getDoctorRatingSummary(doctorId),
+      getDoctorRatings(doctorId, { page: 1, limit: 6 }),
+    ])
+      .then(([summary, list]) => {
+        if (!active) return
+
+        setRatingSummary(summary)
+        setRatingList(list.ratings)
+        setRatingHasMore(list.pagination.page < list.pagination.total_pages)
+      })
+      .catch(() => {
+        if (!active) return
+
+        setRatingSummary(null)
+        setRatingList([])
+        setRatingHasMore(false)
+      })
+      .finally(() => {
+        if (!active) return
+        setRatingLoading(false)
+      })
+
+    return () => {
+      active = false
+    }
+  }, [doctorId])
+
+  useEffect(() => {
+    if (!doctorId) return
+
+    if (!currentUser || currentUser.role !== 'PATIENT') {
+      setMyRating(null)
+      setCanRate(false)
+      setAppointmentId(null)
+      return
+    }
+
+    let active = true
+
+    Promise.all([
+      getMyDoctorRating(doctorId),
+      getMyAppointments({ doctor_id: doctorId, status: 'COMPLETED', limit: 1, page: 1 }),
+    ])
+      .then(([ratingData, appointmentResult]) => {
+        if (!active) return
+
+        setMyRating(ratingData)
+        const latestAppointment = appointmentResult.appointments[0]
+        const nextAppointmentId = ratingData?.appointment_id || latestAppointment?.id || null
+        setAppointmentId(nextAppointmentId)
+        setCanRate(Boolean(nextAppointmentId))
+      })
+      .catch(() => {
+        if (!active) return
+
+        setMyRating(null)
+        setCanRate(false)
+        setAppointmentId(null)
+      })
+
+    return () => {
+      active = false
+    }
+  }, [currentUser, doctorId])
+
   const primarySpecialty = assignments[0]?.department?.name || doctor?.description || 'Chuyên khoa'
   const biography = doctor?.prof_biography || buildFallbackBiography(doctor || undefined, primarySpecialty)
   const educationItems = useMemo(() => buildEducation(doctor || undefined, primarySpecialty), [doctor, primarySpecialty])
@@ -106,6 +223,103 @@ const DoctorDetailPage = () => {
 
   if (doctor?.id) bookingSearch.set('doctor_id', String(doctor.id))
   if (doctor?.user?.full_name) bookingSearch.set('doctor_name', doctor.user.full_name)
+
+  const handleLoadMoreRatings = async () => {
+    if (!doctorId || ratingListLoading) return
+
+    const nextPage = ratingPage + 1
+    setRatingListLoading(true)
+
+    try {
+      const list = await getDoctorRatings(doctorId, { page: nextPage, limit: 6 })
+      setRatingList((current) => [...current, ...list.ratings])
+      setRatingHasMore(list.pagination.page < list.pagination.total_pages)
+      setRatingPage(nextPage)
+    } catch {
+      setRatingHasMore(false)
+    } finally {
+      setRatingListLoading(false)
+    }
+  }
+
+  const reloadRatings = async () => {
+    if (!doctorId) return
+
+    try {
+      const [summary, list] = await Promise.all([
+        getDoctorRatingSummary(doctorId),
+        getDoctorRatings(doctorId, { page: 1, limit: 6 }),
+      ])
+
+      setRatingSummary(summary)
+      setRatingList(list.ratings)
+      setRatingHasMore(list.pagination.page < list.pagination.total_pages)
+      setRatingPage(1)
+    } catch {
+      setRatingSummary(null)
+      setRatingList([])
+      setRatingHasMore(false)
+    }
+  }
+
+  const handleSubmitRating = async ({ rating, comment }: { rating: number; comment?: string | null }) => {
+    if (!doctorId) return
+
+    setRatingError('')
+    setRatingSuccess('')
+
+    if (!rating || rating < 1) {
+      setRatingError('Vui lòng chọn số sao trước khi gửi đánh giá.')
+      return
+    }
+
+    if (!appointmentId) {
+      setRatingError('Bạn cần hoàn thành lịch hẹn trước khi đánh giá.')
+      return
+    }
+
+    setIsSubmittingRating(true)
+
+    try {
+      await createOrUpdateDoctorRating(doctorId, {
+        appointmentId,
+        rating,
+        comment: comment || null,
+      })
+      setRatingSuccess('Đánh giá đã được gửi thành công.')
+      await reloadRatings()
+      const latestRating = await getMyDoctorRating(doctorId)
+      setMyRating(latestRating)
+      if (latestRating?.appointment_id) {
+        setAppointmentId(latestRating.appointment_id)
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Không thể gửi đánh giá.'
+      setRatingError(message)
+    } finally {
+      setIsSubmittingRating(false)
+    }
+  }
+
+  const handleDeleteRating = async () => {
+    if (!doctorId) return
+
+    setRatingError('')
+    setRatingSuccess('')
+    setIsSubmittingRating(true)
+
+    try {
+      await deleteMyDoctorRating(doctorId)
+      setRatingSuccess('Đánh giá đã được xóa.')
+      setMyRating(null)
+      await reloadRatings()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Không thể xóa đánh giá.'
+      setRatingError(message)
+    } finally {
+      setIsSubmittingRating(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background text-on-background">
@@ -150,7 +364,7 @@ const DoctorDetailPage = () => {
                     {doctor.description || 'Thông tin chuyên môn đang được cập nhật.'}
                   </p>
                 </div>
-                <div className="grid gap-md sm:grid-cols-3">
+                <div className="grid gap-md sm:grid-cols-4">
                   <div className="rounded-lg bg-surface-container-low p-md">
                     <p className="font-label-sm text-label-sm text-on-surface-variant">Kinh nghiệm</p>
                     <p className="mt-xs font-label-md text-label-md text-on-surface">
@@ -165,6 +379,19 @@ const DoctorDetailPage = () => {
                     <p className="font-label-sm text-label-sm text-on-surface-variant">Trạng thái</p>
                     <p className="mt-xs font-label-md text-label-md text-primary">
                       {doctor.status === 'ACTIVE' ? 'Đang nhận lịch' : 'Tạm ngưng'}
+                    </p>
+                  </div>
+                  <div className="rounded-lg bg-surface-container-low p-md">
+                    <p className="font-label-sm text-label-sm text-on-surface-variant">Đánh giá</p>
+                    <p className="mt-xs font-label-md text-label-md text-on-surface">
+                      {ratingSummary?.totalRatings
+                        ? `${ratingSummary.averageRating.toFixed(1)}/5`
+                        : 'Chưa có'}
+                    </p>
+                    <p className="mt-xxs font-body-sm text-body-sm text-on-surface-variant">
+                      {ratingSummary?.totalRatings
+                        ? `${ratingSummary.totalRatings} lượt đánh giá`
+                        : 'Chưa có đánh giá'}
                     </p>
                   </div>
                 </div>
@@ -228,6 +455,47 @@ const DoctorDetailPage = () => {
                     ))}
                   </div>
                 </article>
+              )}
+            </section>
+
+            <section className="grid gap-lg lg:grid-cols-[320px_minmax(0,1fr)]">
+              <DoctorRatingSummary isLoading={ratingLoading} summary={ratingSummary} />
+              <div className="space-y-md">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-headline-md text-headline-md text-on-surface">Đánh giá từ bệnh nhân</h2>
+                  <span className="font-body-sm text-body-sm text-on-surface-variant">
+                    {ratingSummary?.totalRatings ?? 0} lượt đánh giá
+                  </span>
+                </div>
+                <DoctorRatingList
+                  hasMore={ratingHasMore}
+                  isLoading={ratingLoading || ratingListLoading}
+                  onLoadMore={handleLoadMoreRatings}
+                  ratings={ratingList}
+                />
+              </div>
+            </section>
+
+            <section>
+              {!currentUser && (
+                <div className="rounded-xl border border-outline-variant/30 bg-surface p-lg shadow-sm">
+                  <p className="font-body-md text-body-md text-on-surface-variant">
+                    Đăng nhập để đánh giá bác sĩ.
+                  </p>
+                </div>
+              )}
+
+              {currentUser && currentUser.role === 'PATIENT' && (canRate || myRating) && (
+                <DoctorRatingForm
+                  canDelete={Boolean(myRating)}
+                  error={ratingError}
+                  initialComment={myRating?.comment || ''}
+                  initialRating={myRating?.rating || 0}
+                  isSubmitting={isSubmittingRating}
+                  onDelete={handleDeleteRating}
+                  onSubmit={handleSubmitRating}
+                  success={ratingSuccess}
+                />
               )}
             </section>
           </>

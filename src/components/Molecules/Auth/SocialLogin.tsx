@@ -7,7 +7,12 @@ type SocialProvider = {
   icon: string
 }
 
-const providers: SocialProvider[] = []
+const providers: SocialProvider[] = [
+  {
+    label: 'Tiep tuc voi Google',
+    icon: 'g_translate',
+  },
+]
 
 export const SocialLogin: React.FC = () => {
   if (providers.length === 0) return null
@@ -18,6 +23,7 @@ export const SocialLogin: React.FC = () => {
         <Button
           className="col-span-2 flex items-center justify-center gap-sm py-sm px-md border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors"
           key={provider.label}
+          type="button"
           variant="ghost"
         >
           <Icon name={provider.icon} />
