@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Button from '../../Atoms/Button'
 import DoctorCard from '../../Molecules/Home/DoctorCard'
@@ -45,8 +45,15 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
 
   useEffect(() => {
     let active = true
+    const keyword = query.trim()
 
-    getDoctors({ limit: 4, status: 'ACTIVE' })
+    setApiStatus('loading')
+
+    getDoctors({
+      limit: keyword ? 12 : 4,
+      keyword: keyword || undefined,
+      status: 'ACTIVE',
+    })
       .then((result) => {
         if (!active) return
 
@@ -63,16 +70,7 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
     return () => {
       active = false
     }
-  }, [])
-
-  const visibleDoctors = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase()
-    if (!normalizedQuery) return doctors
-
-    return doctors.filter((doctor) =>
-      `${doctor.name || ''} ${doctor.specialty || ''}`.toLowerCase().includes(normalizedQuery)
-    )
-  }, [doctors, query])
+  }, [query])
 
   return (
     <section className="mx-auto max-w-7xl px-lg py-xxxl md:px-xxl" id="featured-doctors">
@@ -95,10 +93,10 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
       {apiStatus === 'loading' && (
         <p className="mb-md font-body-sm text-body-sm text-on-surface-variant">Đang tải danh sách bác sĩ...</p>
       )}
-      {visibleDoctors.length > 0 ? (
+      {doctors.length > 0 ? (
         <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-4">
-          {visibleDoctors.map((doctor, index) => (
-            <DoctorCard doctor={doctor} key={`${doctor.name || 'doctor'}-${index}`} />
+          {doctors.map((doctor, index) => (
+            <DoctorCard doctor={doctor} key={doctor.id ? String(doctor.id) : `${doctor.name || 'doctor'}-${index}`} />
           ))}
         </div>
       ) : (
