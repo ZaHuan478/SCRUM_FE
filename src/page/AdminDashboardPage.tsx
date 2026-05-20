@@ -29,6 +29,7 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
     editingDoctor,
     editingUser,
     handleCreateDepartment,
+    handleCreateDoctor,
     handleCreateUser,
     handleDeleteUser,
     handleDepartmentEditSubmit,
@@ -46,6 +47,7 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
     handleUserPageChange,
     handleUserSearchQueryChange,
     isDepartmentModalOpen,
+    isDoctorModalOpen,
     isSavingDepartment,
     isSavingDoctor,
     isSavingUser,
@@ -81,6 +83,7 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         doctors={visibleDoctors}
         doctorStatus={dashboard.doctorStatus}
         onCreateDepartment={handleCreateDepartment}
+        onCreateDoctor={handleCreateDoctor}
         onCreateUser={handleCreateUser}
         onDeleteUser={handleDeleteUser}
         onEditDepartment={handleEditDepartment}
@@ -157,8 +160,9 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         doctor={editingDoctor}
         error={doctorEditError}
         isSaving={isSavingDoctor}
-        key={editingDoctor?.id || 'doctor-edit-empty'}
+        key={editingDoctor?.id || (isDoctorModalOpen ? 'doctor-create-open' : 'doctor-create-closed')}
         onClose={closeDoctorModal}
+        open={isDoctorModalOpen}
         onSubmit={handleDoctorEditSubmit}
       />
     </>

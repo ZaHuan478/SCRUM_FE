@@ -18,7 +18,6 @@ const PatientAppointmentsTemplate = ({
   bookingError,
   bookingSuccess,
   cancelMyAppointment,
-  changeAppointmentPage,
   clearSelectedDoctor,
   closePaymentModal,
   departmentStatus,
@@ -102,7 +101,6 @@ const PatientAppointmentsTemplate = ({
             onRefresh={() => {
               void loadAppointments(appointmentPagination.page)
             }}
-            pagination={appointmentPagination}
             status={appointmentStatus}
           />
         ) : (

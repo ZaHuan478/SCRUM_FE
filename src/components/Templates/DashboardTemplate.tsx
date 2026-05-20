@@ -51,6 +51,7 @@ type DashboardTemplateProps = {
   totalDoctors: number
   totalPatients: number
   totalUsers: number
+  onCreateDoctor: () => void
   onCreateDepartment: () => void
   onEditDepartment: (department: Department) => void
   onLogout: () => void
@@ -96,6 +97,7 @@ const DashboardTemplate = ({
   totalDoctors,
   totalPatients,
   totalUsers,
+  onCreateDoctor,
   onCreateDepartment,
   onEditDepartment,
   onLogout,
@@ -151,6 +153,7 @@ const DashboardTemplate = ({
           {activeSection === 'doctors' && (
             <DoctorManagementTable
               doctors={doctors}
+              onCreateDoctor={onCreateDoctor}
               onEditDoctor={onEditDoctor}
               onPageChange={onDoctorPageChange}
               onSearchQueryChange={onDoctorSearchQueryChange}

@@ -15,6 +15,9 @@ export type DoctorDepartmentOption = {
 
 export type DoctorEditFormValues = {
   fullName: string
+  email?: string
+  password?: string
+  phone?: string
   licenseNumber: string
   cccd?: string
   experienceYears?: string
@@ -34,6 +37,7 @@ type DoctorEditModalProps = {
   isSaving: boolean
   onClose: () => void
   onSubmit: (payload: DoctorEditFormValues) => void
+  open?: boolean
 }
 
 const DoctorEditModal = ({
@@ -43,9 +47,15 @@ const DoctorEditModal = ({
   isSaving,
   onClose,
   onSubmit,
+  open,
 }: DoctorEditModalProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const isCreating = !doctor
+  const shouldOpen = open ?? Boolean(doctor)
   const [fullName, setFullName] = useState(() => doctor?.name || '')
+  const [email, setEmail] = useState(() => doctor?.email || '')
+  const [password, setPassword] = useState('')
+  const [phone, setPhone] = useState(() => doctor?.phone || '')
   const [licenseNumber, setLicenseNumber] = useState(() => doctor?.licenseNumber || '')
   const [cccd, setCccd] = useState(() => doctor?.cccd || '')
   const [experienceYears, setExperienceYears] = useState(() => (
@@ -62,9 +72,10 @@ const DoctorEditModal = ({
   const [imageData, setImageData] = useState('')
   const [imageError, setImageError] = useState('')
 
-  if (!doctor) return null
+  if (!shouldOpen) return null
 
   const imagePreview = imageData || imageUrl
+  const displayName = fullName || doctor?.name || 'Bác sĩ'
 
   const resetFileInput = () => {
     if (fileInputRef.current) fileInputRef.current.value = ''
@@ -113,6 +124,9 @@ const DoctorEditModal = ({
 
     onSubmit({
       fullName: fullName.trim(),
+      email: email.trim(),
+      password,
+      phone: phone.trim(),
       licenseNumber: licenseNumber.trim(),
       cccd: cccd.trim(),
       experienceYears: experienceYears.trim(),
@@ -137,8 +151,8 @@ const DoctorEditModal = ({
       >
         <div className="mb-xl flex items-start justify-between gap-lg border-b border-outline-variant/30 pb-lg">
           <div>
-            <h2 className="font-headline-sm text-headline-sm text-on-surface">Cập nhật bác sĩ</h2>
-            <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">{doctor.email || doctor.licenseNumber}</p>
+            <h2 className="font-headline-sm text-headline-sm text-on-surface">{isCreating ? 'Thêm bác sĩ' : 'Cập nhật bác sĩ'}</h2>
+            <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">{email || doctor?.licenseNumber || 'Tạo tài khoản bác sĩ mới'}</p>
           </div>
           <Button
             aria-label="Đóng"
@@ -163,6 +177,36 @@ const DoctorEditModal = ({
             type="text"
             value={fullName}
           />
+
+          {isCreating && (
+            <div className="grid grid-cols-1 gap-md sm:grid-cols-2">
+              <Input
+                id="doctor-email"
+                label="Email"
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="doctor@example.com"
+                required
+                type="email"
+                value={email}
+              />
+              <Input
+                id="doctor-password"
+                label="Mật khẩu"
+                onChange={(event) => setPassword(event.target.value)}
+                required
+                type="password"
+                value={password}
+              />
+              <Input
+                id="doctor-phone"
+                label="Số điện thoại"
+                onChange={(event) => setPhone(event.target.value)}
+                placeholder="090..."
+                type="tel"
+                value={phone}
+              />
+            </div>
+          )}
 
           <div className="grid grid-cols-1 gap-md sm:grid-cols-2">
             <Input
@@ -209,7 +253,7 @@ const DoctorEditModal = ({
 
           <div className="grid grid-cols-1 gap-md sm:grid-cols-[112px_1fr] sm:items-end">
             <div className="h-28 w-28 overflow-hidden rounded-lg bg-surface-variant">
-              <Image alt={doctor.name} className="h-full w-full object-cover" fallbackClassName="h-full w-full" src={imagePreview} />
+              <Image alt={displayName} className="h-full w-full object-cover" fallbackClassName="h-full w-full" src={imagePreview} />
             </div>
             <div className="space-y-md">
               <Input
@@ -328,7 +372,7 @@ const DoctorEditModal = ({
             Hủy
           </Button>
           <Button className="px-lg py-sm" fullWidth={false} isLoading={isSaving} type="submit">
-            Lưu thay đổi
+            {isCreating ? 'Tạo bác sĩ' : 'Lưu thay đổi'}
           </Button>
         </div>
       </form>

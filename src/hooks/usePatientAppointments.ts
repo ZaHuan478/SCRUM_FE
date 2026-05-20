@@ -23,6 +23,7 @@ import {
   toPatientAppointmentPagination,
 } from '../utils/patientAppointments'
 import type { LoadStatus, PatientAppointmentStat } from '../utils/patientAppointments'
+import type { PatientAppointmentPagination } from '../utils/patientAppointments'
 import { getPaymentPolicyForSlot } from '../utils/paymentPolicy'
 import type { PaymentPolicy } from '../utils/paymentPolicy'
 import type { Payment } from '../types/payment'
@@ -76,7 +77,7 @@ export type PatientAppointmentsState = {
   cancelMyAppointment: (appointment: Appointment) => Promise<void>
   clearSelectedDoctor: () => void
   closePaymentModal: () => void
-  loadAppointments: () => Promise<void>
+  loadAppointments: (page?: number) => Promise<void>
   loadSlots: () => Promise<void>
   openPaymentModal: (payment: Payment) => void
   selectDate: (date: string) => void
@@ -314,10 +315,6 @@ export const usePatientAppointments = ({
   const selectedPaymentPolicy = useMemo(() => getPaymentPolicyForSlot(selectedSlot), [selectedSlot])
 
   const stats = useMemo(() => buildAppointmentStats(statAppointments), [statAppointments])
-
-  const changeAppointmentPage = useCallback((page: number) => {
-    void loadAppointments(page)
-  }, [loadAppointments])
 
   const selectDate = useCallback((date: string) => {
     setSelectedDate(date)

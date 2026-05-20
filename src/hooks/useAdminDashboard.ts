@@ -10,7 +10,7 @@ import type { User } from '../services/auth.service'
 import { createDepartment, getDepartments, updateDepartment } from '../services/department.service'
 import type { Department } from '../services/department.service'
 import { createDoctorAssignment, getDoctorAssignments, updateDoctorAssignment } from '../services/doctorAssignment.service'
-import { getDoctors, updateDoctor, uploadDoctorImage } from '../services/doctor.service'
+import { getDoctorByUserId, getDoctors, updateDoctor, uploadDoctorImage } from '../services/doctor.service'
 import { getPatients } from '../services/patient.service'
 import { changeUserStatus, createUser, deleteUser, getUsers, updateUser } from '../services/user.service'
 import {
@@ -157,6 +157,7 @@ export const useAdminDashboard = () => {
   const [departmentEditError, setDepartmentEditError] = useState('')
   const [isSavingDepartment, setIsSavingDepartment] = useState(false)
   const [editingDoctor, setEditingDoctor] = useState<DoctorManagementRowData | null>(null)
+  const [isDoctorModalOpen, setIsDoctorModalOpen] = useState(false)
   const [doctorEditError, setDoctorEditError] = useState('')
   const [isSavingDoctor, setIsSavingDoctor] = useState(false)
 
@@ -462,17 +463,26 @@ export const useAdminDashboard = () => {
 
   const closeDoctorModal = useCallback(() => {
     setEditingDoctor(null)
+    setIsDoctorModalOpen(false)
+    setDoctorEditError('')
+  }, [])
+
+  const handleCreateDoctor = useCallback(() => {
+    setDoctorEditError('')
+    setEditingDoctor(null)
+    setIsDoctorModalOpen(true)
   }, [])
 
   const handleEditDoctor = useCallback((doctor: DoctorManagementRowData) => {
     setDoctorEditError('')
     setEditingDoctor(doctor)
+    setIsDoctorModalOpen(true)
   }, [])
 
   const handleDoctorEditSubmit = useCallback(async (payload: DoctorEditFormValues) => {
-    if (!editingDoctor) return
+    const isCreatingDoctor = !editingDoctor
 
-    if (!editingDoctor.userId) {
+    if (!isCreatingDoctor && !editingDoctor?.userId) {
       setDoctorEditError('Không tìm thấy user_id của bác sĩ.')
       return
     }
@@ -501,6 +511,69 @@ export const useAdminDashboard = () => {
     setIsSavingDoctor(true)
 
     try {
+      if (isCreatingDoctor) {
+        const email = payload.email?.trim() || ''
+
+        if (!email) {
+          setDoctorEditError('Email không được để trống.')
+          return
+        }
+
+        if (!payload.password) {
+          setDoctorEditError('Mật khẩu là bắt buộc khi tạo bác sĩ.')
+          return
+        }
+
+        const createdUser = await createUser({
+          full_name: fullName,
+          email,
+          password: payload.password,
+          phone: payload.phone?.trim() || null,
+          role: 'DOCTOR',
+          status: 'ACTIVE',
+          doctor_profile: {
+            license_number: licenseNumber,
+            cccd: cccd || null,
+            experience_years: payload.experienceYears === '' || payload.experienceYears === undefined
+              ? null
+              : payload.experienceYears,
+            consultation_fee: payload.consultationFee === '' || payload.consultationFee === undefined
+              ? null
+              : payload.consultationFee,
+            description: payload.description?.trim() || null,
+            prof_biography: payload.profBiography?.trim() || null,
+            status: payload.status,
+            image_url: payload.imageUrl?.trim() || null,
+          },
+        })
+
+        const createdDoctor = departmentId || payload.imageData
+          ? await getDoctorByUserId(createdUser.id)
+          : null
+
+        if (createdDoctor && payload.imageData) {
+          await uploadDoctorImage(createdDoctor.id, payload.imageData)
+        }
+
+        if (createdDoctor && departmentId) {
+          await createDoctorAssignment({
+            doctor_id: createdDoctor.id,
+            department_id: departmentId,
+            status: 'ACTIVE',
+          })
+        }
+
+        await refreshDashboard()
+        closeDoctorModal()
+        return
+      }
+
+      if (!editingDoctor) return
+      if (!editingDoctor.userId) {
+        setDoctorEditError('Không tìm thấy user_id của bác sĩ.')
+        return
+      }
+
       const uploadedDoctor = payload.imageData
         ? await uploadDoctorImage(editingDoctor.id, payload.imageData)
         : null
@@ -572,6 +645,7 @@ export const useAdminDashboard = () => {
     editingDoctor,
     editingUser,
     handleCreateDepartment,
+    handleCreateDoctor,
     handleCreateUser,
     handleDeleteUser,
     handleDepartmentEditSubmit,
@@ -589,6 +663,7 @@ export const useAdminDashboard = () => {
     handleUserPageChange,
     handleUserSearchQueryChange,
     isDepartmentModalOpen,
+    isDoctorModalOpen,
     isSavingDepartment,
     isSavingDoctor,
     isSavingUser,

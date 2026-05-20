@@ -1,5 +1,6 @@
 import { apiRequest } from '../api/client'
 import type { User, UserRole } from './auth.service'
+import type { CreateDoctorPayload } from './doctor.service'
 
 export type UsersResult = {
   users: User[]
@@ -48,6 +49,7 @@ export type CreateUserPayload = {
   cccd_back_image?: string | null
   role?: UserRole
   status?: User['status']
+  doctor_profile?: Omit<CreateDoctorPayload, 'user_id'>
 }
 
 export type ChangePasswordPayload = {

@@ -9,7 +9,6 @@ import type { LoadStatus } from '../../../utils/patientAppointments'
 type PatientAppointmentHistoryPanelProps = {
   actionId: number | string | null
   appointments: Appointment[]
-  pagination: PatientAppointmentPagination
   status: LoadStatus
   onCancel: (appointment: Appointment) => void
   onPay: (payment: Payment) => void
@@ -21,7 +20,6 @@ const archiveStatuses = ['COMPLETED', 'CANCELLED']
 const PatientAppointmentHistoryPanel = ({
   actionId,
   appointments,
-  pagination,
   status,
   onCancel,
   onPay,
