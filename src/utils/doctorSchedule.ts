@@ -2,7 +2,7 @@ import type { AppointmentSlot, AppointmentSlotStatus } from '../services/appoint
 import type { DoctorAssignment } from '../services/doctorAssignment.service'
 
 export type LoadStatus = 'loading' | 'ready' | 'error'
-export type SlotFormStatus = Exclude<AppointmentSlotStatus, 'FULL'>
+export type SlotFormStatus = Exclude<AppointmentSlotStatus, 'BOOKED' | 'FULL'>
 
 export type SlotFormState = {
   date: string
@@ -36,6 +36,11 @@ export const slotStatusMeta: Record<AppointmentSlotStatus, { label: string; clas
     className: 'bg-primary-fixed text-on-primary-fixed',
     icon: 'group',
     label: 'Đã đầy',
+  },
+  BOOKED: {
+    className: 'bg-primary-fixed text-on-primary-fixed',
+    icon: 'event_seat',
+    label: 'Đã đặt',
   },
   CANCELLED: {
     className: 'bg-error-container text-on-error-container',

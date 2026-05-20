@@ -37,6 +37,11 @@ export const toPatientAppointmentPagination = (
 })
 
 export const appointmentStatusMeta: Record<AppointmentStatus, { label: string; className: string; icon: string }> = {
+  PENDING_PAYMENT: {
+    className: 'bg-tertiary-container text-on-tertiary-container',
+    icon: 'qr_code_2',
+    label: 'Chờ thanh toán',
+  },
   PENDING: {
     className: 'bg-tertiary-container text-on-tertiary-container',
     icon: 'pending_actions',
@@ -173,11 +178,11 @@ export const findMatchingSymptoms = (query: string, symptoms: Symptom[]) => {
 
 export const buildAppointmentStats = (appointments: Appointment[]): PatientAppointmentStat[] => {
   const upcoming = appointments.filter((appointment) => (
-    ['PENDING', 'CONFIRMED'].includes(appointment.status)
+    ['PENDING_PAYMENT', 'PENDING', 'CONFIRMED'].includes(appointment.status)
     && appointment.slot?.start_time
     && new Date(appointment.slot.start_time).getTime() >= Date.now()
   )).length
-  const pending = appointments.filter((appointment) => appointment.status === 'PENDING').length
+  const pending = appointments.filter((appointment) => ['PENDING_PAYMENT', 'PENDING'].includes(appointment.status)).length
   const completed = appointments.filter((appointment) => appointment.status === 'COMPLETED').length
 
   return [

@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
+import type { ChangeEvent } from 'react'
 import { Link } from 'react-router-dom'
 import TopNavBar from '../components/Organisms/TopNavBar'
 import Icon from '../components/Atoms/Icon'
 import Input from '../components/Atoms/Input'
+import PaginationControls from '../components/Molecules/Common/PaginationControls'
 import { getDepartments } from '../services/department.service'
-import type { Department } from '../services/department.service'
+import type { Department, DepartmentsResult } from '../services/department.service'
+
+const DEPARTMENTS_PAGE_SIZE = 9
 
 const tones = [
   'bg-primary-fixed/30 text-primary',
@@ -13,41 +17,75 @@ const tones = [
   'bg-surface-variant text-outline',
 ]
 
+const emptyPagination: DepartmentsResult['pagination'] = {
+  page: 1,
+  limit: DEPARTMENTS_PAGE_SIZE,
+  total: 0,
+  total_pages: 1,
+}
+
 const DepartmentsPage = () => {
   const [query, setQuery] = useState('')
+  const [page, setPage] = useState(1)
   const [departments, setDepartments] = useState<Department[]>([])
+  const [pagination, setPagination] = useState<DepartmentsResult['pagination']>(emptyPagination)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
 
   useEffect(() => {
     let active = true
+    const normalizedQuery = query.trim()
 
-    getDepartments({ limit: 100, status: 'ACTIVE' })
-      .then((result) => {
-        if (!active) return
+    const timeoutId = window.setTimeout(() => {
+      if (!active) return
 
-        setDepartments(result.departments)
-        setStatus('ready')
+      setStatus('loading')
+
+      getDepartments({
+        keyword: normalizedQuery || undefined,
+        limit: DEPARTMENTS_PAGE_SIZE,
+        page,
+        status: 'ACTIVE',
       })
-      .catch(() => {
-        if (!active) return
+        .then((result) => {
+          if (!active) return
 
-        setDepartments([])
-        setStatus('error')
-      })
+          setDepartments(result.departments)
+          setPagination({
+            page: result.pagination.page || page,
+            limit: result.pagination.limit || DEPARTMENTS_PAGE_SIZE,
+            total: result.pagination.total || result.departments.length,
+            total_pages: Math.max(result.pagination.total_pages || 1, 1),
+          })
+          setStatus('ready')
+        })
+        .catch(() => {
+          if (!active) return
+
+          setDepartments([])
+          setPagination({ ...emptyPagination, page })
+          setStatus('error')
+        })
+    }, 0)
 
     return () => {
       active = false
+      window.clearTimeout(timeoutId)
     }
-  }, [])
+  }, [page, query])
 
-  const visibleDepartments = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase()
-    if (!normalizedQuery) return departments
+  const totalPages = useMemo(() => (
+    Math.max(pagination.total_pages, 1)
+  ), [pagination.total_pages])
 
-    return departments.filter((department) => (
-      `${department.name} ${department.description || ''}`.toLowerCase().includes(normalizedQuery)
-    ))
-  }, [departments, query])
+  const handleQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value)
+    setPage(1)
+  }
+
+  const handlePageChange = (nextPage: number) => {
+    setPage(nextPage)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   return (
     <div className="min-h-screen  text-on-background">
@@ -65,14 +103,11 @@ const DepartmentsPage = () => {
             <Input
               icon="search"
               label="Tìm khoa"
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={handleQueryChange}
               placeholder="Ví dụ: Tim mạch, Da liễu, Hô hấp..."
               type="search"
               value={query}
             />
-            <div className="w-fit justify-self-start rounded-lg bg-surface-container-low px-md py-sm font-label-md text-label-md text-on-surface-variant md:justify-self-end">
-              {visibleDepartments.length}/{departments.length} khoa
-            </div>
           </div>
         </section>
 
@@ -88,35 +123,54 @@ const DepartmentsPage = () => {
           </p>
         )}
 
-        {status !== 'loading' && visibleDepartments.length === 0 && (
+        {status !== 'loading' && departments.length === 0 && (
           <div className="rounded-lg border border-dashed border-outline-variant p-xl text-center">
             <Icon className="text-4xl text-outline" name="clinical_notes" />
             <p className="mt-sm font-label-md text-label-md text-on-surface">Không tìm thấy khoa phù hợp</p>
-            <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">Thử nhập từ khóa khác hoặc xóa nội dung tìm kiếm.</p>
+            <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
+              Thử nhập từ khóa khác hoặc xóa nội dung tìm kiếm.
+            </p>
           </div>
         )}
 
-        {visibleDepartments.length > 0 && (
-          <section className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-3">
-            {visibleDepartments.map((department, index) => (
-              <Link
-                className="group rounded-lg border border-outline-variant/30 bg-surface p-lg shadow-sm transition-all hover:border-primary/40 hover:shadow-md"
-                key={department.id}
-                to={`/departments/${department.id}`}
-              >
-                <div className={`mb-md flex h-14 w-14 items-center justify-center rounded-full ${tones[index % tones.length]}`}>
-                  <Icon className="text-3xl" name="clinical_notes" />
-                </div>
-                <h2 className="font-headline-sm text-headline-sm text-on-surface">{department.name}</h2>
-                <p className="mt-sm min-h-20 font-body-sm text-body-sm text-on-surface-variant">
-                  {department.description || 'Khoa đang tiếp nhận lịch khám trong hệ thống.'}
-                </p>
-                <span className="mt-lg inline-flex items-center gap-xs font-label-md text-label-md text-primary transition-all group-hover:gap-sm group-hover:underline">
-                  Xem chi tiết khoa <Icon name="arrow_forward" />
-                </span>
-              </Link>
-            ))}
-          </section>
+        {status === 'ready' && departments.length > 0 && (
+          <>
+
+            <section className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-3">
+              {departments.map((department, index) => (
+                <Link
+                  className="group rounded-lg border border-outline-variant/30 bg-surface p-lg shadow-sm transition-all hover:border-primary/40 hover:shadow-md"
+                  key={department.id}
+                  to={`/departments/${department.id}`}
+                >
+                  <div className={`mb-md flex h-14 w-14 items-center justify-center rounded-full ${tones[index % tones.length]}`}>
+                    <Icon className="text-3xl" name="clinical_notes" />
+                  </div>
+
+                  <h2 className="font-headline-sm text-headline-sm text-on-surface">
+                    {department.name}
+                  </h2>
+
+                  <p className="mt-sm min-h-20 font-body-sm text-body-sm text-on-surface-variant">
+                    {department.description || 'Khoa đang tiếp nhận lịch khám trong hệ thống.'}
+                  </p>
+
+                  <span className="mt-lg inline-flex items-center gap-xs font-label-md text-label-md text-primary transition-all group-hover:gap-sm group-hover:underline">
+                    Xem chi tiết khoa <Icon name="arrow_forward" />
+                  </span>
+                </Link>
+              ))}
+            </section>
+            <PaginationControls
+              itemLabel="khoa"
+              limit={pagination.limit}
+              onPageChange={handlePageChange}
+              page={pagination.page}
+              totalItems={pagination.total}
+              totalPages={totalPages}
+            />
+
+          </>
         )}
       </main>
     </div>

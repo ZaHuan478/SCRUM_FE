@@ -1,111 +1,42 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Image from '../components/Atoms/Image'
 import Icon from '../components/Atoms/Icon'
 import Button from '../components/Atoms/Button'
 import TopNavBar from '../components/Organisms/TopNavBar'
-import { getDoctorAssignments } from '../services/doctorAssignment.service'
-import type { DoctorAssignment } from '../services/doctorAssignment.service'
-import { getDoctorById } from '../services/doctor.service'
-import type { Doctor } from '../services/doctor.service'
-
-type DetailTab = 'biography' | 'education'
-
-type EducationItem = {
-  title: string
-  description: string
-}
-
-const formatFee = (fee?: string | number | null) => {
-  if (fee === undefined || fee === null || fee === '') return 'Chưa cập nhật'
-
-  const amount = Number(fee)
-  if (Number.isNaN(amount)) return String(fee)
-
-  return new Intl.NumberFormat('vi-VN', {
-    currency: 'VND',
-    maximumFractionDigits: 0,
-    style: 'currency',
-  }).format(amount)
-}
-
-const buildFallbackBiography = (doctor?: Doctor, specialty?: string) => {
-  const name = doctor?.user?.full_name || 'Bác sĩ'
-  const experienceYears = Number(doctor?.experience_years || 0)
-  const experienceText = experienceYears > 0
-    ? `với ${experienceYears} năm kinh nghiệm lâm sàng`
-    : 'với nền tảng chuyên môn vững chắc'
-  const focus = doctor?.description || specialty || 'khám, tư vấn và điều trị theo tiêu chuẩn y khoa hiện đại'
-
-  return `${name} là bác sĩ ${experienceText}, tập trung vào ${focus.toLowerCase()}. Bác sĩ theo đuổi phong cách chăm sóc dựa trên bằng chứng, giải thích rõ ràng cho người bệnh và xây dựng phác đồ phù hợp với từng hồ sơ sức khỏe. Trong quá trình thăm khám, bác sĩ ưu tiên lắng nghe triệu chứng, đánh giá nguy cơ toàn diện và phối hợp theo dõi sau điều trị để giúp người bệnh an tâm hơn trong từng bước chăm sóc.`
-}
-
-const buildEducation = (doctor?: Doctor, specialty?: string): EducationItem[] => {
-  const specialtyLabel = specialty || doctor?.description || 'chuyên khoa liên quan'
-  const experienceYears = Number(doctor?.experience_years || 0)
-
-  return [
-    {
-      title: 'Đào tạo y khoa nền tảng',
-      description: `Hoàn thành chương trình đào tạo bác sĩ và thực hành lâm sàng theo quy trình chuyên môn, tập trung vào đánh giá triệu chứng, chẩn đoán ban đầu và lập kế hoạch điều trị an toàn.`,
-    },
-    {
-      title: `Định hướng chuyên môn ${specialtyLabel}`,
-      description: `Duy trì cập nhật kiến thức trong lĩnh vực ${specialtyLabel.toLowerCase()}, ưu tiên chỉ định phù hợp, tư vấn rõ ràng và phối hợp theo dõi sau khám.`,
-    },
-    {
-      title: 'Phát triển chuyên môn liên tục',
-      description: experienceYears > 0
-        ? `Tích lũy ${experienceYears} năm kinh nghiệm qua hoạt động khám chữa bệnh, trao đổi chuyên môn và cải tiến quy trình chăm sóc người bệnh.`
-        : 'Thường xuyên cập nhật hướng dẫn điều trị và thực hành giao tiếp y khoa lấy người bệnh làm trung tâm.',
-    },
-  ]
-}
+import DoctorRatingForm from '../components/DoctorRating/DoctorRatingForm'
+import DoctorRatingList from '../components/DoctorRating/DoctorRatingList'
+import DoctorRatingSummary from '../components/DoctorRating/DoctorRatingSummary'
+import { useDoctorDetail } from '../hooks/useDoctorDetail'
+import { formatFee } from '../utils/doctorDetail'
+import type { DetailTab } from '../utils/doctorDetail'
 
 const DoctorDetailPage = () => {
   const { doctorId } = useParams()
-  const hasDoctorId = Boolean(doctorId)
-  const [doctor, setDoctor] = useState<Doctor | null>(null)
-  const [assignments, setAssignments] = useState<DoctorAssignment[]>([])
   const [activeTab, setActiveTab] = useState<DetailTab>('biography')
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
-
-  useEffect(() => {
-    if (!doctorId) return
-
-    let active = true
-
-    Promise.all([
-      getDoctorById(doctorId),
-      getDoctorAssignments({ doctor_id: doctorId, limit: 20, status: 'ACTIVE' }),
-    ])
-      .then(([nextDoctor, assignmentResult]) => {
-        if (!active) return
-
-        setDoctor(nextDoctor)
-        setAssignments(assignmentResult.doctor_assignments)
-        setStatus('ready')
-      })
-      .catch(() => {
-        if (!active) return
-
-        setDoctor(null)
-        setAssignments([])
-        setStatus('error')
-      })
-
-    return () => {
-      active = false
-    }
-  }, [doctorId])
-
-  const primarySpecialty = assignments[0]?.department?.name || doctor?.description || 'Chuyên khoa'
-  const biography = doctor?.prof_biography || buildFallbackBiography(doctor || undefined, primarySpecialty)
-  const educationItems = useMemo(() => buildEducation(doctor || undefined, primarySpecialty), [doctor, primarySpecialty])
-  const bookingSearch = new URLSearchParams()
-
-  if (doctor?.id) bookingSearch.set('doctor_id', String(doctor.id))
-  if (doctor?.user?.full_name) bookingSearch.set('doctor_name', doctor.user.full_name)
+  const {
+    biography,
+    bookingPath,
+    canRate,
+    currentUser,
+    doctor,
+    educationItems,
+    handleDeleteRating,
+    handleLoadMoreRatings,
+    handleSubmitRating,
+    hasDoctorId,
+    isSubmittingRating,
+    myRating,
+    primarySpecialty,
+    ratingError,
+    ratingHasMore,
+    ratingList,
+    ratingListLoading,
+    ratingLoading,
+    ratingSuccess,
+    ratingSummary,
+    status,
+  } = useDoctorDetail(doctorId)
 
   return (
     <div className="min-h-screen bg-background text-on-background">
@@ -131,7 +62,7 @@ const DoctorDetailPage = () => {
 
         {status === 'ready' && doctor && (
           <>
-            <section className="grid gap-xl rounded-xl border bg-white border-outline-variant/30 bg-surface p-lg shadow-sm lg:grid-cols-[280px_minmax(0,1fr)] lg:p-xl">
+            <section className="grid gap-xl rounded-xl border border-outline-variant/30 bg-surface p-lg shadow-sm lg:grid-cols-[280px_minmax(0,1fr)] lg:p-xl">
               <div className="overflow-hidden rounded-xl bg-surface-variant">
                 <Image
                   alt={doctor.user?.full_name || doctor.license_number}
@@ -150,7 +81,7 @@ const DoctorDetailPage = () => {
                     {doctor.description || 'Thông tin chuyên môn đang được cập nhật.'}
                   </p>
                 </div>
-                <div className="grid gap-md sm:grid-cols-3">
+                <div className="grid gap-md sm:grid-cols-4">
                   <div className="rounded-lg bg-surface-container-low p-md">
                     <p className="font-label-sm text-label-sm text-on-surface-variant">Kinh nghiệm</p>
                     <p className="mt-xs font-label-md text-label-md text-on-surface">
@@ -167,11 +98,24 @@ const DoctorDetailPage = () => {
                       {doctor.status === 'ACTIVE' ? 'Đang nhận lịch' : 'Tạm ngưng'}
                     </p>
                   </div>
+                  <div className="rounded-lg bg-surface-container-low p-md">
+                    <p className="font-label-sm text-label-sm text-on-surface-variant">Đánh giá</p>
+                    <p className="mt-xs font-label-md text-label-md text-on-surface">
+                      {ratingSummary?.totalRatings
+                        ? `${ratingSummary.averageRating.toFixed(1)}/5`
+                        : 'Chưa có'}
+                    </p>
+                    <p className="mt-xxs font-body-sm text-body-sm text-on-surface-variant">
+                      {ratingSummary?.totalRatings
+                        ? `${ratingSummary.totalRatings} lượt đánh giá`
+                        : 'Chưa có đánh giá'}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex flex-wrap gap-sm">
                   <Link
                     className="inline-flex items-center justify-center rounded-lg bg-primary px-lg py-md font-label-md text-label-md text-on-primary shadow-sm transition-all hover:bg-primary-container"
-                    to={`/appointments${bookingSearch.toString() ? `?${bookingSearch.toString()}` : ''}`}
+                    to={bookingPath}
                   >
                     Đặt lịch khám
                   </Link>
@@ -184,17 +128,17 @@ const DoctorDetailPage = () => {
               </div>
             </section>
 
-            <section className="rounded-xl border bg-white border-outline-variant/30 bg-surface p-lg shadow-sm lg:p-xl">
+            <section className="rounded-xl border border-outline-variant/30 bg-surface p-lg shadow-sm lg:p-xl">
               <div className="mb-lg flex flex-wrap gap-sm border-b border-outline-variant/30 pb-md">
                 {[
                   { id: 'biography', label: 'Tiểu sử' },
                   { id: 'education', label: 'Đào tạo' },
                 ].map((tab) => (
                   <Button
-                    className={`rounded-none border-x-0 border-t-0 bg-transparent px-md py-sm shadow-none hover:bg-transparent ${
+                    className={`rounded-none border-x-0 border-t-0 px-md py-sm shadow-none ${
                       activeTab === tab.id
                         ? 'border-b-2 border-primary text-primary'
-                        : 'border-b-2 border-transparent text-on-surface-variant hover:border-primary/40 hover:text-primary'
+                        : 'border-b-2 border-transparent text-on-surface-variant hover:bg-surface-container-low hover:text-primary'
                     }`}
                     fullWidth={false}
                     key={tab.id}
@@ -228,6 +172,48 @@ const DoctorDetailPage = () => {
                     ))}
                   </div>
                 </article>
+              )}
+            </section>
+
+            <section className="rounded-xl border border-outline-variant/30 bg-surface p-lg shadow-sm lg:p-xl">
+              <div className="mb-lg flex items-center justify-between gap-md">
+                <h2 className="font-headline-md text-headline-md text-on-surface">Đánh giá từ bệnh nhân</h2>
+                <span className="font-body-sm text-body-sm text-on-surface-variant">
+                  {ratingSummary?.totalRatings ?? 0} lượt đánh giá
+                </span>
+              </div>
+              <div className="grid gap-lg lg:grid-cols-[320px_minmax(0,1fr)]">
+                <DoctorRatingSummary framed={false} isLoading={ratingLoading} summary={ratingSummary} />
+                <DoctorRatingList
+                  framed={false}
+                  hasMore={ratingHasMore}
+                  isLoading={ratingLoading || ratingListLoading}
+                  onLoadMore={handleLoadMoreRatings}
+                  ratings={ratingList}
+                />
+              </div>
+            </section>
+
+            <section>
+              {!currentUser && (
+                <div className="rounded-xl border border-outline-variant/30 bg-surface p-lg shadow-sm">
+                  <p className="font-body-md text-body-md text-on-surface-variant">
+                    Đăng nhập để đánh giá bác sĩ.
+                  </p>
+                </div>
+              )}
+
+              {currentUser && currentUser.role === 'PATIENT' && (canRate || myRating) && (
+                <DoctorRatingForm
+                  canDelete={Boolean(myRating)}
+                  error={ratingError}
+                  initialComment={myRating?.comment || ''}
+                  initialRating={myRating?.rating || 0}
+                  isSubmitting={isSubmittingRating}
+                  onDelete={handleDeleteRating}
+                  onSubmit={handleSubmitRating}
+                  success={ratingSuccess}
+                />
               )}
             </section>
           </>

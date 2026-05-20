@@ -50,6 +50,12 @@ export type CreateUserPayload = {
   status?: User['status']
 }
 
+export type ChangePasswordPayload = {
+  current_password: string
+  new_password: string
+  confirm_password: string
+}
+
 export type UpdateUserPayload = {
   full_name?: string | null
   email?: string
@@ -99,6 +105,12 @@ export const uploadCurrentUserAvatar = (imageData: string) =>
   apiRequest<User>('/users/me/avatar', {
     method: 'POST',
     body: JSON.stringify({ image_data: imageData }),
+  })
+
+export const changeCurrentUserPassword = (payload: ChangePasswordPayload) =>
+  apiRequest<User>('/users/me/password', {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
   })
 
 export const changeUserStatus = (id: number | string, status: User['status']) =>

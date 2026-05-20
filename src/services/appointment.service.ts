@@ -1,9 +1,10 @@
 import { apiRequest } from '../api/client'
+import type { Payment } from '../types/payment'
 import type { AppointmentSlot } from './appointmentSlot.service'
 import type { Doctor } from './doctor.service'
 import type { Patient } from './patient.service'
 
-export type AppointmentStatus = 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'
+export type AppointmentStatus = 'PENDING_PAYMENT' | 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'
 
 export type Appointment = {
   id: number | string
@@ -16,6 +17,7 @@ export type Appointment = {
   patient?: Patient
   doctor?: Doctor
   slot?: AppointmentSlot
+  payments?: Payment[]
   created_at?: string
   updated_at?: string
 }
@@ -50,6 +52,11 @@ export type CreateAppointmentPayload = {
 export type CreateMyAppointmentPayload = {
   slot_id: number | string
   reason?: string | null
+}
+
+export type CreateAppointmentResult = {
+  appointment: Appointment
+  payment: Payment
 }
 
 export type CancelAppointmentPayload = {
@@ -88,13 +95,13 @@ export const getMyAppointments = (query: Omit<AppointmentQuery, 'patient_id'> = 
 }
 
 export const createAppointment = (payload: CreateAppointmentPayload) =>
-  apiRequest<Appointment>('/appointments', {
+  apiRequest<CreateAppointmentResult>('/appointments', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
 
 export const createMyAppointment = (payload: CreateMyAppointmentPayload) =>
-  apiRequest<Appointment>('/appointments/me', {
+  apiRequest<CreateAppointmentResult>('/appointments/me', {
     method: 'POST',
     body: JSON.stringify(payload),
   })

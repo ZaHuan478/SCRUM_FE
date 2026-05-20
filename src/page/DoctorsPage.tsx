@@ -5,6 +5,7 @@ import DoctorCard from '../components/Molecules/Home/DoctorCard'
 import type { DoctorCardData } from '../components/Molecules/Home/DoctorCard'
 import Icon from '../components/Atoms/Icon'
 import Input from '../components/Atoms/Input'
+import PaginationControls from '../components/Molecules/Common/PaginationControls'
 import { getDoctorAssignments } from '../services/doctorAssignment.service'
 import type { DoctorAssignment } from '../services/doctorAssignment.service'
 import type { Doctor } from '../services/doctor.service'
@@ -17,7 +18,10 @@ type DoctorDirectoryItem = DoctorCardData & {
   departmentId?: number | string
   departmentName: string
   feeValue?: number
+  licenseNumber?: string
 }
+
+const DOCTORS_PER_PAGE = 4
 
 const formatFee = (fee?: string | number | null) => {
   if (fee === undefined || fee === null || fee === '') return undefined
@@ -31,6 +35,15 @@ const formatFee = (fee?: string | number | null) => {
     style: 'currency',
   }).format(amount)
 }
+
+const normalizeSearchText = (value: string) => (
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+)
 
 const loadActiveSymptoms = async () => {
   const firstPage = await getSymptoms({ limit: 100, status: 'ACTIVE' })
@@ -64,6 +77,7 @@ const mapAssignment = (assignment: DoctorAssignment): DoctorDirectoryItem | null
       : Number(doctor.consultation_fee),
     id: doctor.id,
     image: doctor.image_url || '',
+    licenseNumber: doctor.license_number,
     name: doctor.user?.full_name || doctor.license_number,
     phone: doctor.user?.phone,
     specialty: assignment.department?.name || '',
@@ -105,6 +119,7 @@ const DoctorsPage = () => {
   const [selectedDepartmentId, setSelectedDepartmentId] = useState(searchParams.get('department_id') || 'all')
   const [selectedExperience, setSelectedExperience] = useState('all')
   const [selectedFee, setSelectedFee] = useState('all')
+  const [currentPage, setCurrentPage] = useState(1)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
 
   useEffect(() => {
@@ -171,7 +186,7 @@ const DoctorsPage = () => {
   }, [matchedSymptoms])
 
   const visibleDoctors = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase()
+    const normalizedQuery = normalizeSearchText(query.trim())
     const hasRecommendedDepartments = recommendedDepartmentIds.size > 0
 
     return doctors.filter((doctor) => {
@@ -182,17 +197,61 @@ const DoctorsPage = () => {
       const feeMatches = matchesFeeFilter(doctor, selectedFee)
       const departmentMatches = hasRecommendedDepartments
         ? recommendedDepartmentIds.has(String(doctor.departmentId))
-        : true
+        : false
       const textMatches = normalizedQuery
-        ? `${doctor.name || ''} ${doctor.departmentName} ${doctor.description || ''}`.toLowerCase().includes(normalizedQuery)
+        ? normalizeSearchText([
+          doctor.name,
+          doctor.departmentName,
+          doctor.specialty,
+          doctor.description,
+          doctor.email,
+          doctor.phone,
+          doctor.licenseNumber,
+        ].filter(Boolean).join(' ')).includes(normalizedQuery)
+        : true
+      const queryMatches = normalizedQuery
+        ? textMatches || departmentMatches
         : true
 
       return selectedDepartmentMatches
         && experienceMatches
         && feeMatches
-        && (departmentMatches || textMatches)
+        && queryMatches
     })
   }, [doctors, query, recommendedDepartmentIds, selectedDepartmentId, selectedExperience, selectedFee])
+
+  const totalPages = useMemo(() => (
+    Math.max(Math.ceil(visibleDoctors.length / DOCTORS_PER_PAGE), 1)
+  ), [visibleDoctors.length])
+
+  const paginatedDoctors = useMemo(() => (
+    visibleDoctors.slice(
+      (currentPage - 1) * DOCTORS_PER_PAGE,
+      currentPage * DOCTORS_PER_PAGE
+    )
+  ), [currentPage, visibleDoctors])
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setCurrentPage(1)
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [query, selectedDepartmentId, selectedExperience, selectedFee, recommendedDepartmentIds])
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      if (currentPage > totalPages) {
+        setCurrentPage(totalPages)
+      }
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [currentPage, totalPages])
 
   const departmentOptions = useMemo(() => (
     [...new Map(doctors.map((doctor) => [String(doctor.departmentId), doctor.departmentName])).entries()]
@@ -205,10 +264,11 @@ const DoctorsPage = () => {
     setSelectedExperience('all')
     setSelectedFee('all')
     setQuery('')
+    setCurrentPage(1)
   }
 
   return (
-    <div className="min-h-screen  text-on-background">
+    <div className="min-h-screen text-on-background">
       <TopNavBar active="doctors" />
       <main className="mx-auto flex max-w-7xl flex-col gap-xxl px-lg py-xxl md:px-xxl">
         <section className="flex flex-col gap-lg border-b border-outline-variant/30 pb-xl">
@@ -222,9 +282,9 @@ const DoctorsPage = () => {
           <div className="grid gap-md lg:grid-cols-[minmax(260px,420px)_minmax(0,1fr)_auto] lg:items-end">
             <Input
               icon="search"
-              label="Tìm theo triệu chứng"
+              label="Tìm kiếm bác sĩ"
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Ví dụ: đau ngực, mất ngủ, đau lưng..."
+              placeholder="Nhập tên bác sĩ, khoa hoặc chuyên môn..."
               type="search"
               value={query}
             />
@@ -267,7 +327,7 @@ const DoctorsPage = () => {
                 </select>
               </label>
             </div>
-            <div className="rounded-lg bg-surface-container-low px-md py-sm font-label-md text-label-md text-on-surface-variant">
+            <div className="w-fit whitespace-nowrap rounded-lg bg-surface-container-low px-md py-sm font-label-md text-label-md text-on-surface-variant">
               {visibleDoctors.length}/{doctors.length} bác sĩ
             </div>
           </div>
@@ -286,33 +346,44 @@ const DoctorsPage = () => {
         </section>
 
         <section className="space-y-xl">
-            {status === 'loading' && (
-              <p className="rounded-lg border border-outline-variant/30 bg-surface p-md font-body-md text-body-md text-on-surface-variant">
-                Đang tải danh sách bác sĩ...
-              </p>
-            )}
+          {status === 'loading' && (
+            <p className="rounded-lg border border-outline-variant/30 bg-surface p-md font-body-md text-body-md text-on-surface-variant">
+              Đang tải danh sách bác sĩ...
+            </p>
+          )}
 
-            {status === 'error' && (
-              <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
-                Không thể tải danh sách bác sĩ.
-              </p>
-            )}
+          {status === 'error' && (
+            <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
+              Không thể tải danh sách bác sĩ.
+            </p>
+          )}
 
-            {status !== 'loading' && visibleDoctors.length === 0 && (
-              <div className="rounded-lg border border-dashed border-outline-variant p-xl text-center">
-                <Icon className="text-4xl text-outline" name="person_off" />
-                <p className="mt-sm font-label-md text-label-md text-on-surface">Không tìm thấy bác sĩ phù hợp</p>
-                <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">Thử nhập triệu chứng khác hoặc xóa bộ lọc tìm kiếm.</p>
-              </div>
-            )}
+          {status !== 'loading' && visibleDoctors.length === 0 && (
+            <div className="rounded-lg border border-dashed border-outline-variant p-xl text-center">
+              <Icon className="text-4xl text-outline" name="person_off" />
+              <p className="mt-sm font-label-md text-label-md text-on-surface">Không tìm thấy bác sĩ phù hợp</p>
+              <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">Thử nhập triệu chứng khác hoặc xóa bộ lọc tìm kiếm.</p>
+            </div>
+          )}
 
-            {visibleDoctors.length > 0 && (
+          {visibleDoctors.length > 0 && (
+            <>
               <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {visibleDoctors.map((doctor) => (
+                {paginatedDoctors.map((doctor) => (
                   <DoctorCard doctor={doctor} key={`${doctor.departmentId}-${doctor.id}`} />
                 ))}
               </div>
-            )}
+
+              <PaginationControls
+                itemLabel="bác sĩ"
+                limit={DOCTORS_PER_PAGE}
+                onPageChange={setCurrentPage}
+                page={currentPage}
+                totalItems={visibleDoctors.length}
+                totalPages={totalPages}
+              />
+            </>
+          )}
         </section>
       </main>
     </div>

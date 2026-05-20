@@ -2,6 +2,7 @@ import TopNavBar from '../Organisms/TopNavBar'
 import PatientAppointmentBookingPanel from '../Organisms/PatientAppointments/PatientAppointmentBookingPanel'
 import PatientAppointmentHistoryPanel from '../Organisms/PatientAppointments/PatientAppointmentHistoryPanel'
 import PatientAppointmentStatsGrid from '../Organisms/PatientAppointments/PatientAppointmentStatsGrid'
+import PaymentModal from '../Organisms/Payment/PaymentModal'
 import type { PatientAppointmentsState } from '../../hooks/usePatientAppointments'
 import type { User } from '../../services/auth.service'
 
@@ -19,10 +20,13 @@ const PatientAppointmentsTemplate = ({
   cancelMyAppointment,
   changeAppointmentPage,
   clearSelectedDoctor,
+  closePaymentModal,
   departmentStatus,
   departments,
   loadAppointments,
   matchedSymptoms,
+  openPaymentModal,
+  paymentModalPayment,
   reason,
   recommendedDepartments,
   recommendationStatus,
@@ -30,6 +34,7 @@ const PatientAppointmentsTemplate = ({
   selectedDepartmentId,
   selectedDoctorId,
   selectedDoctorName,
+  selectedPaymentPolicy,
   selectedSlot,
   selectedSlotId,
   selectDate,
@@ -62,6 +67,8 @@ const PatientAppointmentsTemplate = ({
           bookingSuccess={bookingSuccess}
           departmentStatus={departmentStatus}
           departments={departments}
+          matchedSymptoms={matchedSymptoms}
+          onClearDoctor={clearSelectedDoctor}
           onDateChange={selectDate}
           onDepartmentChange={selectDepartment}
           onReasonChange={setReason}
@@ -69,7 +76,6 @@ const PatientAppointmentsTemplate = ({
           onSubmit={() => {
             void submitAppointment()
           }}
-          matchedSymptoms={matchedSymptoms}
           reason={reason}
           recommendedDepartments={recommendedDepartments}
           recommendationStatus={recommendationStatus}
@@ -77,12 +83,12 @@ const PatientAppointmentsTemplate = ({
           selectedDepartmentId={selectedDepartmentId}
           selectedDoctorId={selectedDoctorId}
           selectedDoctorName={selectedDoctorName}
+          selectedPaymentPolicy={selectedPaymentPolicy}
           selectedSlot={selectedSlot}
           selectedSlotId={selectedSlotId}
           slotStatus={slotStatus}
           slots={slots}
           upcomingDays={upcomingDays}
-          onClearDoctor={clearSelectedDoctor}
         />
 
         {user?.role === 'PATIENT' ? (
@@ -92,7 +98,7 @@ const PatientAppointmentsTemplate = ({
             onCancel={(appointment) => {
               void cancelMyAppointment(appointment)
             }}
-            onPageChange={changeAppointmentPage}
+            onPay={openPaymentModal}
             onRefresh={() => {
               void loadAppointments(appointmentPagination.page)
             }}
@@ -109,6 +115,12 @@ const PatientAppointmentsTemplate = ({
         )}
       </div>
     </main>
+    {paymentModalPayment && (
+      <PaymentModal
+        initialPayment={paymentModalPayment}
+        onClose={closePaymentModal}
+      />
+    )}
   </div>
 )
 

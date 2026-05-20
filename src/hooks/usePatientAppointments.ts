@@ -22,7 +22,10 @@ import {
   sortSlotsByTime,
   toPatientAppointmentPagination,
 } from '../utils/patientAppointments'
-import type { LoadStatus, PatientAppointmentPagination, PatientAppointmentStat } from '../utils/patientAppointments'
+import type { LoadStatus, PatientAppointmentStat } from '../utils/patientAppointments'
+import { getPaymentPolicyForSlot } from '../utils/paymentPolicy'
+import type { PaymentPolicy } from '../utils/paymentPolicy'
+import type { Payment } from '../types/payment'
 
 type UsePatientAppointmentsOptions = {
   storedUser: User | null
@@ -64,17 +67,20 @@ export type PatientAppointmentsState = {
   selectedDoctorName: string
   selectedSlot: AppointmentSlot | null
   selectedSlotId: number | string | null
+  selectedPaymentPolicy: PaymentPolicy
+  paymentModalPayment: Payment | null
   slotStatus: LoadStatus
   slots: AppointmentSlot[]
   stats: PatientAppointmentStat[]
   upcomingDays: Date[]
   cancelMyAppointment: (appointment: Appointment) => Promise<void>
-  changeAppointmentPage: (page: number) => void
-  loadAppointments: (page?: number) => Promise<void>
+  clearSelectedDoctor: () => void
+  closePaymentModal: () => void
+  loadAppointments: () => Promise<void>
   loadSlots: () => Promise<void>
+  openPaymentModal: (payment: Payment) => void
   selectDate: (date: string) => void
   selectDepartment: (departmentId: string) => void
-  clearSelectedDoctor: () => void
   selectSlot: (slot: AppointmentSlot) => void
   setReason: (reason: string) => void
   submitAppointment: () => Promise<void>
@@ -108,6 +114,7 @@ export const usePatientAppointments = ({
   const [bookingError, setBookingError] = useState('')
   const [bookingSuccess, setBookingSuccess] = useState('')
   const [appointmentActionId, setAppointmentActionId] = useState<number | string | null>(null)
+  const [paymentModalPayment, setPaymentModalPayment] = useState<Payment | null>(null)
 
   const handleRequestError = useCallback((requestError: unknown, fallback: string) => {
     if (isAuthFailure(requestError)) {
@@ -282,90 +289,29 @@ export const usePatientAppointments = ({
   }, [matchedSymptoms, selectedDoctorId])
 
   useEffect(() => {
-    let active = true
-
-    if (storedUser?.role !== 'PATIENT') {
-      const timeoutId = window.setTimeout(() => {
-        if (!active) return
-        setAppointments([])
-        setStatAppointments([])
-        setAppointmentPagination(emptyPatientAppointmentPagination)
-        setAppointmentStatus('ready')
-      }, 0)
-
-      return () => {
-        active = false
-        window.clearTimeout(timeoutId)
-      }
-    }
-
-    Promise.all([
-      getMyAppointments({ page: 1, limit: patientAppointmentPageLimit }),
-      getMyAppointments({ limit: 100 }),
-    ])
-      .then(([result, statsResult]) => {
-        if (!active) return
-
-        setAppointments(sortAppointmentsByTime(result.appointments))
-        setStatAppointments(sortAppointmentsByTime(statsResult.appointments))
-        setAppointmentPagination(toPatientAppointmentPagination(result.pagination))
-        setAppointmentStatus('ready')
-      })
-      .catch((requestError: unknown) => {
-        if (!active) return
-
-        if (isAuthFailure(requestError)) {
-          onAuthFailure()
-          return
-        }
-
-        setAppointmentStatus('error')
-      })
+    const timeoutId = window.setTimeout(() => {
+      void loadAppointments()
+    }, 0)
 
     return () => {
-      active = false
+      window.clearTimeout(timeoutId)
     }
-  }, [onAuthFailure, storedUser?.role])
+  }, [loadAppointments])
 
   useEffect(() => {
-    let active = true
-
-    getAppointmentSlots({
-      date: selectedDate || undefined,
-      department_id: selectedDoctorId ? undefined : selectedDepartmentId || undefined,
-      doctor_id: selectedDoctorId || undefined,
-      limit: 100,
-      start_from: selectedDate ? undefined : new Date().toISOString(),
-      status: 'AVAILABLE',
-    })
-      .then((result) => {
-        if (!active) return
-
-        setSlots(sortSlotsByTime(result.appointment_slots).filter((slot) => (
-          selectedDate || new Date(slot.start_time).getTime() >= Date.now()
-        )))
-        setSlotStatus('ready')
-      })
-      .catch((requestError: unknown) => {
-        if (!active) return
-
-        if (isAuthFailure(requestError)) {
-          onAuthFailure()
-          return
-        }
-
-        setSlots([])
-        setSlotStatus('error')
-      })
+    const timeoutId = window.setTimeout(() => {
+      void loadSlots()
+    }, 0)
 
     return () => {
-      active = false
+      window.clearTimeout(timeoutId)
     }
-  }, [onAuthFailure, selectedDate, selectedDepartmentId, selectedDoctorId])
+  }, [loadSlots])
 
   const selectedSlot = useMemo(() => (
     slots.find((slot) => String(slot.id) === String(selectedSlotId)) || null
   ), [selectedSlotId, slots])
+  const selectedPaymentPolicy = useMemo(() => getPaymentPolicyForSlot(selectedSlot), [selectedSlot])
 
   const stats = useMemo(() => buildAppointmentStats(statAppointments), [statAppointments])
 
@@ -412,6 +358,14 @@ export const usePatientAppointments = ({
     setBookingSuccess('')
   }, [])
 
+  const openPaymentModal = useCallback((payment: Payment) => {
+    setPaymentModalPayment(payment)
+  }, [])
+
+  const closePaymentModal = useCallback(() => {
+    setPaymentModalPayment(null)
+  }, [])
+
   const submitAppointment = useCallback(async () => {
     setBookingError('')
     setBookingSuccess('')
@@ -432,21 +386,27 @@ export const usePatientAppointments = ({
     }
 
     try {
-      await createMyAppointment({
+      const result = await createMyAppointment({
         reason: reason.trim() || null,
         slot_id: selectedSlot.id,
       })
       setReason('')
       setSelectedSlotId(null)
-      setBookingSuccess('Lịch hẹn đã được gửi, vui lòng chờ xác nhận.')
-      await Promise.all([loadSlots(), loadAppointments(1)])
+      const paymentId = result.payment?.id
+      if (!paymentId) {
+        throw new Error('Lịch hẹn đã tạo nhưng chưa nhận được mã thanh toán. Vui lòng kiểm tra API tạo payment.')
+      }
+
+      setBookingSuccess('Lịch hẹn đã được tạo. Vui lòng hoàn tất thanh toán để xác nhận lịch khám.')
+      await Promise.all([loadSlots(), loadAppointments()])
+      setPaymentModalPayment(result.payment)
     } catch (requestError) {
       handleRequestError(requestError, 'Không thể đặt lịch hẹn.')
     }
   }, [handleRequestError, loadAppointments, loadSlots, reason, selectedSlot, storedUser])
 
   const cancelMyAppointment = useCallback(async (appointment: Appointment) => {
-    if (!['PENDING', 'CONFIRMED'].includes(appointment.status)) return
+    if (!['PENDING_PAYMENT', 'PENDING', 'CONFIRMED'].includes(appointment.status)) return
 
     if (!window.confirm('Bạn muốn hủy lịch hẹn này?')) return
 
@@ -476,13 +436,15 @@ export const usePatientAppointments = ({
     bookingError,
     bookingSuccess,
     cancelMyAppointment,
-    changeAppointmentPage,
+    clearSelectedDoctor,
+    closePaymentModal,
     departmentStatus,
     departments,
     loadAppointments,
     loadSlots,
-    clearSelectedDoctor,
     matchedSymptoms,
+    openPaymentModal,
+    paymentModalPayment,
     reason,
     recommendedDepartments,
     recommendationStatus,
@@ -492,6 +454,7 @@ export const usePatientAppointments = ({
     selectedDoctorName,
     selectedSlot,
     selectedSlotId,
+    selectedPaymentPolicy,
     selectDate,
     selectDepartment,
     selectSlot,

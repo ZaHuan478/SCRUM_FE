@@ -21,6 +21,10 @@ export type LoginPayload = {
   password: string
 }
 
+export type GoogleLoginPayload = {
+  credential: string
+}
+
 export type LoginResponse = {
   token: string
   user: User
@@ -38,6 +42,21 @@ export type RegisterPayload = {
   cccd_back_image?: string
 }
 
+export type ResetPasswordPayload = {
+  token?: string
+  email?: string
+  code?: string
+  password: string
+}
+
+export type ForgotPasswordPayload = {
+  email: string
+}
+
+export type ForgotPasswordResponse = {
+  message: string
+}
+
 export const AUTH_USER_CHANGED_EVENT = 'auth-user-changed'
 
 const notifyAuthUserChange = (user: User | null) => {
@@ -46,6 +65,24 @@ const notifyAuthUserChange = (user: User | null) => {
 
 export const login = (payload: LoginPayload) =>
   apiRequest<LoginResponse>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+
+export const loginWithGoogle = (payload: GoogleLoginPayload) =>
+  apiRequest<LoginResponse>('/auth/google', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+
+export const forgotPassword = (payload: ForgotPasswordPayload) =>
+  apiRequest<ForgotPasswordResponse>('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+
+export const resetPassword = (payload: ResetPasswordPayload) =>
+  apiRequest<void>('/auth/reset-password', {
     method: 'POST',
     body: JSON.stringify(payload),
   })

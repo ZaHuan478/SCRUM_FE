@@ -6,19 +6,20 @@ import NotificationBell from '../Notifications/NotificationBell'
 import { AUTH_USER_CHANGED_EVENT, clearAuthSession, getStoredUser } from '../../services/auth.service'
 import type { User } from '../../services/auth.service'
 
-type NavKey = 'doctors' | 'departments' | 'symptoms' | 'about'
+type NavKey = 'homepage' | 'doctors' | 'departments' | 'symptoms'
 
 type TopNavBarProps = {
   active?: NavKey
 }
 
 const navItems: Array<{ key: NavKey; label: string; to: string }> = [
+  { key: 'homepage', label: 'Trang chủ', to: '/' },
   { key: 'doctors', label: 'Tìm bác sĩ', to: '/doctors' },
   { key: 'departments', label: 'Khoa', to: '/departments' },
   { key: 'symptoms', label: 'Kiểm tra triệu chứng', to: '/symptoms' },
 ]
 
-const TopNavBar = ({ active = 'doctors' }: TopNavBarProps) => {
+const TopNavBar = ({ active = 'homepage' }: TopNavBarProps) => {
   const navigate = useNavigate()
   const [user, setUser] = useState(() => getStoredUser())
 
