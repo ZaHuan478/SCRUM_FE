@@ -56,12 +56,20 @@ const mapRecommendedDepartment = (
 ): SuggestedDepartment => {
   const department = departments.find((item) => String(item.id) === String(recommendation.department_id))
   const matchedSymptoms = recommendation.matched_symptoms.join(', ')
+  const preVisitNotes = (recommendation.pre_visit_notes || [])
+    .map((note) => ({
+      note: note.note.trim(),
+      symptomName: note.symptom_name?.trim(),
+    }))
+    .filter((note) => note.note)
 
   return {
     title: recommendation.department_name,
     description: matchedSymptoms
       ? `Phù hợp với: ${matchedSymptoms}`
       : department?.description || 'Khoa phù hợp với triệu chứng bạn đã nhập.',
+    preVisitNote: recommendation.pre_visit_note || preVisitNotes[0]?.note || null,
+    preVisitNotes,
   }
 }
 

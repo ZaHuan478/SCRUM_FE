@@ -5,6 +5,15 @@ export type RecommendedDepartment = {
   department_name: string
   total_score: number
   matched_symptoms: string[]
+  pre_visit_note?: string | null
+  pre_visit_notes?: RecommendedPreVisitNote[]
+}
+
+export type RecommendedPreVisitNote = {
+  symptom_id: number | string
+  symptom_name?: string
+  note: string
+  score?: number
 }
 
 export const recommendDepartmentsBySymptoms = (symptomIds: Array<number | string>) => (
