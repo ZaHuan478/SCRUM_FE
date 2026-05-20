@@ -10,6 +10,8 @@ import type { Department } from '../../../services/department.service'
 import type { Symptom } from '../../../services/symptom.service'
 import { getDateKey, longDateFormatter } from '../../../utils/patientAppointments'
 import type { LoadStatus } from '../../../utils/patientAppointments'
+import { moneyFormatter, paymentRuleNote } from '../../../utils/paymentPolicy'
+import type { PaymentPolicy } from '../../../utils/paymentPolicy'
 
 type PatientAppointmentBookingPanelProps = {
   bookingError: string
@@ -24,6 +26,7 @@ type PatientAppointmentBookingPanelProps = {
   selectedDepartmentId: string
   selectedDoctorId: string
   selectedDoctorName: string
+  selectedPaymentPolicy: PaymentPolicy
   selectedSlot: AppointmentSlot | null
   selectedSlotId: number | string | null
   slotStatus: LoadStatus
@@ -52,6 +55,7 @@ const PatientAppointmentBookingPanel = ({
   selectedDepartmentId,
   selectedDoctorId,
   selectedDoctorName,
+  selectedPaymentPolicy,
   selectedSlot,
   selectedSlotId,
   slotStatus,
@@ -299,6 +303,21 @@ const PatientAppointmentBookingPanel = ({
       )}
 
       <div className="rounded-lg p-md">
+        <div className="rounded-lg border border-outline-variant/30 bg-surface-container-low px-md py-sm">
+          <div className="flex items-start gap-sm">
+            <Icon className="mt-0.5 text-lg text-primary" name="payments" />
+            <div className="space-y-xs">
+              <p className="font-label-md text-label-md text-on-surface">
+                {selectedSlot
+                  ? `Cần thanh toán ${selectedPaymentPolicy.depositPercent}% (${moneyFormatter.format(selectedPaymentPolicy.payableAmount)}) để xác nhận lịch.`
+                  : 'Chọn khung giờ để xem số tiền cần thanh toán.'}
+              </p>
+              <p className="font-body-sm text-body-sm text-on-surface-variant">
+                {paymentRuleNote}
+              </p>
+            </div>
+          </div>
+        </div>
         <div className="mt-md flex flex-col gap-sm sm:flex-row sm:items-center sm:justify-between">
           <p className="font-body-sm text-body-sm text-on-surface-variant">
             {selectedSlot ? 'Khung giờ đã sẵn sàng để gửi đặt lịch.' : 'Chọn một khung giờ trước khi gửi.'}

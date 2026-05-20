@@ -1,7 +1,9 @@
 import axios from 'axios'
 import type { Invoice, Payment, } from '../types/payment'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+export type { Invoice, Payment } from '../types/payment'
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '/api'
 
 const paymentClient = axios.create({
   baseURL: API_BASE_URL.replace(/\/$/, ''),

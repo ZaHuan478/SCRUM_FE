@@ -11,9 +11,8 @@ import DoctorsPage from './page/DoctorsPage'
 import DepartmentsPage from './page/DepartmentsPage'
 import DepartmentDetailPage from './page/DepartmentDetailPage'
 import DoctorDetailPage from './page/DoctorDetailPage'
-// Payment task is not started yet. Re-enable these pages when payment flow is ready.
-// import PaymentPage from './page/PaymentPage'
-// import PaymentSuccessPage from './page/PaymentSuccessPage'
+import PaymentPage from './page/PaymentPage'
+import PaymentSuccessPage from './page/PaymentSuccessPage'
 import { NotificationProvider } from './contexts/NotificationContext'
 
 function App() {
@@ -35,9 +34,8 @@ function App() {
           <Route path="/departments/:id" element={<DepartmentDetailPage />} />
           <Route path="/appointments" element={<PatientAppointmentsPage />} />
           <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
-          {/* Payment task is not started yet. */}
-          {/* <Route path="/payments/:paymentId" element={<PaymentPage />} /> */}
-          {/* <Route path="/payment-success/:appointmentId" element={<PaymentSuccessPage />} /> */}
+          <Route path="/payments/:paymentId" element={<PaymentPage />} />
+          <Route path="/payment-success/:appointmentId" element={<PaymentSuccessPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/symptoms" element={<SymptomCheckerPage />} />
           <Route path="/login" element={<AuthPage />} />

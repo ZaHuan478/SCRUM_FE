@@ -2,6 +2,7 @@ import TopNavBar from '../Organisms/TopNavBar'
 import PatientAppointmentBookingPanel from '../Organisms/PatientAppointments/PatientAppointmentBookingPanel'
 import PatientAppointmentHistoryPanel from '../Organisms/PatientAppointments/PatientAppointmentHistoryPanel'
 import PatientAppointmentStatsGrid from '../Organisms/PatientAppointments/PatientAppointmentStatsGrid'
+import PaymentModal from '../Organisms/Payment/PaymentModal'
 import type { PatientAppointmentsState } from '../../hooks/usePatientAppointments'
 import type { User } from '../../services/auth.service'
 
@@ -17,10 +18,13 @@ const PatientAppointmentsTemplate = ({
   bookingSuccess,
   cancelMyAppointment,
   clearSelectedDoctor,
+  closePaymentModal,
   departmentStatus,
   departments,
   loadAppointments,
   matchedSymptoms,
+  openPaymentModal,
+  paymentModalPayment,
   reason,
   recommendedDepartments,
   recommendationStatus,
@@ -28,6 +32,7 @@ const PatientAppointmentsTemplate = ({
   selectedDepartmentId,
   selectedDoctorId,
   selectedDoctorName,
+  selectedPaymentPolicy,
   selectedSlot,
   selectedSlotId,
   selectDate,
@@ -76,6 +81,7 @@ const PatientAppointmentsTemplate = ({
           selectedDepartmentId={selectedDepartmentId}
           selectedDoctorId={selectedDoctorId}
           selectedDoctorName={selectedDoctorName}
+          selectedPaymentPolicy={selectedPaymentPolicy}
           selectedSlot={selectedSlot}
           selectedSlotId={selectedSlotId}
           slotStatus={slotStatus}
@@ -90,6 +96,7 @@ const PatientAppointmentsTemplate = ({
             onCancel={(appointment) => {
               void cancelMyAppointment(appointment)
             }}
+            onPay={openPaymentModal}
             onRefresh={() => {
               void loadAppointments()
             }}
@@ -105,6 +112,12 @@ const PatientAppointmentsTemplate = ({
         )}
       </div>
     </main>
+    {paymentModalPayment && (
+      <PaymentModal
+        initialPayment={paymentModalPayment}
+        onClose={closePaymentModal}
+      />
+    )}
   </div>
 )
 

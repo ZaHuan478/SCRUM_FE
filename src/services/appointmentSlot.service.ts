@@ -2,7 +2,7 @@ import { apiRequest } from '../api/client'
 import type { Department } from './department.service'
 import type { Doctor } from './doctor.service'
 
-export type AppointmentSlotStatus = 'AVAILABLE' | 'FULL' | 'CANCELLED'
+export type AppointmentSlotStatus = 'AVAILABLE' | 'BOOKED' | 'FULL' | 'CANCELLED'
 
 export type AppointmentSlot = {
   id: number | string

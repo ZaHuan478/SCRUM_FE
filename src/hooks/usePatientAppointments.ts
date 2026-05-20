@@ -20,6 +20,9 @@ import {
   sortSlotsByTime,
 } from '../utils/patientAppointments'
 import type { LoadStatus, PatientAppointmentStat } from '../utils/patientAppointments'
+import { getPaymentPolicyForSlot } from '../utils/paymentPolicy'
+import type { PaymentPolicy } from '../utils/paymentPolicy'
+import type { Payment } from '../types/payment'
 
 type UsePatientAppointmentsOptions = {
   storedUser: User | null
@@ -60,14 +63,18 @@ export type PatientAppointmentsState = {
   selectedDoctorName: string
   selectedSlot: AppointmentSlot | null
   selectedSlotId: number | string | null
+  selectedPaymentPolicy: PaymentPolicy
+  paymentModalPayment: Payment | null
   slotStatus: LoadStatus
   slots: AppointmentSlot[]
   stats: PatientAppointmentStat[]
   upcomingDays: Date[]
   cancelMyAppointment: (appointment: Appointment) => Promise<void>
   clearSelectedDoctor: () => void
+  closePaymentModal: () => void
   loadAppointments: () => Promise<void>
   loadSlots: () => Promise<void>
+  openPaymentModal: (payment: Payment) => void
   selectDate: (date: string) => void
   selectDepartment: (departmentId: string) => void
   selectSlot: (slot: AppointmentSlot) => void
@@ -101,6 +108,7 @@ export const usePatientAppointments = ({
   const [bookingError, setBookingError] = useState('')
   const [bookingSuccess, setBookingSuccess] = useState('')
   const [appointmentActionId, setAppointmentActionId] = useState<number | string | null>(null)
+  const [paymentModalPayment, setPaymentModalPayment] = useState<Payment | null>(null)
 
   const handleRequestError = useCallback((requestError: unknown, fallback: string) => {
     if (isAuthFailure(requestError)) {
@@ -290,6 +298,7 @@ export const usePatientAppointments = ({
   const selectedSlot = useMemo(() => (
     slots.find((slot) => String(slot.id) === String(selectedSlotId)) || null
   ), [selectedSlotId, slots])
+  const selectedPaymentPolicy = useMemo(() => getPaymentPolicyForSlot(selectedSlot), [selectedSlot])
 
   const stats = useMemo(() => buildAppointmentStats(appointments), [appointments])
 
@@ -332,6 +341,14 @@ export const usePatientAppointments = ({
     setBookingSuccess('')
   }, [])
 
+  const openPaymentModal = useCallback((payment: Payment) => {
+    setPaymentModalPayment(payment)
+  }, [])
+
+  const closePaymentModal = useCallback(() => {
+    setPaymentModalPayment(null)
+  }, [])
+
   const submitAppointment = useCallback(async () => {
     setBookingError('')
     setBookingSuccess('')
@@ -352,20 +369,20 @@ export const usePatientAppointments = ({
     }
 
     try {
-      await createMyAppointment({
+      const result = await createMyAppointment({
         reason: reason.trim() || null,
         slot_id: selectedSlot.id,
       })
       setReason('')
       setSelectedSlotId(null)
-      setBookingSuccess('Lịch hẹn đã được gửi, vui lòng chờ bác sĩ xác nhận.')
+      const paymentId = result.payment?.id
+      if (!paymentId) {
+        throw new Error('Lịch hẹn đã tạo nhưng chưa nhận được mã thanh toán. Vui lòng kiểm tra API tạo payment.')
+      }
+
+      setBookingSuccess('Lịch hẹn đã được tạo. Vui lòng hoàn tất thanh toán để xác nhận lịch khám.')
       await Promise.all([loadSlots(), loadAppointments()])
-      // Payment task is not started yet. Re-enable this block when payment flow is ready.
-      // const paymentId = result.payment?.id
-      // if (!paymentId) {
-      //   throw new Error('Lịch hẹn đã tạo nhưng chưa nhận được mã thanh toán. Vui lòng kiểm tra API tạo payment.')
-      // }
-      // navigate(`/payments/${paymentId}`)
+      setPaymentModalPayment(result.payment)
     } catch (requestError) {
       handleRequestError(requestError, 'Không thể đặt lịch hẹn.')
     }
@@ -399,11 +416,14 @@ export const usePatientAppointments = ({
     bookingSuccess,
     cancelMyAppointment,
     clearSelectedDoctor,
+    closePaymentModal,
     departmentStatus,
     departments,
     loadAppointments,
     loadSlots,
     matchedSymptoms,
+    openPaymentModal,
+    paymentModalPayment,
     reason,
     recommendedDepartments,
     recommendationStatus,
@@ -413,6 +433,7 @@ export const usePatientAppointments = ({
     selectedDoctorName,
     selectedSlot,
     selectedSlotId,
+    selectedPaymentPolicy,
     selectDate,
     selectDepartment,
     selectSlot,

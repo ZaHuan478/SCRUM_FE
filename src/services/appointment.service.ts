@@ -1,4 +1,5 @@
 import { apiRequest } from '../api/client'
+import type { Payment } from '../types/payment'
 import type { AppointmentSlot } from './appointmentSlot.service'
 import type { Doctor } from './doctor.service'
 import type { Patient } from './patient.service'
@@ -16,6 +17,7 @@ export type Appointment = {
   patient?: Patient
   doctor?: Doctor
   slot?: AppointmentSlot
+  payments?: Payment[]
   created_at?: string
   updated_at?: string
 }
@@ -52,22 +54,10 @@ export type CreateMyAppointmentPayload = {
   reason?: string | null
 }
 
-// Payment task is not started yet. Re-enable these types when payment flow is ready.
-// export type AppointmentPayment = {
-//   id: number | string
-//   appointment_id: number | string
-//   amount: string | number
-//   currency: string
-//   method: string
-//   status: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED'
-//   qr_code_url?: string | null
-// }
-//
-// export type CreateAppointmentResult = {
-//   appointment: Appointment
-//   payment: AppointmentPayment
-//   qr_code_url?: string | null
-// }
+export type CreateAppointmentResult = {
+  appointment: Appointment
+  payment: Payment
+}
 
 export type CancelAppointmentPayload = {
   cancel_reason?: string | null
@@ -105,13 +95,13 @@ export const getMyAppointments = (query: Omit<AppointmentQuery, 'patient_id'> = 
 }
 
 export const createAppointment = (payload: CreateAppointmentPayload) =>
-  apiRequest<Appointment>('/appointments', {
+  apiRequest<CreateAppointmentResult>('/appointments', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
 
 export const createMyAppointment = (payload: CreateMyAppointmentPayload) =>
-  apiRequest<Appointment>('/appointments/me', {
+  apiRequest<CreateAppointmentResult>('/appointments/me', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
