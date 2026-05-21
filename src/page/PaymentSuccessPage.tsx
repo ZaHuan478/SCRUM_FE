@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { getInvoiceByAppointment, type Invoice } from '../api/payment.api'
 import InvoiceButton from '../components/Molecules/Payment/InvoiceButton'
 import TopNavBar from '../components/Organisms/TopNavBar'
+import { useToast } from '../contexts/ToastContext'
 
 const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
   dateStyle: 'medium',
@@ -13,6 +14,7 @@ const PaymentSuccessPage = () => {
   const { appointmentId } = useParams()
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [error, setError] = useState('')
+  const { error: toastError } = useToast()
 
   useEffect(() => {
     if (!appointmentId) return
@@ -20,9 +22,11 @@ const PaymentSuccessPage = () => {
     getInvoiceByAppointment(appointmentId)
       .then(setInvoice)
       .catch((requestError: unknown) => {
-        setError(requestError instanceof Error ? requestError.message : 'Không thể tải hóa đơn.')
+        const message = requestError instanceof Error ? requestError.message : 'Không thể tải hóa đơn.'
+        setError(message)
+        toastError(message)
       })
-  }, [appointmentId])
+  }, [appointmentId, toastError])
 
   const payment = invoice?.payment
   const appointment = payment?.appointment

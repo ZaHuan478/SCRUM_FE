@@ -16,6 +16,7 @@ import {
   normalizePhone,
 } from '../utils/profile'
 import type { DoctorReadonlyInfo, LoadStatus, ProfileFormState } from '../utils/profile'
+import { useToast } from '../contexts/ToastContext'
 
 export type ProfileImageField = 'avatarUrl' | 'cccdFrontImage' | 'cccdBackImage'
 
@@ -78,6 +79,22 @@ export const useProfile = ({ storedUser, onAuthFailure }: UseProfileOptions): Pr
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [isSaving, setIsSaving] = useState(false)
+  const { success: toastSuccess, error: toastError, warning: toastWarning } = useToast()
+
+  const showError = useCallback((message: string) => {
+    setError(message)
+    toastError(message)
+  }, [toastError])
+
+  const showSuccess = useCallback((message: string) => {
+    setSuccess(message)
+    toastSuccess(message)
+  }, [toastSuccess])
+
+  const showWarning = useCallback((message: string) => {
+    setError(message)
+    toastWarning(message)
+  }, [toastWarning])
 
   useEffect(() => {
     let active = true
@@ -122,13 +139,13 @@ export const useProfile = ({ storedUser, onAuthFailure }: UseProfileOptions): Pr
         }
 
         setStatus('error')
-        setError(requestError instanceof Error ? requestError.message : 'Không thể tải hồ sơ.')
+        showError(requestError instanceof Error ? requestError.message : 'Không thể tải hồ sơ.')
       })
 
     return () => {
       active = false
     }
-  }, [onAuthFailure])
+  }, [onAuthFailure, showError])
 
   const emailMatches = useMemo(() => (
     Boolean(form.email.trim())
@@ -161,9 +178,9 @@ export const useProfile = ({ storedUser, onAuthFailure }: UseProfileOptions): Pr
     try {
       updateField(field, await fileToDataUrl(file, imageLabel))
     } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : `Không thể tải ${imageLabel.toLowerCase()}.`)
+      showWarning(uploadError instanceof Error ? uploadError.message : `Không thể tải ${imageLabel.toLowerCase()}.`)
     }
-  }, [updateField])
+  }, [showWarning, updateField])
 
   const clearImage = useCallback((field: ProfileImageField) => {
     updateField(field, '')
@@ -180,22 +197,22 @@ export const useProfile = ({ storedUser, onAuthFailure }: UseProfileOptions): Pr
     setSuccess('')
 
     if (!form.email.trim()) {
-      setError('Email không được để trống.')
+      showWarning('Email không được để trống.')
       return
     }
 
     if (!emailMatches) {
-      setError('Email xác nhận không khớp.')
+      showWarning('Email xác nhận không khớp.')
       return
     }
 
     if (!phoneValid) {
-      setError('Số điện thoại cần có 9 đến 15 chữ số.')
+      showWarning('Số điện thoại cần có 9 đến 15 chữ số.')
       return
     }
 
     if (!cccdValid) {
-      setError('CCCD phải gồm đúng 12 chữ số.')
+      showWarning('CCCD phải gồm đúng 12 chữ số.')
       return
     }
 
@@ -221,18 +238,18 @@ export const useProfile = ({ storedUser, onAuthFailure }: UseProfileOptions): Pr
       setUser(updatedUser)
       setForm(buildProfileForm(updatedUser))
       updateStoredUser(updatedUser)
-      setSuccess('Hồ sơ đã được cập nhật.')
+      showSuccess('Hồ sơ đã được cập nhật.')
     } catch (requestError) {
       if (isAuthFailure(requestError)) {
         onAuthFailure()
         return
       }
 
-      setError(requestError instanceof Error ? requestError.message : 'Không thể cập nhật hồ sơ.')
+      showError(requestError instanceof Error ? requestError.message : 'Không thể cập nhật hồ sơ.')
     } finally {
       setIsSaving(false)
     }
-  }, [cccdValid, emailMatches, form, onAuthFailure, phoneValid, user.avatar_url])
+  }, [cccdValid, emailMatches, form, onAuthFailure, phoneValid, showError, showSuccess, showWarning, user.avatar_url])
 
   return {
     avatarInputRef,
