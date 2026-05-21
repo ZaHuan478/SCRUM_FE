@@ -14,36 +14,40 @@ import DoctorDetailPage from './page/DoctorDetailPage'
 import PaymentPage from './page/PaymentPage'
 import PaymentSuccessPage from './page/PaymentSuccessPage'
 import { NotificationProvider } from './contexts/NotificationContext'
+import { ToastProvider } from './contexts/ToastContext'
 
 function App() {
   return (
-    <NotificationProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/admin" element={<AdminDashboardPage />} />
-          <Route path="/admin/departments" element={<AdminDashboardPage />} />
-          <Route path="/admin/doctors" element={<AdminDashboardPage />} />
-          <Route path="/admin/patients" element={<AdminDashboardPage />} />
-          <Route path="/admin/users" element={<AdminDashboardPage />} />
-          <Route path="/doctor" element={<DoctorSchedulePage />} />
-          <Route path="/doctor/schedule" element={<DoctorSchedulePage />} />
-          <Route path="/doctors" element={<DoctorsPage />} />
-          <Route path="/doctors/:doctorId" element={<DoctorDetailPage />} />
-          <Route path="/departments" element={<DepartmentsPage />} />
-          <Route path="/departments/:id" element={<DepartmentDetailPage />} />
-          <Route path="/appointments" element={<PatientAppointmentsPage />} />
-          <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
-          <Route path="/payments/:paymentId" element={<PaymentPage />} />
-          <Route path="/payment-success/:appointmentId" element={<PaymentSuccessPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/symptoms" element={<SymptomCheckerPage />} />
-          <Route path="/login" element={<AuthPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/reset-password" element={<AuthPage />} />
-        </Routes>
-      </BrowserRouter>
-    </NotificationProvider>
+    <ToastProvider>
+      <NotificationProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/admin" element={<AdminDashboardPage />} />
+            <Route path="/admin/departments" element={<AdminDashboardPage />} />
+            <Route path="/admin/doctors" element={<AdminDashboardPage />} />
+            <Route path="/admin/symptom-rules" element={<AdminDashboardPage />} />
+            <Route path="/admin/patients" element={<AdminDashboardPage />} />
+            <Route path="/admin/users" element={<AdminDashboardPage />} />
+            <Route path="/doctor" element={<DoctorSchedulePage />} />
+            <Route path="/doctor/schedule" element={<DoctorSchedulePage />} />
+            <Route path="/doctors" element={<DoctorsPage />} />
+            <Route path="/doctors/:doctorId" element={<DoctorDetailPage />} />
+            <Route path="/departments" element={<DepartmentsPage />} />
+            <Route path="/departments/:id" element={<DepartmentDetailPage />} />
+            <Route path="/appointments" element={<PatientAppointmentsPage />} />
+            <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
+            <Route path="/payments/:paymentId" element={<PaymentPage />} />
+            <Route path="/payment-success/:appointmentId" element={<PaymentSuccessPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/symptoms" element={<SymptomCheckerPage />} />
+            <Route path="/login" element={<AuthPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/reset-password" element={<AuthPage />} />
+          </Routes>
+        </BrowserRouter>
+      </NotificationProvider>
+    </ToastProvider>
   )
 }
 

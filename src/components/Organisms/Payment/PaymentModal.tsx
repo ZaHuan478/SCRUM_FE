@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getPaymentStatus, type Payment } from '../../../api/payment.api'
 import { connectPaymentSocket, onPaymentSuccess } from '../../../api/payment.socket'
@@ -6,6 +6,7 @@ import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import PaymentQR from '../../Molecules/Payment/PaymentQR'
 import PaymentStatus from '../../Molecules/Payment/PaymentStatus'
+import { useToast } from '../../../contexts/ToastContext'
 
 type PaymentModalProps = {
   initialPayment: Payment
@@ -16,6 +17,9 @@ const PaymentModal = ({ initialPayment, onClose }: PaymentModalProps) => {
   const navigate = useNavigate()
   const [payment, setPayment] = useState(initialPayment)
   const [error, setError] = useState('')
+  const { success: toastSuccess, error: toastError } = useToast()
+  const reportedErrorRef = useRef('')
+  const reportedPaidRef = useRef(false)
 
   useEffect(() => {
     let active = true
@@ -28,11 +32,20 @@ const PaymentModal = ({ initialPayment, onClose }: PaymentModalProps) => {
         setPayment(nextPayment)
         setError('')
         if (nextPayment.status === 'PAID') {
+          if (!reportedPaidRef.current) {
+            reportedPaidRef.current = true
+            toastSuccess('Thanh toán thành công. Lịch khám đã được xác nhận.')
+          }
           navigate(`/payment-success/${nextPayment.appointment_id}`, { replace: true })
         }
       } catch (requestError) {
         if (!active) return
-        setError(requestError instanceof Error ? requestError.message : 'Không thể tải trạng thái thanh toán.')
+        const message = requestError instanceof Error ? requestError.message : 'Không thể tải trạng thái thanh toán.'
+        setError(message)
+        if (reportedErrorRef.current !== message) {
+          reportedErrorRef.current = message
+          toastError(message)
+        }
       }
     }
 
@@ -41,6 +54,10 @@ const PaymentModal = ({ initialPayment, onClose }: PaymentModalProps) => {
     const socket = connectPaymentSocket()
     const offPaymentSuccess = socket ? onPaymentSuccess(socket, (payload) => {
       if (String(payload.payment_id) === String(initialPayment.id)) {
+        if (!reportedPaidRef.current) {
+          reportedPaidRef.current = true
+          toastSuccess('Thanh toán thành công. Lịch khám đã được xác nhận.')
+        }
         navigate(`/payment-success/${payload.appointment_id}`, { replace: true, state: payload })
       }
     }) : undefined
@@ -51,7 +68,7 @@ const PaymentModal = ({ initialPayment, onClose }: PaymentModalProps) => {
       offPaymentSuccess?.()
       socket?.disconnect()
     }
-  }, [initialPayment.id, navigate])
+  }, [initialPayment.id, navigate, toastError, toastSuccess])
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-inverse-surface/50 px-md py-lg backdrop-blur-sm" role="presentation">

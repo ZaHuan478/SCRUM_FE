@@ -34,6 +34,7 @@ import {
   toApiDateTime,
 } from '../utils/doctorSchedule'
 import type { DaySummary, DoctorScheduleStat, LoadStatus, SlotFormState } from '../utils/doctorSchedule'
+import { useToast } from '../contexts/ToastContext'
 
 type DayAction = 'busy' | 'free' | null
 
@@ -102,6 +103,22 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
   const [slotActionId, setSlotActionId] = useState<number | string | null>(null)
   const [appointmentActionId, setAppointmentActionId] = useState<number | string | null>(null)
   const [dayAction, setDayAction] = useState<DayAction>(null)
+  const { success: toastSuccess, error: toastError, warning: toastWarning } = useToast()
+
+  const showError = useCallback((message: string) => {
+    setError(message)
+    toastError(message)
+  }, [toastError])
+
+  const showSuccess = useCallback((message: string) => {
+    setSuccess(message)
+    toastSuccess(message)
+  }, [toastSuccess])
+
+  const showWarning = useCallback((message: string) => {
+    setError(message)
+    toastWarning(message)
+  }, [toastWarning])
 
   const handleRequestError = useCallback((requestError: unknown, fallback: string) => {
     if (isAuthFailure(requestError)) {
@@ -109,8 +126,8 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
       return
     }
 
-    setError(getErrorMessage(requestError, fallback))
-  }, [onAuthFailure])
+    showError(getErrorMessage(requestError, fallback))
+  }, [onAuthFailure, showError])
 
   const fetchSchedule = useCallback(async (): Promise<DoctorScheduleData> => {
     const doctorProfile = await getDoctorByUserId(storedUser.id)
@@ -156,9 +173,9 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
       }
 
       setStatus('error')
-      setError(getErrorMessage(requestError, 'Không thể tải lịch khám.'))
+      showError(getErrorMessage(requestError, 'Không thể tải lịch khám.'))
     }
-  }, [applyScheduleData, fetchSchedule, onAuthFailure])
+  }, [applyScheduleData, fetchSchedule, onAuthFailure, showError])
 
   useEffect(() => {
     let active = true
@@ -177,13 +194,13 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
         }
 
         setStatus('error')
-        setError(getErrorMessage(requestError, 'Không thể tải lịch khám.'))
+        showError(getErrorMessage(requestError, 'Không thể tải lịch khám.'))
       })
 
     return () => {
       active = false
     }
-  }, [applyScheduleData, fetchSchedule, onAuthFailure])
+  }, [applyScheduleData, fetchSchedule, onAuthFailure, showError])
 
   const daySummaryMap = useMemo(() => (
     buildDaySummaryMap(upcomingDays, slots)
@@ -237,18 +254,18 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
     setSuccess('')
 
     if (!activeAssignment) {
-      setError('Bác sĩ cần được gán khoa đang hoạt động trước khi mở lịch khám.')
+      showWarning('Bác sĩ cần được gán khoa đang hoạt động trước khi mở lịch khám.')
       return
     }
 
     if (getTimeMinutes(form.startTime) >= getTimeMinutes(form.endTime)) {
-      setError('Giờ bắt đầu phải nhỏ hơn giờ kết thúc.')
+      showWarning('Giờ bắt đầu phải nhỏ hơn giờ kết thúc.')
       return
     }
 
     const maxPatients = Number(form.maxPatients)
     if (!Number.isInteger(maxPatients) || maxPatients <= 0) {
-      setError('Sức chứa phải là số nguyên lớn hơn 0.')
+      showWarning('Sức chứa phải là số nguyên lớn hơn 0.')
       return
     }
 
@@ -264,13 +281,13 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
     try {
       if (editingSlot) {
         await updateAppointmentSlot(editingSlot.id, payload)
-        setSuccess('Khung giờ đã được cập nhật.')
+        showSuccess('Khung giờ đã được cập nhật.')
       } else {
         await createAppointmentSlot({
           ...payload,
           doctor_assignment_id: activeAssignment.id,
         })
-        setSuccess('Khung giờ đã được thêm.')
+        showSuccess('Khung giờ đã được thêm.')
       }
 
       setSelectedDate(form.date)
@@ -282,7 +299,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
     } finally {
       setIsSaving(false)
     }
-  }, [activeAssignment, editingSlot, form, handleRequestError, loadSchedule])
+  }, [activeAssignment, editingSlot, form, handleRequestError, loadSchedule, showSuccess, showWarning])
 
   const handleEditSlot = useCallback((slot: AppointmentSlot) => {
     const slotDate = getDateKey(slot.start_time)
@@ -306,21 +323,21 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
 
     try {
       await changeAppointmentSlotStatus(slot.id, nextStatus)
-      setSuccess(nextStatus === 'CANCELLED' ? 'Khung giờ đã được đánh dấu bận.' : 'Khung giờ đã được mở lại.')
+      showSuccess(nextStatus === 'CANCELLED' ? 'Khung giờ đã được đánh dấu bận.' : 'Khung giờ đã được mở lại.')
       await loadSchedule()
     } catch (requestError) {
       handleRequestError(requestError, 'Không thể cập nhật trạng thái khung giờ.')
     } finally {
       setSlotActionId(null)
     }
-  }, [handleRequestError, loadSchedule])
+  }, [handleRequestError, loadSchedule, showSuccess])
 
   const handleDeleteSlot = useCallback(async (slot: AppointmentSlot) => {
     setError('')
     setSuccess('')
 
     if (Number(slot.booked_count || 0) > 0) {
-      setError('Không thể xóa khung giờ đã có bệnh nhân đặt lịch.')
+      showWarning('Không thể xóa khung giờ đã có bệnh nhân đặt lịch.')
       return
     }
 
@@ -331,21 +348,21 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
     try {
       await deleteAppointmentSlot(slot.id)
       if (editingSlot && String(editingSlot.id) === String(slot.id)) resetForm()
-      setSuccess('Khung giờ đã được xóa.')
+      showSuccess('Khung giờ đã được xóa.')
       await loadSchedule()
     } catch (requestError) {
       handleRequestError(requestError, 'Không thể xóa khung giờ.')
     } finally {
       setSlotActionId(null)
     }
-  }, [editingSlot, handleRequestError, loadSchedule, resetForm])
+  }, [editingSlot, handleRequestError, loadSchedule, resetForm, showSuccess, showWarning])
 
   const handleMarkDayBusy = useCallback(async () => {
     setError('')
     setSuccess('')
 
     if (!activeAssignment) {
-      setError('Bác sĩ cần được gán khoa đang hoạt động trước khi khóa ngày.')
+      showWarning('Bác sĩ cần được gán khoa đang hoạt động trước khi khóa ngày.')
       return
     }
 
@@ -368,14 +385,14 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
         )
       }
 
-      setSuccess('Ngày đã được đánh dấu bận.')
+      showSuccess('Ngày đã được đánh dấu bận.')
       await loadSchedule()
     } catch (requestError) {
       handleRequestError(requestError, 'Không thể đánh dấu ngày bận.')
     } finally {
       setDayAction(null)
     }
-  }, [activeAssignment, handleRequestError, loadSchedule, selectedDate, selectedDaySlots])
+  }, [activeAssignment, handleRequestError, loadSchedule, selectedDate, selectedDaySlots, showSuccess, showWarning])
 
   const handleMarkDayFree = useCallback(async () => {
     setError('')
@@ -383,7 +400,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
 
     const cancelledSlots = selectedDaySlots.filter((slot) => slot.status === 'CANCELLED')
     if (cancelledSlots.length === 0) {
-      setSuccess('Ngày này hiện không có khung bận.')
+      showSuccess('Ngày này hiện không có khung bận.')
       return
     }
 
@@ -398,14 +415,14 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
         ))
       )
 
-      setSuccess('Ngày đã được mở lại.')
+      showSuccess('Ngày đã được mở lại.')
       await loadSchedule()
     } catch (requestError) {
       handleRequestError(requestError, 'Không thể mở lại ngày.')
     } finally {
       setDayAction(null)
     }
-  }, [handleRequestError, loadSchedule, selectedDaySlots])
+  }, [handleRequestError, loadSchedule, selectedDaySlots, showSuccess])
 
   const handleConfirmAppointment = useCallback(async (appointment: Appointment) => {
     if (appointment.status !== 'PENDING') return
@@ -416,14 +433,14 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
 
     try {
       await confirmAppointment(appointment.id)
-      setSuccess('Lịch khám đã được xác nhận.')
+      showSuccess('Lịch khám đã được xác nhận.')
       await loadSchedule()
     } catch (requestError) {
       handleRequestError(requestError, 'Không thể xác nhận lịch khám.')
     } finally {
       setAppointmentActionId(null)
     }
-  }, [handleRequestError, loadSchedule])
+  }, [handleRequestError, loadSchedule, showSuccess])
 
   const handleCompleteAppointment = useCallback(async (appointment: Appointment) => {
     if (appointment.status !== 'CONFIRMED') return
@@ -434,14 +451,14 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
 
     try {
       await completeAppointment(appointment.id)
-      setSuccess('Lịch khám đã được hoàn tất.')
+      showSuccess('Lịch khám đã được hoàn tất.')
       await loadSchedule()
     } catch (requestError) {
       handleRequestError(requestError, 'Không thể hoàn tất lịch khám.')
     } finally {
       setAppointmentActionId(null)
     }
-  }, [handleRequestError, loadSchedule])
+  }, [handleRequestError, loadSchedule, showSuccess])
 
   return {
     activeAssignment,

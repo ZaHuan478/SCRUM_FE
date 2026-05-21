@@ -5,6 +5,7 @@ import Icon from '../../Atoms/Icon'
 import Input from '../../Atoms/Input'
 import { changeCurrentUserPassword } from '../../../services/user.service'
 import { isAuthFailure } from '../../../utils/profile'
+import { useToast } from '../../../contexts/ToastContext'
 
 type ProfilePasswordSectionProps = {
     onAuthFailure: () => void
@@ -27,6 +28,7 @@ const ProfilePasswordSection = ({ onAuthFailure }: ProfilePasswordSectionProps) 
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
     const [isSaving, setIsSaving] = useState(false)
+    const { success: toastSuccess, error: toastError, warning: toastWarning } = useToast()
 
     const updateField = (field: keyof PasswordFormState, value: string) => {
         setForm((currentForm) => ({
@@ -45,22 +47,30 @@ const ProfilePasswordSection = ({ onAuthFailure }: ProfilePasswordSectionProps) 
         const confirmPassword = form.confirmPassword.trim()
 
         if (!currentPassword || !newPassword || !confirmPassword) {
-            setError('Vui lòng nhập đầy đủ mật khẩu hiện tại, mật khẩu mới và xác nhận mật khẩu mới.')
+            const message = 'Vui lòng nhập đầy đủ mật khẩu hiện tại, mật khẩu mới và xác nhận mật khẩu mới.'
+            setError(message)
+            toastWarning(message)
             return
         }
 
         if (newPassword.length < 6) {
-            setError('Mật khẩu mới phải có ít nhất 6 ký tự.')
+            const message = 'Mật khẩu mới phải có ít nhất 6 ký tự.'
+            setError(message)
+            toastWarning(message)
             return
         }
 
         if (newPassword !== confirmPassword) {
-            setError('Xác nhận mật khẩu mới không khớp.')
+            const message = 'Xác nhận mật khẩu mới không khớp.'
+            setError(message)
+            toastWarning(message)
             return
         }
 
         if (currentPassword === newPassword) {
-            setError('Mật khẩu mới không được trùng với mật khẩu hiện tại.')
+            const message = 'Mật khẩu mới không được trùng với mật khẩu hiện tại.'
+            setError(message)
+            toastWarning(message)
             return
         }
 
@@ -73,14 +83,18 @@ const ProfilePasswordSection = ({ onAuthFailure }: ProfilePasswordSectionProps) 
                 confirm_password: confirmPassword,
             })
             setForm(emptyPasswordForm)
-            setSuccess('Mật khẩu đã được cập nhật.')
+            const message = 'Mật khẩu đã được cập nhật.'
+            setSuccess(message)
+            toastSuccess(message)
         } catch (requestError) {
             if (isAuthFailure(requestError)) {
                 onAuthFailure()
                 return
             }
 
-            setError(requestError instanceof Error ? requestError.message : 'Không thể đổi mật khẩu.')
+            const message = requestError instanceof Error ? requestError.message : 'Không thể đổi mật khẩu.'
+            setError(message)
+            toastError(message)
         } finally {
             setIsSaving(false)
         }

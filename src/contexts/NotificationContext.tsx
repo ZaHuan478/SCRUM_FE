@@ -11,6 +11,7 @@ import { AUTH_USER_CHANGED_EVENT, getStoredUser } from '../services/auth.service
 import { connectSocket, disconnectSocket, onNewNotification } from '../services/socket'
 import type { Notification } from '../types/notification'
 import type { User } from '../services/auth.service'
+import { useToast } from './ToastContext'
 
 type NotificationContextValue = {
   notifications: Notification[]
@@ -31,6 +32,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<User | null>(() => getStoredUser())
+  const { info } = useToast()
 
   const fetchNotifications = useCallback(async (page = 1, limit = 10) => {
     if (!getStoredToken()) {
@@ -115,13 +117,14 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribe = onNewNotification((notification) => {
       setNotifications((current) => [notification, ...current.filter((item) => String(item.id) !== String(notification.id))])
       setUnreadCount((current) => current + 1)
+      info(notification.message, { title: notification.title })
     })
 
     return () => {
       window.clearTimeout(timeoutId)
       unsubscribe()
     }
-  }, [fetchNotifications, fetchUnreadCount, user])
+  }, [fetchNotifications, fetchUnreadCount, info, user])
 
   const value = useMemo(
     () => ({

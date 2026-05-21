@@ -8,9 +8,11 @@ import type { AppointmentsResult } from '../services/appointment.service'
 import type { AppointmentSlotsResult } from '../services/appointmentSlot.service'
 import type { User } from '../services/auth.service'
 import type { Department, DepartmentsResult } from '../services/department.service'
+import type { DepartmentSymptomRule, DepartmentSymptomRulesResult } from '../services/departmentSymptomRule.service'
 import type { DoctorAssignmentsResult } from '../services/doctorAssignment.service'
 import type { Doctor, DoctorsResult } from '../services/doctor.service'
 import type { PatientsResult } from '../services/patient.service'
+import type { SymptomsResult } from '../services/symptom.service'
 import type { UsersResult } from '../services/user.service'
 
 export type LoadStatus = 'loading' | 'ready' | 'error'
@@ -28,6 +30,10 @@ export type DashboardState = {
   departments: Department[]
   departmentPagination: DashboardPagination
   departmentStatus: LoadStatus
+  symptomRules: DepartmentSymptomRule[]
+  symptomRulePagination: DashboardPagination
+  symptomRuleStatus: LoadStatus
+  symptomOptions: SymptomsResult['symptoms']
   doctors: DoctorManagementRowData[]
   doctorPagination: DashboardPagination
   doctorStatus: LoadStatus
@@ -41,6 +47,7 @@ export type DashboardState = {
   stats: DashboardStat[]
   statsStatus: LoadStatus
   totalDepartments: number
+  totalSymptomRules: number
   totalDoctors: number
   totalPatients: number
   totalUsers: number
@@ -54,7 +61,7 @@ export const emptyDashboardPagination: DashboardPagination = {
 }
 
 export const toDashboardPagination = (
-  pagination?: DepartmentsResult['pagination'] | DoctorsResult['pagination'] | PatientsResult['pagination'] | UsersResult['pagination']
+  pagination?: DepartmentsResult['pagination'] | DepartmentSymptomRulesResult['pagination'] | DoctorsResult['pagination'] | PatientsResult['pagination'] | UsersResult['pagination']
 ): DashboardPagination => ({
   page: pagination?.page || emptyDashboardPagination.page,
   limit: pagination?.limit || emptyDashboardPagination.limit,
@@ -68,6 +75,10 @@ export const emptyDashboardState: DashboardState = {
   departments: [],
   departmentPagination: emptyDashboardPagination,
   departmentStatus: 'loading',
+  symptomRules: [],
+  symptomRulePagination: emptyDashboardPagination,
+  symptomRuleStatus: 'loading',
+  symptomOptions: [],
   doctors: [],
   doctorPagination: emptyDashboardPagination,
   doctorStatus: 'loading',
@@ -81,6 +92,7 @@ export const emptyDashboardState: DashboardState = {
   stats: [],
   statsStatus: 'loading',
   totalDepartments: 0,
+  totalSymptomRules: 0,
   totalDoctors: 0,
   totalPatients: 0,
   totalUsers: 0,
@@ -90,6 +102,7 @@ export const dashboardErrorState: DashboardState = {
   ...emptyDashboardState,
   analyticsStatus: 'error',
   departmentStatus: 'error',
+  symptomRuleStatus: 'error',
   doctorStatus: 'error',
   patientStatus: 'error',
   userStatus: 'error',

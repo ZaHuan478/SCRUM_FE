@@ -1,4 +1,5 @@
 import Input from '../../Atoms/Input'
+import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import DoctorManagementRow from '../../Molecules/Management/DoctorManagementRow'
 import type { DoctorManagementRowData } from '../../Molecules/Management/DoctorManagementRow'
@@ -10,6 +11,7 @@ type DoctorManagementTableProps = {
   searchQuery: string
   status: 'loading' | 'ready' | 'error'
   totalDoctors: number
+  onCreateDoctor: () => void
   onViewDoctor: (doctor: DoctorManagementRowData) => void
   onEditDoctor: (doctor: DoctorManagementRowData) => void
   onPageChange: (page: number) => void
@@ -22,6 +24,7 @@ const DoctorManagementTable = ({
   searchQuery,
   status,
   totalDoctors,
+  onCreateDoctor,
   onViewDoctor,
   onEditDoctor,
   onPageChange,
@@ -36,7 +39,7 @@ const DoctorManagementTable = ({
     <section className="overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0px_4px_20px_rgba(15,23,42,0.05)]" id="doctor-management">
       <div className="flex flex-col items-start justify-between gap-lg border-b border-outline-variant/20 p-lg md:flex-row md:items-center md:p-xl">
         <h2 className="font-headline-sm text-headline-sm text-on-surface">Quản lý bác sĩ</h2>
-        <div className="flex w-full items-center gap-md md:w-auto">
+        <div className="flex w-full flex-col gap-md sm:flex-row md:w-auto md:items-center">
           <Input
             aria-label="Tìm kiếm bác sĩ trong bảng"
             className="py-sm text-body-sm"
@@ -45,8 +48,17 @@ const DoctorManagementTable = ({
             placeholder="Tìm kiếm bác sĩ..."
             type="search"
             value={searchQuery}
-            wrapperClassName="flex-grow md:w-64"
+            wrapperClassName="w-full sm:w-64"
           />
+          <Button
+            className="flex items-center gap-xs px-lg py-sm"
+            fullWidth={false}
+            onClick={onCreateDoctor}
+            type="button"
+          >
+            <Icon name="person_add" />
+            Thêm bác sĩ
+          </Button>
           <button className="rounded-lg bg-surface-container-high p-sm text-on-surface-variant transition-colors hover:bg-surface-variant" type="button">
             <Icon name="filter_list" />
           </button>

@@ -24,6 +24,7 @@ import {
   buildFallbackBiography,
 } from '../utils/doctorDetail'
 import type { EducationItem } from '../utils/doctorDetail'
+import { useToast } from '../contexts/ToastContext'
 
 type LoadStatus = 'loading' | 'ready' | 'error'
 
@@ -76,6 +77,22 @@ export const useDoctorDetail = (doctorId?: string): DoctorDetailState => {
   const [myRating, setMyRating] = useState<MyDoctorRating | null>(null)
   const [canRate, setCanRate] = useState(false)
   const [appointmentId, setAppointmentId] = useState<number | string | null>(null)
+  const { success: toastSuccess, error: toastError, warning: toastWarning } = useToast()
+
+  const showRatingError = useCallback((message: string) => {
+    setRatingError(message)
+    toastError(message)
+  }, [toastError])
+
+  const showRatingSuccess = useCallback((message: string) => {
+    setRatingSuccess(message)
+    toastSuccess(message)
+  }, [toastSuccess])
+
+  const showRatingWarning = useCallback((message: string) => {
+    setRatingError(message)
+    toastWarning(message)
+  }, [toastWarning])
 
   useEffect(() => {
     if (!doctorId) return
@@ -253,12 +270,12 @@ export const useDoctorDetail = (doctorId?: string): DoctorDetailState => {
     setRatingSuccess('')
 
     if (!rating || rating < 1) {
-      setRatingError('Vui lòng chọn số sao trước khi gửi đánh giá.')
+      showRatingWarning('Vui lòng chọn số sao trước khi gửi đánh giá.')
       return
     }
 
     if (!appointmentId) {
-      setRatingError('Bạn cần hoàn thành lịch hẹn trước khi đánh giá.')
+      showRatingWarning('Bạn cần hoàn thành lịch hẹn trước khi đánh giá.')
       return
     }
 
@@ -270,7 +287,7 @@ export const useDoctorDetail = (doctorId?: string): DoctorDetailState => {
         rating,
         comment: comment || null,
       })
-      setRatingSuccess('Đánh giá đã được gửi thành công.')
+      showRatingSuccess('Đánh giá đã được gửi thành công.')
       await reloadRatings()
       const latestRating = await getMyDoctorRating(doctorId)
       setMyRating(latestRating)
@@ -279,11 +296,11 @@ export const useDoctorDetail = (doctorId?: string): DoctorDetailState => {
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Không thể gửi đánh giá.'
-      setRatingError(message)
+      showRatingError(message)
     } finally {
       setIsSubmittingRating(false)
     }
-  }, [appointmentId, doctorId, reloadRatings])
+  }, [appointmentId, doctorId, reloadRatings, showRatingError, showRatingSuccess, showRatingWarning])
 
   const handleDeleteRating = useCallback(async () => {
     if (!doctorId) return
@@ -294,16 +311,16 @@ export const useDoctorDetail = (doctorId?: string): DoctorDetailState => {
 
     try {
       await deleteMyDoctorRating(doctorId)
-      setRatingSuccess('Đánh giá đã được xóa.')
+      showRatingSuccess('Đánh giá đã được xóa.')
       setMyRating(null)
       await reloadRatings()
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Không thể xóa đánh giá.'
-      setRatingError(message)
+      showRatingError(message)
     } finally {
       setIsSubmittingRating(false)
     }
-  }, [doctorId, reloadRatings])
+  }, [doctorId, reloadRatings, showRatingError, showRatingSuccess])
 
   const primarySpecialty = assignments[0]?.department?.name || doctor?.description || 'Chuyên khoa'
   const biography = doctor?.prof_biography || buildFallbackBiography(doctor || undefined, primarySpecialty)

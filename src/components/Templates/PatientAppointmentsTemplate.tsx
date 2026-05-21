@@ -12,6 +12,7 @@ type PatientAppointmentsTemplateProps = PatientAppointmentsState & {
 
 const PatientAppointmentsTemplate = ({
   appointmentActionId,
+  appointmentPagination,
   appointmentStatus,
   appointments,
   bookingError,
@@ -98,7 +99,7 @@ const PatientAppointmentsTemplate = ({
             }}
             onPay={openPaymentModal}
             onRefresh={() => {
-              void loadAppointments()
+              void loadAppointments(appointmentPagination.page)
             }}
             status={appointmentStatus}
           />

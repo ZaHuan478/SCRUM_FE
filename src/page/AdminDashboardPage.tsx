@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import AdminInfoModal from '../components/Organisms/Admin/AdminInfoModal'
 import DepartmentEditModal from '../components/Organisms/DepartmentDesign/DepartmentEditModal'
 import DoctorEditModal from '../components/Organisms/DoctorManage/DoctorEditModal'
+import SymptomRuleEditModal from '../components/Organisms/SymptomRules/SymptomRuleEditModal'
 import UserEditModal from '../components/Organisms/UserManage/UserEditModal'
 import DashboardTemplate from '../components/Templates/DashboardTemplate'
 import { useAdminDashboard } from '../hooks/useAdminDashboard'
@@ -18,6 +19,7 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
   const {
     closeDepartmentModal,
     closeDoctorModal,
+    closeSymptomRuleModal,
     closeUserModal,
     dashboard,
     departmentEditError,
@@ -27,9 +29,13 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
     doctorSearchQuery,
     editingDepartment,
     editingDoctor,
+    editingSymptomRule,
     editingUser,
     handleCreateDepartment,
+    handleCreateDoctor,
+    handleCreateSymptomRule,
     handleCreateUser,
+    handleDeleteSymptomRule,
     handleDeleteUser,
     handleDepartmentEditSubmit,
     handleDepartmentPageChange,
@@ -39,16 +45,22 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
     handleDoctorSearchQueryChange,
     handleEditDepartment,
     handleEditDoctor,
+    handleEditSymptomRule,
     handleEditUser,
     handlePatientPageChange,
     handlePatientSearchQueryChange,
+    handleSymptomRulePageChange,
+    handleSymptomRuleSubmit,
     handleUserSubmit,
     handleUserPageChange,
     handleUserSearchQueryChange,
     isDepartmentModalOpen,
+    isDoctorModalOpen,
     isSavingDepartment,
     isSavingDoctor,
+    isSavingSymptomRule,
     isSavingUser,
+    isSymptomRuleModalOpen,
     isUserModalOpen,
     patientFields,
     patientSearchQuery,
@@ -61,9 +73,11 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
     userSearchQuery,
     userEditError,
     userFields,
+    symptomRuleEditError,
     visibleDepartments,
     visibleDoctors,
     visiblePatients,
+    visibleSymptomRules,
     visibleUsers,
   } = adminDashboard
 
@@ -76,15 +90,22 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         departmentPagination={dashboard.departmentPagination}
         departmentSearchQuery={departmentSearchQuery}
         departmentStatus={dashboard.departmentStatus}
+        symptomRules={visibleSymptomRules}
+        symptomRulePagination={dashboard.symptomRulePagination}
+        symptomRuleStatus={dashboard.symptomRuleStatus}
         doctorPagination={dashboard.doctorPagination}
         doctorSearchQuery={doctorSearchQuery}
         doctors={visibleDoctors}
         doctorStatus={dashboard.doctorStatus}
         onCreateDepartment={handleCreateDepartment}
+        onCreateDoctor={handleCreateDoctor}
+        onCreateSymptomRule={handleCreateSymptomRule}
         onCreateUser={handleCreateUser}
+        onDeleteSymptomRule={handleDeleteSymptomRule}
         onDeleteUser={handleDeleteUser}
         onEditDepartment={handleEditDepartment}
         onEditDoctor={handleEditDoctor}
+        onEditSymptomRule={handleEditSymptomRule}
         onEditUser={handleEditUser}
         onLogout={onLogout}
         onDepartmentPageChange={handleDepartmentPageChange}
@@ -93,6 +114,7 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         onDoctorSearchQueryChange={handleDoctorSearchQueryChange}
         onPatientPageChange={handlePatientPageChange}
         onPatientSearchQueryChange={handlePatientSearchQueryChange}
+        onSymptomRulePageChange={handleSymptomRulePageChange}
         onUserPageChange={handleUserPageChange}
         onUserSearchQueryChange={handleUserSearchQueryChange}
         onViewDoctor={setSelectedDoctor}
@@ -105,6 +127,7 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         stats={dashboard.stats}
         statsStatus={dashboard.statsStatus}
         totalDepartments={dashboard.totalDepartments}
+        totalSymptomRules={dashboard.totalSymptomRules}
         totalDoctors={dashboard.totalDoctors}
         totalPatients={dashboard.totalPatients}
         totalUsers={dashboard.totalUsers}
@@ -157,9 +180,21 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         doctor={editingDoctor}
         error={doctorEditError}
         isSaving={isSavingDoctor}
-        key={editingDoctor?.id || 'doctor-edit-empty'}
+        key={editingDoctor?.id || (isDoctorModalOpen ? 'doctor-create-open' : 'doctor-create-closed')}
         onClose={closeDoctorModal}
+        open={isDoctorModalOpen}
         onSubmit={handleDoctorEditSubmit}
+      />
+      <SymptomRuleEditModal
+        departments={dashboard.departments}
+        error={symptomRuleEditError}
+        isSaving={isSavingSymptomRule}
+        key={editingSymptomRule?.id || (isSymptomRuleModalOpen ? 'symptom-rule-create-open' : 'symptom-rule-create-closed')}
+        onClose={closeSymptomRuleModal}
+        onSubmit={handleSymptomRuleSubmit}
+        open={isSymptomRuleModalOpen}
+        rule={editingSymptomRule}
+        symptoms={dashboard.symptomOptions}
       />
     </>
   )

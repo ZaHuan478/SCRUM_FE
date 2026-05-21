@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { DepartmentFormValues } from '../components/Organisms/DepartmentDesign/DepartmentEditModal'
 import type { DoctorEditFormValues } from '../components/Organisms/DoctorManage/DoctorEditModal'
+import type { SymptomRuleFormValues } from '../components/Organisms/SymptomRules/SymptomRuleEditModal'
 import type { UserFormValues } from '../components/Organisms/UserManage/UserEditModal'
 import type { DoctorManagementRowData } from '../components/Molecules/Management/DoctorManagementRow'
 import type { PatientManagementRowData } from '../components/Molecules/Management/PatientManagementRow'
@@ -9,9 +10,17 @@ import { getAppointmentSlots } from '../services/appointmentSlot.service'
 import type { User } from '../services/auth.service'
 import { createDepartment, getDepartments, updateDepartment } from '../services/department.service'
 import type { Department } from '../services/department.service'
+import {
+  createDepartmentSymptomRule,
+  deleteDepartmentSymptomRule,
+  getDepartmentSymptomRules,
+  updateDepartmentSymptomRule,
+} from '../services/departmentSymptomRule.service'
+import type { DepartmentSymptomRule } from '../services/departmentSymptomRule.service'
 import { createDoctorAssignment, getDoctorAssignments, updateDoctorAssignment } from '../services/doctorAssignment.service'
-import { getDoctors, updateDoctor, uploadDoctorImage } from '../services/doctor.service'
+import { getDoctorByUserId, getDoctors, updateDoctor, uploadDoctorImage } from '../services/doctor.service'
 import { getPatients } from '../services/patient.service'
+import { getSymptoms } from '../services/symptom.service'
 import { changeUserStatus, createUser, deleteUser, getUsers, updateUser } from '../services/user.service'
 import {
   buildAnalyticsData,
@@ -28,6 +37,7 @@ import {
   toDashboardPagination,
 } from '../utils/adminDashboard'
 import type { DashboardState } from '../utils/adminDashboard'
+import { useToast } from '../contexts/ToastContext'
 
 const ADMIN_PAGE_LIMIT = 8
 
@@ -38,11 +48,16 @@ type DashboardDataQuery = {
   doctorPage?: number
   patientKeyword?: string
   patientPage?: number
+  symptomRulePage?: number
   userKeyword?: string
   userPage?: number
 }
 
 const getSearchKeyword = (value?: string) => value?.trim() || undefined
+
+const getRequestMessage = (error: unknown, fallback: string) => (
+  error instanceof Error ? error.message : fallback
+)
 
 export const loadDashboardData = async ({
   departmentKeyword,
@@ -51,6 +66,7 @@ export const loadDashboardData = async ({
   doctorPage = 1,
   patientKeyword,
   patientPage = 1,
+  symptomRulePage = 1,
   userKeyword,
   userPage = 1,
 }: DashboardDataQuery = {}): Promise<DashboardState> => {
@@ -60,6 +76,8 @@ export const loadDashboardData = async ({
     patientsResponse,
     departmentsResponse,
     departmentOptionsResponse,
+    symptomRulesResponse,
+    symptomOptionsResponse,
     usersResponse,
     assignmentsResponse,
     slotsResponse,
@@ -83,6 +101,11 @@ export const loadDashboardData = async ({
       keyword: getSearchKeyword(departmentKeyword),
     }),
     getDepartments({ limit: 100 }),
+    getDepartmentSymptomRules({
+      page: symptomRulePage,
+      limit: ADMIN_PAGE_LIMIT,
+    }),
+    getSymptoms({ limit: 100, status: 'ACTIVE' }),
     getUsers({
       page: userPage,
       limit: ADMIN_PAGE_LIMIT,
@@ -99,6 +122,8 @@ export const loadDashboardData = async ({
   const patients = getFulfilledValue(patientsResponse)
   const departments = getFulfilledValue(departmentsResponse)
   const departmentOptions = getFulfilledValue(departmentOptionsResponse)
+  const symptomRules = getFulfilledValue(symptomRulesResponse)
+  const symptomOptions = getFulfilledValue(symptomOptionsResponse)
   const users = getFulfilledValue(usersResponse)
   const assignments = getFulfilledValue(assignmentsResponse)
   const slots = getFulfilledValue(slotsResponse)
@@ -112,6 +137,10 @@ export const loadDashboardData = async ({
     departments: departments?.departments || [],
     departmentPagination: toDashboardPagination(departments?.pagination),
     departmentStatus: departments ? 'ready' : 'error',
+    symptomRules: symptomRules?.department_symptom_rules || [],
+    symptomRulePagination: toDashboardPagination(symptomRules?.pagination),
+    symptomRuleStatus: symptomRules ? 'ready' : 'error',
+    symptomOptions: symptomOptions?.symptoms || [],
     doctors: mapDoctors(doctors, appointments, slots, assignments),
     doctorPagination: toDashboardPagination(doctors?.pagination),
     doctorStatus: doctors ? 'ready' : 'error',
@@ -133,6 +162,7 @@ export const loadDashboardData = async ({
     }),
     statsStatus: hasStatsData ? 'ready' : 'error',
     totalDepartments: departments?.pagination.total || 0,
+    totalSymptomRules: symptomRules?.pagination.total || 0,
     totalDoctors: doctors?.pagination.total || 0,
     totalPatients: patients?.pagination.total || 0,
     totalUsers: users?.pagination.total || 0,
@@ -157,8 +187,14 @@ export const useAdminDashboard = () => {
   const [departmentEditError, setDepartmentEditError] = useState('')
   const [isSavingDepartment, setIsSavingDepartment] = useState(false)
   const [editingDoctor, setEditingDoctor] = useState<DoctorManagementRowData | null>(null)
+  const [isDoctorModalOpen, setIsDoctorModalOpen] = useState(false)
   const [doctorEditError, setDoctorEditError] = useState('')
   const [isSavingDoctor, setIsSavingDoctor] = useState(false)
+  const [editingSymptomRule, setEditingSymptomRule] = useState<DepartmentSymptomRule | null>(null)
+  const [isSymptomRuleModalOpen, setIsSymptomRuleModalOpen] = useState(false)
+  const [symptomRuleEditError, setSymptomRuleEditError] = useState('')
+  const [isSavingSymptomRule, setIsSavingSymptomRule] = useState(false)
+  const { success: toastSuccess, error: toastError, warning: toastWarning } = useToast()
 
   const refreshDashboard = useCallback(async () => {
     const nextDashboard = await loadDashboardData({
@@ -168,6 +204,7 @@ export const useAdminDashboard = () => {
       doctorPage: dashboard.doctorPagination.page,
       patientKeyword: patientSearchQuery,
       patientPage: dashboard.patientPagination.page,
+      symptomRulePage: dashboard.symptomRulePagination.page,
       userKeyword: userSearchQuery,
       userPage: dashboard.userPagination.page,
     })
@@ -176,6 +213,7 @@ export const useAdminDashboard = () => {
     dashboard.departmentPagination.page,
     dashboard.doctorPagination.page,
     dashboard.patientPagination.page,
+    dashboard.symptomRulePagination.page,
     dashboard.userPagination.page,
     departmentSearchQuery,
     doctorSearchQuery,
@@ -194,12 +232,13 @@ export const useAdminDashboard = () => {
       .catch(() => {
         if (!active) return
         setDashboard(dashboardErrorState)
+        toastError('Không thể tải dữ liệu admin dashboard.')
       })
 
     return () => {
       active = false
     }
-  }, [])
+  }, [toastError])
 
   const fetchDepartmentsPage = useCallback(async (page: number, keyword = departmentSearchQuery) => {
     setDashboard((currentDashboard) => ({ ...currentDashboard, departmentStatus: 'loading' }))
@@ -220,8 +259,9 @@ export const useAdminDashboard = () => {
       }))
     } catch {
       setDashboard((currentDashboard) => ({ ...currentDashboard, departmentStatus: 'error' }))
+      toastError('Không thể tải danh sách khoa.')
     }
-  }, [departmentSearchQuery])
+  }, [departmentSearchQuery, toastError])
 
   const fetchDoctorsPage = useCallback(async (page: number, keyword = doctorSearchQuery) => {
     setDashboard((currentDashboard) => ({ ...currentDashboard, doctorStatus: 'loading' }))
@@ -247,8 +287,31 @@ export const useAdminDashboard = () => {
       }))
     } catch {
       setDashboard((currentDashboard) => ({ ...currentDashboard, doctorStatus: 'error' }))
+      toastError('Không thể tải danh sách bác sĩ.')
     }
-  }, [doctorSearchQuery])
+  }, [doctorSearchQuery, toastError])
+
+  const fetchSymptomRulesPage = useCallback(async (page: number) => {
+    setDashboard((currentDashboard) => ({ ...currentDashboard, symptomRuleStatus: 'loading' }))
+
+    try {
+      const rules = await getDepartmentSymptomRules({
+        page,
+        limit: ADMIN_PAGE_LIMIT,
+      })
+
+      setDashboard((currentDashboard) => ({
+        ...currentDashboard,
+        symptomRules: rules.department_symptom_rules,
+        symptomRulePagination: toDashboardPagination(rules.pagination),
+        symptomRuleStatus: 'ready',
+        totalSymptomRules: rules.pagination.total,
+      }))
+    } catch {
+      setDashboard((currentDashboard) => ({ ...currentDashboard, symptomRuleStatus: 'error' }))
+      toastError('Không thể tải danh sách rule triệu chứng.')
+    }
+  }, [toastError])
 
   const fetchPatientsPage = useCallback(async (page: number, keyword = patientSearchQuery) => {
     setDashboard((currentDashboard) => ({ ...currentDashboard, patientStatus: 'loading' }))
@@ -269,8 +332,9 @@ export const useAdminDashboard = () => {
       }))
     } catch {
       setDashboard((currentDashboard) => ({ ...currentDashboard, patientStatus: 'error' }))
+      toastError('Không thể tải danh sách bệnh nhân.')
     }
-  }, [patientSearchQuery])
+  }, [patientSearchQuery, toastError])
 
   const fetchUsersPage = useCallback(async (page: number, keyword = userSearchQuery) => {
     setDashboard((currentDashboard) => ({ ...currentDashboard, userStatus: 'loading' }))
@@ -291,8 +355,9 @@ export const useAdminDashboard = () => {
       }))
     } catch {
       setDashboard((currentDashboard) => ({ ...currentDashboard, userStatus: 'error' }))
+      toastError('Không thể tải danh sách user.')
     }
-  }, [userSearchQuery])
+  }, [toastError, userSearchQuery])
 
   const handleDepartmentPageChange = useCallback((page: number) => {
     void fetchDepartmentsPage(page)
@@ -305,6 +370,10 @@ export const useAdminDashboard = () => {
   const handlePatientPageChange = useCallback((page: number) => {
     void fetchPatientsPage(page)
   }, [fetchPatientsPage])
+
+  const handleSymptomRulePageChange = useCallback((page: number) => {
+    void fetchSymptomRulesPage(page)
+  }, [fetchSymptomRulesPage])
 
   const handleUserPageChange = useCallback((page: number) => {
     void fetchUsersPage(page)
@@ -354,20 +423,27 @@ export const useAdminDashboard = () => {
     try {
       await deleteUser(user.id)
       await refreshDashboard()
+      toastSuccess('User đã được xóa.')
     } catch (error) {
+      const message = getRequestMessage(error, 'Không thể xóa user.')
       setSelectedUser(user)
-      setUserEditError(error instanceof Error ? error.message : 'Không thể xóa user.')
+      setUserEditError(message)
+      toastError(message)
     }
-  }, [refreshDashboard])
+  }, [refreshDashboard, toastError, toastSuccess])
 
   const handleUserSubmit = useCallback(async (payload: UserFormValues) => {
     if (!payload.email) {
-      setUserEditError('Email không được để trống.')
+      const message = 'Email không được để trống.'
+      setUserEditError(message)
+      toastWarning(message)
       return
     }
 
     if (!editingUser && !payload.password) {
-      setUserEditError('Mật khẩu là bắt buộc khi tạo user.')
+      const message = 'Mật khẩu là bắt buộc khi tạo user.'
+      setUserEditError(message)
+      toastWarning(message)
       return
     }
 
@@ -401,12 +477,15 @@ export const useAdminDashboard = () => {
 
       await refreshDashboard()
       closeUserModal()
+      toastSuccess(editingUser ? 'User đã được cập nhật.' : 'User đã được tạo.')
     } catch (error) {
-      setUserEditError(error instanceof Error ? error.message : 'Không thể lưu user.')
+      const message = getRequestMessage(error, 'Không thể lưu user.')
+      setUserEditError(message)
+      toastError(message)
     } finally {
       setIsSavingUser(false)
     }
-  }, [closeUserModal, editingUser, refreshDashboard])
+  }, [closeUserModal, editingUser, refreshDashboard, toastError, toastSuccess, toastWarning])
 
   const closeDepartmentModal = useCallback(() => {
     setIsDepartmentModalOpen(false)
@@ -428,7 +507,9 @@ export const useAdminDashboard = () => {
 
   const handleDepartmentEditSubmit = useCallback(async (payload: DepartmentFormValues) => {
     if (!payload.name) {
-      setDepartmentEditError('Tên khoa không được để trống.')
+      const message = 'Tên khoa không được để trống.'
+      setDepartmentEditError(message)
+      toastWarning(message)
       return
     }
 
@@ -452,28 +533,130 @@ export const useAdminDashboard = () => {
 
       await refreshDashboard()
       closeDepartmentModal()
+      toastSuccess(editingDepartment ? 'Khoa đã được cập nhật.' : 'Khoa đã được tạo.')
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Không thể lưu khoa.'
+      const message = getRequestMessage(error, 'Không thể lưu khoa.')
       setDepartmentEditError(message)
+      toastError(message)
     } finally {
       setIsSavingDepartment(false)
     }
-  }, [closeDepartmentModal, editingDepartment, refreshDashboard])
+  }, [closeDepartmentModal, editingDepartment, refreshDashboard, toastError, toastSuccess, toastWarning])
+
+  const closeSymptomRuleModal = useCallback(() => {
+    setIsSymptomRuleModalOpen(false)
+    setEditingSymptomRule(null)
+    setSymptomRuleEditError('')
+  }, [])
+
+  const handleCreateSymptomRule = useCallback(() => {
+    setSymptomRuleEditError('')
+    setEditingSymptomRule(null)
+    setIsSymptomRuleModalOpen(true)
+  }, [])
+
+  const handleEditSymptomRule = useCallback((rule: DepartmentSymptomRule) => {
+    setSymptomRuleEditError('')
+    setEditingSymptomRule(rule)
+    setIsSymptomRuleModalOpen(true)
+  }, [])
+
+  const handleDeleteSymptomRule = useCallback(async (rule: DepartmentSymptomRule) => {
+    const symptomName = rule.symptom?.name || `triệu chứng #${rule.symptom_id}`
+    const departmentName = rule.department?.name || `khoa #${rule.department_id}`
+    if (!window.confirm(`Xóa rule ${symptomName} - ${departmentName}?`)) return
+
+    try {
+      await deleteDepartmentSymptomRule(rule.id)
+      await fetchSymptomRulesPage(dashboard.symptomRulePagination.page)
+      toastSuccess('Rule triệu chứng đã được xóa.')
+    } catch (error) {
+      const message = getRequestMessage(error, 'Không thể xóa rule triệu chứng.')
+      setEditingSymptomRule(rule)
+      setSymptomRuleEditError(message)
+      setIsSymptomRuleModalOpen(true)
+      toastError(message)
+    }
+  }, [dashboard.symptomRulePagination.page, fetchSymptomRulesPage, toastError, toastSuccess])
+
+  const handleSymptomRuleSubmit = useCallback(async (payload: SymptomRuleFormValues) => {
+    if (!payload.symptomId) {
+      const message = 'Triệu chứng không được để trống.'
+      setSymptomRuleEditError(message)
+      toastWarning(message)
+      return
+    }
+
+    if (!payload.departmentId) {
+      const message = 'Khoa không được để trống.'
+      setSymptomRuleEditError(message)
+      toastWarning(message)
+      return
+    }
+
+    const score = Number(payload.score)
+    if (!Number.isInteger(score) || score < 1 || score > 10) {
+      const message = 'Điểm ưu tiên phải từ 1 đến 10.'
+      setSymptomRuleEditError(message)
+      toastWarning(message)
+      return
+    }
+
+    setSymptomRuleEditError('')
+    setIsSavingSymptomRule(true)
+
+    try {
+      if (editingSymptomRule) {
+        await updateDepartmentSymptomRule(editingSymptomRule.id, {
+          pre_visit_note: payload.preVisitNote,
+          score,
+        })
+      } else {
+        await createDepartmentSymptomRule({
+          department_id: payload.departmentId,
+          pre_visit_note: payload.preVisitNote,
+          score,
+          symptom_id: payload.symptomId,
+        })
+      }
+
+      await fetchSymptomRulesPage(dashboard.symptomRulePagination.page)
+      closeSymptomRuleModal()
+      toastSuccess(editingSymptomRule ? 'Rule triệu chứng đã được cập nhật.' : 'Rule triệu chứng đã được tạo.')
+    } catch (error) {
+      const message = getRequestMessage(error, 'Không thể lưu rule triệu chứng.')
+      setSymptomRuleEditError(message)
+      toastError(message)
+    } finally {
+      setIsSavingSymptomRule(false)
+    }
+  }, [closeSymptomRuleModal, dashboard.symptomRulePagination.page, editingSymptomRule, fetchSymptomRulesPage, toastError, toastSuccess, toastWarning])
 
   const closeDoctorModal = useCallback(() => {
     setEditingDoctor(null)
+    setIsDoctorModalOpen(false)
+    setDoctorEditError('')
+  }, [])
+
+  const handleCreateDoctor = useCallback(() => {
+    setDoctorEditError('')
+    setEditingDoctor(null)
+    setIsDoctorModalOpen(true)
   }, [])
 
   const handleEditDoctor = useCallback((doctor: DoctorManagementRowData) => {
     setDoctorEditError('')
     setEditingDoctor(doctor)
+    setIsDoctorModalOpen(true)
   }, [])
 
   const handleDoctorEditSubmit = useCallback(async (payload: DoctorEditFormValues) => {
-    if (!editingDoctor) return
+    const isCreatingDoctor = !editingDoctor
 
-    if (!editingDoctor.userId) {
-      setDoctorEditError('Không tìm thấy user_id của bác sĩ.')
+    if (!isCreatingDoctor && !editingDoctor?.userId) {
+      const message = 'Không tìm thấy user_id của bác sĩ.'
+      setDoctorEditError(message)
+      toastError(message)
       return
     }
 
@@ -483,17 +666,23 @@ export const useAdminDashboard = () => {
     const departmentId = payload.departmentId
 
     if (!fullName) {
-      setDoctorEditError('Tên bác sĩ không được để trống.')
+      const message = 'Tên bác sĩ không được để trống.'
+      setDoctorEditError(message)
+      toastWarning(message)
       return
     }
 
     if (!licenseNumber) {
-      setDoctorEditError('Mã giấy phép không được để trống.')
+      const message = 'Mã giấy phép không được để trống.'
+      setDoctorEditError(message)
+      toastWarning(message)
       return
     }
 
     if (cccd && !/^\d{12}$/.test(cccd)) {
-      setDoctorEditError('CCCD phải gồm đúng 12 số.')
+      const message = 'CCCD phải gồm đúng 12 số.'
+      setDoctorEditError(message)
+      toastWarning(message)
       return
     }
 
@@ -501,6 +690,76 @@ export const useAdminDashboard = () => {
     setIsSavingDoctor(true)
 
     try {
+      if (isCreatingDoctor) {
+        const email = payload.email?.trim() || ''
+
+        if (!email) {
+          const message = 'Email không được để trống.'
+          setDoctorEditError(message)
+          toastWarning(message)
+          return
+        }
+
+        if (!payload.password) {
+          const message = 'Mật khẩu là bắt buộc khi tạo bác sĩ.'
+          setDoctorEditError(message)
+          toastWarning(message)
+          return
+        }
+
+        const createdUser = await createUser({
+          full_name: fullName,
+          email,
+          password: payload.password,
+          phone: payload.phone?.trim() || null,
+          role: 'DOCTOR',
+          status: 'ACTIVE',
+          doctor_profile: {
+            license_number: licenseNumber,
+            cccd: cccd || null,
+            experience_years: payload.experienceYears === '' || payload.experienceYears === undefined
+              ? null
+              : payload.experienceYears,
+            consultation_fee: payload.consultationFee === '' || payload.consultationFee === undefined
+              ? null
+              : payload.consultationFee,
+            description: payload.description?.trim() || null,
+            prof_biography: payload.profBiography?.trim() || null,
+            status: payload.status,
+            image_url: payload.imageUrl?.trim() || null,
+          },
+        })
+
+        const createdDoctor = departmentId || payload.imageData
+          ? await getDoctorByUserId(createdUser.id)
+          : null
+
+        if (createdDoctor && payload.imageData) {
+          await uploadDoctorImage(createdDoctor.id, payload.imageData)
+        }
+
+        if (createdDoctor && departmentId) {
+          await createDoctorAssignment({
+            doctor_id: createdDoctor.id,
+            department_id: departmentId,
+            status: 'ACTIVE',
+          })
+        }
+
+        await refreshDashboard()
+        closeDoctorModal()
+        toastSuccess('Bác sĩ đã được tạo.')
+        return
+      }
+
+      if (!editingDoctor) return
+      if (!editingDoctor.userId) {
+        const message = 'Không tìm thấy user_id của bác sĩ.'
+        setDoctorEditError(message)
+        toastError(message)
+        return
+      }
+
       const uploadedDoctor = payload.imageData
         ? await uploadDoctorImage(editingDoctor.id, payload.imageData)
         : null
@@ -546,13 +805,15 @@ export const useAdminDashboard = () => {
 
       await refreshDashboard()
       closeDoctorModal()
+      toastSuccess('Bác sĩ đã được cập nhật.')
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Không thể cập nhật bác sĩ.'
+      const message = getRequestMessage(error, 'Không thể cập nhật bác sĩ.')
       setDoctorEditError(message)
+      toastError(message)
     } finally {
       setIsSavingDoctor(false)
     }
-  }, [closeDoctorModal, editingDoctor, refreshDashboard])
+  }, [closeDoctorModal, editingDoctor, refreshDashboard, toastError, toastSuccess, toastWarning])
 
   const userFields = useMemo(() => getUserInfoFields(selectedUser), [selectedUser])
   const doctorFields = useMemo(() => getDoctorInfoFields(selectedDoctor), [selectedDoctor])
@@ -561,6 +822,7 @@ export const useAdminDashboard = () => {
   return {
     closeDepartmentModal,
     closeDoctorModal,
+    closeSymptomRuleModal,
     closeUserModal,
     dashboard,
     departmentEditError,
@@ -570,10 +832,14 @@ export const useAdminDashboard = () => {
     doctorSearchQuery,
     editingDepartment,
     editingDoctor,
+    editingSymptomRule,
     editingUser,
     handleCreateDepartment,
+    handleCreateDoctor,
+    handleCreateSymptomRule,
     handleCreateUser,
     handleDeleteUser,
+    handleDeleteSymptomRule,
     handleDepartmentEditSubmit,
     handleDepartmentPageChange,
     handleDepartmentSearchQueryChange,
@@ -582,16 +848,22 @@ export const useAdminDashboard = () => {
     handleDoctorSearchQueryChange,
     handleEditDepartment,
     handleEditDoctor,
+    handleEditSymptomRule,
     handleEditUser,
     handlePatientPageChange,
     handlePatientSearchQueryChange,
+    handleSymptomRulePageChange,
+    handleSymptomRuleSubmit,
     handleUserSubmit,
     handleUserPageChange,
     handleUserSearchQueryChange,
     isDepartmentModalOpen,
+    isDoctorModalOpen,
+    isSavingSymptomRule,
     isSavingDepartment,
     isSavingDoctor,
     isSavingUser,
+    isSymptomRuleModalOpen,
     isUserModalOpen,
     patientFields,
     patientSearchQuery,
@@ -604,9 +876,11 @@ export const useAdminDashboard = () => {
     userSearchQuery,
     userEditError,
     userFields,
+    symptomRuleEditError,
     visibleDepartments: dashboard.departments,
     visibleDoctors: dashboard.doctors,
     visiblePatients: dashboard.patients,
+    visibleSymptomRules: dashboard.symptomRules,
     visibleUsers: dashboard.users,
   }
 }

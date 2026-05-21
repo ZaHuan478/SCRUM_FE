@@ -78,6 +78,33 @@ const PatientAppointmentBookingPanel = ({
     const startIndex = (slotPage - 1) * SLOT_PAGE_SIZE
     return slots.slice(startIndex, startIndex + SLOT_PAGE_SIZE)
   }, [slotPage, slots])
+  const preVisitNotes = useMemo(() => {
+    const seenNotes = new Set<string>()
+
+    return recommendedDepartments.flatMap((department) => {
+      const notes = department.pre_visit_notes?.length
+        ? department.pre_visit_notes.map((item) => ({
+          departmentName: department.department_name,
+          note: item.note.trim(),
+          symptomName: item.symptom_name?.trim(),
+        }))
+        : [{
+          departmentName: department.department_name,
+          note: department.pre_visit_note?.trim() || '',
+          symptomName: '',
+        }]
+
+      return notes.filter((item) => {
+        if (!item.note) return false
+
+        const noteKey = `${item.departmentName}-${item.symptomName || ''}-${item.note}`
+        if (seenNotes.has(noteKey)) return false
+
+        seenNotes.add(noteKey)
+        return true
+      })
+    })
+  }, [recommendedDepartments])
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -193,6 +220,24 @@ const PatientAppointmentBookingPanel = ({
                     {department.department_name}
                   </button>
                 ))}
+              </div>
+            )}
+
+            {preVisitNotes.length > 0 && (
+              <div className="rounded-lg border border-secondary-fixed/40 bg-secondary-fixed/20 p-md">
+                <div className="flex items-center gap-xs">
+                  <Icon className="text-secondary" name="info" />
+                  <p className="font-label-sm text-label-sm text-on-surface">Lưu ý trước khi khám</p>
+                </div>
+                <div className="mt-sm space-y-sm">
+                  {preVisitNotes.map((item) => (
+                    <p className="font-body-sm text-body-sm text-on-surface-variant" key={`${item.departmentName}-${item.symptomName || 'note'}-${item.note}`}>
+                      <span className="font-label-sm text-label-sm text-secondary">{item.departmentName}</span>
+                      {item.symptomName && <span> - {item.symptomName}</span>}
+                      <span>: {item.note}</span>
+                    </p>
+                  ))}
+                </div>
               </div>
             )}
           </div>

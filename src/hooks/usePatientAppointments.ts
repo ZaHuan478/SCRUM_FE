@@ -14,15 +14,20 @@ import { getSymptoms } from '../services/symptom.service'
 import {
   buildAppointmentStats,
   buildUpcomingDays,
+  emptyPatientAppointmentPagination,
   findMatchingSymptoms,
   isAuthFailure,
+  patientAppointmentPageLimit,
   sortAppointmentsByTime,
   sortSlotsByTime,
+  toPatientAppointmentPagination,
 } from '../utils/patientAppointments'
 import type { LoadStatus, PatientAppointmentStat } from '../utils/patientAppointments'
+import type { PatientAppointmentPagination } from '../utils/patientAppointments'
 import { getPaymentPolicyForSlot } from '../utils/paymentPolicy'
 import type { PaymentPolicy } from '../utils/paymentPolicy'
 import type { Payment } from '../types/payment'
+import { useToast } from '../contexts/ToastContext'
 
 type UsePatientAppointmentsOptions = {
   storedUser: User | null
@@ -47,6 +52,7 @@ const loadActiveSymptoms = async () => {
 
 export type PatientAppointmentsState = {
   appointmentActionId: number | string | null
+  appointmentPagination: PatientAppointmentPagination
   appointmentStatus: LoadStatus
   appointments: Appointment[]
   bookingError: string
@@ -72,7 +78,7 @@ export type PatientAppointmentsState = {
   cancelMyAppointment: (appointment: Appointment) => Promise<void>
   clearSelectedDoctor: () => void
   closePaymentModal: () => void
-  loadAppointments: () => Promise<void>
+  loadAppointments: (page?: number) => Promise<void>
   loadSlots: () => Promise<void>
   openPaymentModal: (payment: Payment) => void
   selectDate: (date: string) => void
@@ -94,6 +100,8 @@ export const usePatientAppointments = ({
   const [symptoms, setSymptoms] = useState<Symptom[]>([])
   const [recommendedDepartments, setRecommendedDepartments] = useState<RecommendedDepartment[]>([])
   const [appointments, setAppointments] = useState<Appointment[]>([])
+  const [statAppointments, setStatAppointments] = useState<Appointment[]>([])
+  const [appointmentPagination, setAppointmentPagination] = useState<PatientAppointmentPagination>(emptyPatientAppointmentPagination)
   const [slots, setSlots] = useState<AppointmentSlot[]>([])
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedDepartmentId, setSelectedDepartmentId] = useState('')
@@ -109,6 +117,22 @@ export const usePatientAppointments = ({
   const [bookingSuccess, setBookingSuccess] = useState('')
   const [appointmentActionId, setAppointmentActionId] = useState<number | string | null>(null)
   const [paymentModalPayment, setPaymentModalPayment] = useState<Payment | null>(null)
+  const { success: toastSuccess, error: toastError, warning: toastWarning } = useToast()
+
+  const showBookingError = useCallback((message: string) => {
+    setBookingError(message)
+    toastError(message)
+  }, [toastError])
+
+  const showBookingSuccess = useCallback((message: string) => {
+    setBookingSuccess(message)
+    toastSuccess(message)
+  }, [toastSuccess])
+
+  const showBookingWarning = useCallback((message: string) => {
+    setBookingError(message)
+    toastWarning(message)
+  }, [toastWarning])
 
   const handleRequestError = useCallback((requestError: unknown, fallback: string) => {
     if (isAuthFailure(requestError)) {
@@ -116,12 +140,14 @@ export const usePatientAppointments = ({
       return
     }
 
-    setBookingError(requestError instanceof Error ? requestError.message : fallback)
-  }, [onAuthFailure])
+    showBookingError(requestError instanceof Error ? requestError.message : fallback)
+  }, [onAuthFailure, showBookingError])
 
-  const loadAppointments = useCallback(async () => {
+  const loadAppointments = useCallback(async (page = 1) => {
     if (storedUser?.role !== 'PATIENT') {
       setAppointments([])
+      setStatAppointments([])
+      setAppointmentPagination(emptyPatientAppointmentPagination)
       setAppointmentStatus('ready')
       return
     }
@@ -129,8 +155,13 @@ export const usePatientAppointments = ({
     setAppointmentStatus('loading')
 
     try {
-      const result = await getMyAppointments({ limit: 100 })
+      const [result, statsResult] = await Promise.all([
+        getMyAppointments({ page, limit: patientAppointmentPageLimit }),
+        getMyAppointments({ limit: 100 }),
+      ])
       setAppointments(sortAppointmentsByTime(result.appointments))
+      setStatAppointments(sortAppointmentsByTime(statsResult.appointments))
+      setAppointmentPagination(toPatientAppointmentPagination(result.pagination))
       setAppointmentStatus('ready')
     } catch (requestError) {
       if (isAuthFailure(requestError)) {
@@ -139,8 +170,9 @@ export const usePatientAppointments = ({
       }
 
       setAppointmentStatus('error')
+      toastError('Không thể tải lịch hẹn.')
     }
-  }, [onAuthFailure, storedUser?.role])
+  }, [onAuthFailure, storedUser?.role, toastError])
 
   const loadSlots = useCallback(async () => {
     setSlotStatus('loading')
@@ -167,8 +199,9 @@ export const usePatientAppointments = ({
 
       setSlots([])
       setSlotStatus('error')
+      toastError('Không thể tải khung giờ khám.')
     }
-  }, [onAuthFailure, selectedDate, selectedDepartmentId, selectedDoctorId])
+  }, [onAuthFailure, selectedDate, selectedDepartmentId, selectedDoctorId, toastError])
 
   const matchedSymptoms = useMemo(() => (
     findMatchingSymptoms(reason, symptoms).slice(0, 8)
@@ -189,12 +222,13 @@ export const usePatientAppointments = ({
 
         setDepartments([])
         setDepartmentStatus('error')
+        toastError('Không thể tải danh sách khoa.')
       })
 
     return () => {
       active = false
     }
-  }, [])
+  }, [toastError])
 
   useEffect(() => {
     let active = true
@@ -300,7 +334,7 @@ export const usePatientAppointments = ({
   ), [selectedSlotId, slots])
   const selectedPaymentPolicy = useMemo(() => getPaymentPolicyForSlot(selectedSlot), [selectedSlot])
 
-  const stats = useMemo(() => buildAppointmentStats(appointments), [appointments])
+  const stats = useMemo(() => buildAppointmentStats(statAppointments), [statAppointments])
 
   const selectDate = useCallback((date: string) => {
     setSelectedDate(date)
@@ -354,17 +388,17 @@ export const usePatientAppointments = ({
     setBookingSuccess('')
 
     if (!storedUser) {
-      setBookingError('Vui lòng đăng nhập bằng tài khoản bệnh nhân để gửi đặt lịch.')
+      showBookingWarning('Vui lòng đăng nhập bằng tài khoản bệnh nhân để gửi đặt lịch.')
       return
     }
 
     if (storedUser.role !== 'PATIENT') {
-      setBookingError('Chỉ tài khoản bệnh nhân mới có thể gửi đặt lịch hẹn.')
+      showBookingWarning('Chỉ tài khoản bệnh nhân mới có thể gửi đặt lịch hẹn.')
       return
     }
 
     if (!selectedSlot) {
-      setBookingError('Vui lòng chọn một khung giờ còn trống.')
+      showBookingWarning('Vui lòng chọn một khung giờ còn trống.')
       return
     }
 
@@ -380,13 +414,13 @@ export const usePatientAppointments = ({
         throw new Error('Lịch hẹn đã tạo nhưng chưa nhận được mã thanh toán. Vui lòng kiểm tra API tạo payment.')
       }
 
-      setBookingSuccess('Lịch hẹn đã được tạo. Vui lòng hoàn tất thanh toán để xác nhận lịch khám.')
+      showBookingSuccess('Lịch hẹn đã được tạo. Vui lòng hoàn tất thanh toán để xác nhận lịch khám.')
       await Promise.all([loadSlots(), loadAppointments()])
       setPaymentModalPayment(result.payment)
     } catch (requestError) {
       handleRequestError(requestError, 'Không thể đặt lịch hẹn.')
     }
-  }, [handleRequestError, loadAppointments, loadSlots, reason, selectedSlot, storedUser])
+  }, [handleRequestError, loadAppointments, loadSlots, reason, selectedSlot, showBookingSuccess, showBookingWarning, storedUser])
 
   const cancelMyAppointment = useCallback(async (appointment: Appointment) => {
     if (!['PENDING_PAYMENT', 'PENDING', 'CONFIRMED'].includes(appointment.status)) return
@@ -399,17 +433,21 @@ export const usePatientAppointments = ({
 
     try {
       await cancelAppointment(appointment.id, { cancel_reason: 'Bệnh nhân hủy lịch hẹn' })
-      setBookingSuccess('Lịch hẹn đã được hủy.')
-      await Promise.all([loadAppointments(), loadSlots()])
+      showBookingSuccess('Lịch hẹn đã được hủy.')
+      const nextPage = appointments.length === 1 && appointmentPagination.page > 1
+        ? appointmentPagination.page - 1
+        : appointmentPagination.page
+      await Promise.all([loadAppointments(nextPage), loadSlots()])
     } catch (requestError) {
       handleRequestError(requestError, 'Không thể hủy lịch hẹn.')
     } finally {
       setAppointmentActionId(null)
     }
-  }, [handleRequestError, loadAppointments, loadSlots])
+  }, [appointmentPagination.page, appointments.length, handleRequestError, loadAppointments, loadSlots, showBookingSuccess])
 
   return {
     appointmentActionId,
+    appointmentPagination,
     appointmentStatus,
     appointments,
     bookingError,

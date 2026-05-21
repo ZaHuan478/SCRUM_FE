@@ -45,6 +45,18 @@ export type UpdateDoctorPayload = {
   status?: 'ACTIVE' | 'INACTIVE'
 }
 
+export type CreateDoctorPayload = {
+  user_id: number | string
+  license_number: string
+  cccd?: string | null
+  experience_years?: number | string | null
+  description?: string | null
+  prof_biography?: string | null
+  image_url?: string | null
+  consultation_fee?: number | string | null
+  status?: 'ACTIVE' | 'INACTIVE'
+}
+
 export const getDoctors = (query: DoctorQuery = {}) => {
   const params = new URLSearchParams()
 
@@ -63,6 +75,12 @@ export const getDoctorByUserId = (userId: number | string) =>
 
 export const getDoctorById = (id: number | string) =>
   apiRequest<Doctor>(`/doctors/${id}`)
+
+export const createDoctor = (payload: CreateDoctorPayload) =>
+  apiRequest<Doctor>('/doctors', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
 
 export const updateDoctor = (id: number | string, payload: UpdateDoctorPayload) =>
   apiRequest<Doctor>(`/doctors/${id}`, {

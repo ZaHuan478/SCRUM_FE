@@ -1,16 +1,18 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import DepartmentCard from '../../Molecules/Home/DepartmentCard'
 import Icon from '../../Atoms/Icon'
 import { getDepartments } from '../../../services/department.service'
 import type { Department } from '../../../services/department.service'
 
 const DEPARTMENTS_PER_SLIDE = 4
+const AUTO_SLIDE_INTERVAL = 4500
 
 const tones: Array<'primary' | 'secondary' | 'tertiary' | 'neutral'> = ['primary', 'secondary', 'tertiary', 'neutral']
 
 const DepartmentsSection = () => {
   const [departments, setDepartments] = useState<Department[]>([])
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [isCarouselPaused, setIsCarouselPaused] = useState(false)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
 
   useEffect(() => {
@@ -47,23 +49,36 @@ const DepartmentsSection = () => {
   const activeSlide = slideCount > 0 && currentSlide < slideCount ? currentSlide : 0
   const hasMultipleSlides = slideCount > 1
 
-  const goToPreviousSlide = () => {
+  const goToPreviousSlide = useCallback(() => {
     if (slideCount === 0) return
 
     setCurrentSlide((previousSlide) => {
       const safePreviousSlide = previousSlide < slideCount ? previousSlide : 0
       return safePreviousSlide === 0 ? slideCount - 1 : safePreviousSlide - 1
     })
-  }
+  }, [slideCount])
 
-  const goToNextSlide = () => {
+  const goToNextSlide = useCallback(() => {
     if (slideCount === 0) return
 
     setCurrentSlide((previousSlide) => {
       const safePreviousSlide = previousSlide < slideCount ? previousSlide : 0
       return safePreviousSlide === slideCount - 1 ? 0 : safePreviousSlide + 1
     })
-  }
+  }, [slideCount])
+
+  useEffect(() => {
+    if (!hasMultipleSlides || isCarouselPaused) return undefined
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) return undefined
+
+    const intervalId = window.setInterval(goToNextSlide, AUTO_SLIDE_INTERVAL)
+
+    return () => {
+      window.clearInterval(intervalId)
+    }
+  }, [goToNextSlide, hasMultipleSlides, isCarouselPaused])
 
   if (status === 'ready' && departments.length === 0) return null
 
@@ -87,10 +102,19 @@ const DepartmentsSection = () => {
           </p>
         )}
         {departmentSlides.length > 0 && (
-          <div className="relative">
+          <div
+            className="relative"
+            onBlur={(event) => {
+              if (event.currentTarget.contains(event.relatedTarget as Node | null)) return
+              setIsCarouselPaused(false)
+            }}
+            onFocus={() => setIsCarouselPaused(true)}
+            onMouseEnter={() => setIsCarouselPaused(true)}
+            onMouseLeave={() => setIsCarouselPaused(false)}
+          >
             <div className="overflow-hidden rounded-3xl">
               <div
-                className="flex transition-transform duration-500 ease-out"
+                className="department-carousel-track flex transition-transform duration-700 ease-out"
                 style={{ transform: `translateX(-${activeSlide * 100}%)` }}
               >
                 {departmentSlides.map((slideDepartments, slideIndex) => (
@@ -102,6 +126,8 @@ const DepartmentsSection = () => {
                           icon="clinical_notes"
                           key={department.id}
                           label={department.name}
+                          className="department-card-motion"
+                          style={{ animationDelay: `${departmentIndex * 90}ms` }}
                           to={`/departments/${department.id}`}
                           tone={tones[(slideIndex * DEPARTMENTS_PER_SLIDE + departmentIndex) % tones.length]}
                         />
