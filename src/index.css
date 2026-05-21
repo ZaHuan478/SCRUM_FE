@@ -9,3 +9,29 @@ body {
 .material-symbols-outlined {
   font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
 }
+
+@keyframes department-card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.department-card-motion {
+  animation: department-card-rise 560ms ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .department-card-motion {
+    animation: none;
+  }
+
+  .department-carousel-track {
+    transition-duration: 1ms !important;
+  }
+}

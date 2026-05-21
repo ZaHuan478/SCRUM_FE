@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import Icon from '../../Atoms/Icon'
+import type { CSSProperties } from 'react'
 
 type DepartmentCardProps = {
   icon: string
@@ -7,6 +8,7 @@ type DepartmentCardProps = {
   tone: 'primary' | 'secondary' | 'tertiary' | 'neutral'
   className?: string
   description?: string | null
+  style?: CSSProperties
   to?: string
 }
 
@@ -17,7 +19,7 @@ const toneClasses: Record<DepartmentCardProps['tone'], string> = {
   neutral: 'bg-surface-variant text-outline',
 }
 
-const DepartmentCard = ({ className = '', description, icon, label, tone, to }: DepartmentCardProps) => {
+const DepartmentCard = ({ className = '', description, icon, label, style, tone, to }: DepartmentCardProps) => {
   const cardDescription = description || 'Khoa đang tiếp nhận lịch khám trong hệ thống.'
   const cardClasses = `group flex h-full flex-col rounded-2xl border border-outline-variant/30 bg-surface p-lg text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg ${className}`
   const content = (
@@ -37,13 +39,13 @@ const DepartmentCard = ({ className = '', description, icon, label, tone, to }: 
 
   if (to) {
     return (
-      <Link className={cardClasses} to={to}>
+      <Link className={cardClasses} style={style} to={to}>
         {content}
       </Link>
     )
   }
 
-  return <article className={cardClasses}>{content}</article>
+  return <article className={cardClasses} style={style}>{content}</article>
 }
 
 export default DepartmentCard
