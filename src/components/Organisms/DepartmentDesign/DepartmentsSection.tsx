@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import DepartmentCard from '../../Molecules/Home/DepartmentCard'
 import Icon from '../../Atoms/Icon'
+import { useTranslation } from '../../../contexts/LanguageContext'
 import { getDepartments } from '../../../services/department.service'
 import type { Department } from '../../../services/department.service'
 
@@ -10,6 +11,7 @@ const AUTO_SLIDE_INTERVAL = 4500
 const tones: Array<'primary' | 'secondary' | 'tertiary' | 'neutral'> = ['primary', 'secondary', 'tertiary', 'neutral']
 
 const DepartmentsSection = () => {
+  const { t } = useTranslation()
   const [departments, setDepartments] = useState<Department[]>([])
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isCarouselPaused, setIsCarouselPaused] = useState(false)
@@ -86,19 +88,19 @@ const DepartmentsSection = () => {
     <section className="bg-surface-container-low px-lg py-xxxl md:px-xxl" id="departments">
       <div className="mx-auto max-w-7xl">
         <div className="mb-xxl text-center">
-          <h2 className="mb-sm font-headline-lg text-headline-lg text-on-background">Khoa chuyên môn</h2>
+          <h2 className="mb-sm font-headline-lg text-headline-lg text-on-background">{t('home.departments.title')}</h2>
           <p className="mx-auto max-w-2xl font-body-md text-body-md text-on-surface-variant">
-            Danh mục khoa đang hoạt động trong hệ thống.
+            {t('home.departments.description')}
           </p>
         </div>
         {status === 'loading' && (
           <p className="rounded-lg border border-outline-variant/30 bg-surface px-md py-sm font-body-sm text-body-sm text-on-surface-variant">
-            Đang tải danh sách khoa...
+            {t('home.departments.loading')}
           </p>
         )}
         {status === 'error' && (
           <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
-            Chưa kết nối được backend nên chưa có dữ liệu khoa để hiển thị.
+            {t('home.departments.backendError')}
           </p>
         )}
         {departmentSlides.length > 0 && (
@@ -141,7 +143,7 @@ const DepartmentsSection = () => {
             {hasMultipleSlides && (
               <>
                 <button
-                  aria-label="Xem slide khoa trước"
+                  aria-label={t('home.departments.previousSlide')}
                   className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-outline-variant/40 bg-surface/95 text-on-surface shadow-md transition-all hover:border-primary/50 hover:text-primary hover:shadow-lg md:-left-5"
                   onClick={goToPreviousSlide}
                   type="button"
@@ -149,7 +151,7 @@ const DepartmentsSection = () => {
                   <Icon className="text-3xl" name="chevron_left" />
                 </button>
                 <button
-                  aria-label="Xem slide khoa tiếp theo"
+                  aria-label={t('home.departments.nextSlide')}
                   className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-outline-variant/40 bg-surface/95 text-on-surface shadow-md transition-all hover:border-primary/50 hover:text-primary hover:shadow-lg md:-right-5"
                   onClick={goToNextSlide}
                   type="button"
@@ -165,7 +167,7 @@ const DepartmentsSection = () => {
           <div className="mt-xl flex justify-center gap-sm">
             {departmentSlides.map((_, slideIndex) => (
               <button
-                aria-label={`Đi tới slide khoa ${slideIndex + 1}`}
+                aria-label={t('home.departments.goToSlide', { number: slideIndex + 1 })}
                 className={`h-2.5 rounded-full transition-all ${
                   slideIndex === activeSlide
                     ? 'w-8 bg-primary'

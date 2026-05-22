@@ -7,10 +7,12 @@ import Button from '../../Atoms/Button'
 import Checkbox from '../../Atoms/Checkbox'
 import SocialLogin from '../../Molecules/Auth/SocialLogin'
 import Divider from '../../Molecules/Common/Divider'
+import { useTranslation } from '../../../contexts/LanguageContext'
 import { register } from '../../../services/auth.service'
 
 const SignupForm = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
@@ -27,17 +29,17 @@ const SignupForm = () => {
     setSuccess('')
 
     if (!email || !password) {
-      setError('Email và mật khẩu là bắt buộc.')
+      setError(t('auth.signupEmailPasswordRequired'))
       return
     }
 
     if (password !== confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp.')
+      setError(t('auth.passwordMismatch'))
       return
     }
 
     if (!acceptedTerms) {
-      setError('Bạn cần đồng ý với điều khoản trước khi đăng ký.')
+      setError(t('auth.termsRequired'))
       return
     }
 
@@ -50,10 +52,10 @@ const SignupForm = () => {
         password,
         phone: phone.trim() || undefined,
       })
-      setSuccess('Đăng ký thành công. Bạn có thể đăng nhập ngay.')
+      setSuccess(t('auth.signupSuccess'))
       window.setTimeout(() => navigate('/login'), 700)
     } catch (requestError) {
-      const message = requestError instanceof Error ? requestError.message : 'Đăng ký không thành công.'
+      const message = requestError instanceof Error ? requestError.message : t('auth.signupFailed')
       setError(message)
     } finally {
       setIsSubmitting(false)
@@ -67,8 +69,8 @@ const SignupForm = () => {
       </div>
 
       <header className="space-y-sm">
-        <h3 className="font-headline-lg text-headline-lg text-on-surface">Tạo tài khoản</h3>
-        <p className="font-body-md text-body-md text-on-surface-variant">Tạo tài khoản mới để bắt đầu sử dụng nền tảng.</p>
+        <h3 className="font-headline-lg text-headline-lg text-on-surface">{t('auth.createAccount')}</h3>
+        <p className="font-body-md text-body-md text-on-surface-variant">{t('auth.signupDescription')}</p>
       </header>
 
       <SocialLogin onError={setError} />
@@ -82,7 +84,7 @@ const SignupForm = () => {
           autoComplete="name"
           icon="person"
           id="signup-full-name"
-          label="Họ và tên"
+          label={t('auth.fullNameLabel')}
           name="fullName"
           onChange={(event) => setFullName(event.target.value)}
           placeholder=""
@@ -93,7 +95,7 @@ const SignupForm = () => {
           autoComplete="tel"
           icon="call"
           id="signup-phone"
-          label="Số điện thoại"
+          label={t('auth.phoneLabel')}
           name="phone"
           onChange={(event) => setPhone(event.target.value)}
           placeholder=""
@@ -104,7 +106,7 @@ const SignupForm = () => {
           autoComplete="email"
           icon="mail"
           id="signup-email"
-          label="Địa chỉ email"
+          label={t('auth.emailLabel')}
           name="email"
           onChange={(event) => setEmail(event.target.value)}
           placeholder=""
@@ -115,7 +117,7 @@ const SignupForm = () => {
           autoComplete="new-password"
           icon="lock"
           id="signup-password"
-          label="Mật khẩu"
+          label={t('auth.passwordLabel')}
           name="password"
           onChange={(event) => setPassword(event.target.value)}
           placeholder=""
@@ -126,7 +128,7 @@ const SignupForm = () => {
           autoComplete="new-password"
           icon="lock"
           id="signup-confirm"
-          label="Xác nhận mật khẩu"
+          label={t('auth.confirmPasswordLabel')}
           name="confirmPassword"
           onChange={(event) => setConfirmPassword(event.target.value)}
           placeholder=""
@@ -140,16 +142,16 @@ const SignupForm = () => {
               checked={acceptedTerms}
               onChange={(event) => setAcceptedTerms(event.target.checked)}
             />
-            <span className="font-label-md text-label-md text-on-surface-variant group-hover:text-on-surface">Tôi đồng ý với điều khoản</span>
+            <span className="font-label-md text-label-md text-on-surface-variant group-hover:text-on-surface">{t('auth.acceptTerms')}</span>
           </label>
         </div>
 
-        <Button isLoading={isSubmitting} type="submit">Đăng ký</Button>
+        <Button isLoading={isSubmitting} type="submit">{t('auth.signupButton')}</Button>
       </form>
 
       <footer className="pt-lg text-center">
         <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Đã có tài khoản? <Link className="text-primary font-bold hover:underline decoration-2 underline-offset-4" to="/login">Đăng nhập</Link>
+          {t('auth.hasAccount')} <Link className="text-primary font-bold hover:underline decoration-2 underline-offset-4" to="/login">{t('auth.loginButton')}</Link>
         </p>
       </footer>
     </div>

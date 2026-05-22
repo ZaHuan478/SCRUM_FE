@@ -2,6 +2,7 @@ import type { FormEvent } from 'react'
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import Input from '../../Atoms/Input'
+import { useTranslation } from '../../../contexts/LanguageContext'
 
 type ResetPasswordModalProps = {
   email: string
@@ -34,6 +35,8 @@ const ResetPasswordModal = ({
   onConfirmPasswordChange,
   onSubmit,
 }: ResetPasswordModalProps) => {
+  const { t } = useTranslation()
+
   if (!open) return null
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -43,7 +46,7 @@ const ResetPasswordModal = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-inverse-surface/40 px-lg py-xl backdrop-blur-sm">
-      <button aria-label="Đóng popup" className="absolute inset-0 cursor-default" onClick={onClose} type="button" />
+      <button aria-label={t('auth.closePopup')} className="absolute inset-0 cursor-default" onClick={onClose} type="button" />
       <form
         aria-modal="true"
         className="relative w-full max-w-md overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0px_24px_60px_rgba(15,23,42,0.16)]"
@@ -56,12 +59,12 @@ const ResetPasswordModal = ({
               <Icon className="text-3xl" name="password" />
             </div>
             <div>
-              <p className="font-label-sm text-label-sm text-primary">Đặt lại mật khẩu</p>
-              <h2 className="mt-xs font-headline-sm text-headline-sm text-on-surface">Tạo mật khẩu mới</h2>
+              <p className="font-label-sm text-label-sm text-primary">{t('auth.resetEyebrow')}</p>
+              <h2 className="mt-xs font-headline-sm text-headline-sm text-on-surface">{t('auth.resetTitle')}</h2>
             </div>
           </div>
           <button
-            aria-label="Đóng"
+            aria-label={t('auth.close')}
             className="flex h-10 w-10 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
             onClick={onClose}
             type="button"
@@ -72,7 +75,7 @@ const ResetPasswordModal = ({
 
         <div className="space-y-lg p-xl">
           <p className="font-body-md text-body-md text-on-surface-variant">
-            Nhập mã xác thực đã gửi đến email của bạn và tạo mật khẩu mới để hoàn tất khôi phục tài khoản.
+            {t('auth.resetDescription')}
           </p>
 
           {error && (
@@ -95,7 +98,7 @@ const ResetPasswordModal = ({
             id="reset-email"
             label="Email"
             name="email"
-            placeholder="Email của bạn"
+            placeholder={t('auth.yourEmailPlaceholder')}
             type="email"
             value={email}
           />
@@ -105,11 +108,11 @@ const ResetPasswordModal = ({
             icon="pin"
             id="reset-code"
             inputMode="numeric"
-            label="Mã xác thực"
+            label={t('auth.codeLabel')}
             maxLength={6}
             name="code"
             onChange={(event) => onCodeChange(event.target.value)}
-            placeholder="Nhập mã 6 chữ số"
+            placeholder={t('auth.codePlaceholder')}
             type="text"
             value={code}
           />
@@ -119,10 +122,10 @@ const ResetPasswordModal = ({
               autoComplete="new-password"
               icon="lock"
               id="reset-password"
-              label="Mật khẩu mới"
+              label={t('auth.newPasswordLabel')}
               name="password"
               onChange={(event) => onPasswordChange(event.target.value)}
-              placeholder="Nhập mật khẩu mới"
+              placeholder={t('auth.newPasswordPlaceholder')}
               type="password"
               value={password}
             />
@@ -131,10 +134,10 @@ const ResetPasswordModal = ({
               autoComplete="new-password"
               icon="lock"
               id="reset-password-confirm"
-              label="Xác nhận mật khẩu"
+              label={t('auth.confirmPasswordLabel')}
               name="confirmPassword"
               onChange={(event) => onConfirmPasswordChange(event.target.value)}
-              placeholder="Nhập lại mật khẩu"
+              placeholder={t('auth.confirmPasswordPlaceholder')}
               type="password"
               value={confirmPassword}
             />
@@ -142,10 +145,10 @@ const ResetPasswordModal = ({
 
           <div className="flex flex-col-reverse gap-sm sm:flex-row sm:justify-end">
             <Button className="px-lg" fullWidth={false} onClick={onClose} type="button" variant="ghost">
-              Hủy
+              {t('auth.cancel')}
             </Button>
             <Button className="px-lg" fullWidth={false} isLoading={isLoading} type="submit">
-              Xác nhận
+              {t('auth.confirm')}
             </Button>
           </div>
         </div>

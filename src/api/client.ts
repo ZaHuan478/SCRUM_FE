@@ -12,14 +12,18 @@ const buildUrl = (path: string) => {
   return `${base}/${endpoint}`
 }
 
+export const getApiUrl = buildUrl
+
+export const getAuthToken = () => localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
+
 export const apiRequest = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
   const headers = new Headers(options.headers)
 
-  if (options.body && !headers.has('Content-Type')) {
+  if (options.body && !(options.body instanceof FormData) && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')
   }
 
-  const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
+  const token = getAuthToken()
   if (token) {
     headers.set('Authorization', `Bearer ${token}`)
   }

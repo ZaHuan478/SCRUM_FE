@@ -6,10 +6,12 @@ import PaymentQR from '../components/Molecules/Payment/PaymentQR'
 import PaymentStatus from '../components/Molecules/Payment/PaymentStatus'
 import TopNavBar from '../components/Organisms/TopNavBar'
 import { useToast } from '../contexts/ToastContext'
+import { useTranslation } from '../contexts/LanguageContext'
 
 const PaymentPage = () => {
   const { paymentId } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [payment, setPayment] = useState<Payment | null>(null)
   const [error, setError] = useState('')
   const { success: toastSuccess, error: toastError } = useToast()
@@ -21,6 +23,13 @@ const PaymentPage = () => {
 
     let active = true
 
+    const reportSuccess = () => {
+      if (reportedPaidRef.current) return
+
+      reportedPaidRef.current = true
+      toastSuccess(t('payment.successToast'))
+    }
+
     const loadStatus = async () => {
       try {
         const nextPayment = await getPaymentStatus(paymentId)
@@ -28,15 +37,12 @@ const PaymentPage = () => {
 
         setPayment(nextPayment)
         if (nextPayment.status === 'PAID') {
-          if (!reportedPaidRef.current) {
-            reportedPaidRef.current = true
-            toastSuccess('Thanh toán thành công. Lịch khám đã được xác nhận.')
-          }
+          reportSuccess()
           navigate(`/payment-success/${nextPayment.appointment_id}`, { replace: true })
         }
       } catch (requestError) {
         if (!active) return
-        const message = requestError instanceof Error ? requestError.message : 'Không thể tải trạng thái thanh toán.'
+        const message = requestError instanceof Error ? requestError.message : t('payment.statusError')
         setError(message)
         if (reportedErrorRef.current !== message) {
           reportedErrorRef.current = message
@@ -50,10 +56,7 @@ const PaymentPage = () => {
     const socket = connectPaymentSocket()
     const offPaymentSuccess = socket ? onPaymentSuccess(socket, (payload) => {
       if (String(payload.payment_id) === String(paymentId)) {
-        if (!reportedPaidRef.current) {
-          reportedPaidRef.current = true
-          toastSuccess('Thanh toán thành công. Lịch khám đã được xác nhận.')
-        }
+        reportSuccess()
         navigate(`/payment-success/${payload.appointment_id}`, { replace: true, state: payload })
       }
     }) : undefined
@@ -64,7 +67,7 @@ const PaymentPage = () => {
       offPaymentSuccess?.()
       socket?.disconnect()
     }
-  }, [navigate, paymentId, toastError, toastSuccess])
+  }, [navigate, paymentId, t, toastError, toastSuccess])
 
   return (
     <div className="min-h-screen bg-background text-on-background">
@@ -78,7 +81,7 @@ const PaymentPage = () => {
 
         {!payment && !error && (
           <p className="rounded-lg bg-surface-container px-md py-sm font-body-sm text-body-sm text-on-surface-variant">
-            Đang tải mã QR thanh toán...
+            {t('payment.loadingQr')}
           </p>
         )}
 

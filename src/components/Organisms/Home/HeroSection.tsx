@@ -3,6 +3,7 @@ import Badge from '../../Atoms/Badge'
 import Icon from '../../Atoms/Icon'
 import Image from '../../Atoms/Image'
 import SearchPanel from '../../Molecules/Home/SearchPanel'
+import { useTranslation } from '../../../contexts/LanguageContext'
 import { getDoctors } from '../../../services/doctor.service'
 import type { Doctor } from '../../../services/doctor.service'
 
@@ -22,6 +23,7 @@ type HeroSectionProps = {
 }
 
 const HeroSection = ({ onSearch }: HeroSectionProps) => {
+  const { t } = useTranslation()
   const [doctorImages, setDoctorImages] = useState<string[]>(() => shuffle(fallbackDoctorImages).slice(0, 4))
 
   useEffect(() => {
@@ -54,19 +56,19 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
     <section className="mx-auto max-w-7xl overflow-hidden px-lg pb-xxxl pt-xxxl md:px-xxl">
       <div className="grid grid-cols-1 items-center gap-xxl md:grid-cols-12">
         <div className="z-10 md:col-span-7">
-          <Badge className="mb-md">Y khoa chính xác và tin cậy</Badge>
+          <Badge className="mb-md">{t('home.hero.badge')}</Badge>
           <h1 className="mb-lg max-w-3xl font-display-lg text-4xl font-bold leading-tight text-on-background md:text-display-lg">
-            Tìm đúng bác sĩ, <span className="text-primary">đúng lúc.</span>
+            {t('home.hero.titleStart')} <span className="text-primary">{t('home.hero.titleHighlight')}</span>
           </h1>
           <p className="mb-xxl max-w-xl font-body-lg text-body-lg text-on-surface-variant">
-            Kết nối với chuyên gia phù hợp dựa trên triệu chứng, chuyên khoa và nhu cầu thăm khám cụ thể của bạn.
+            {t('home.hero.description')}
           </p>
           <SearchPanel onSearch={onSearch} />
         </div>
         <div className="relative md:col-span-5">
           <div className="relative overflow-hidden rounded-xl bg-surface-variant shadow-2xl">
             <Image
-              alt="Bác sĩ chuyên nghiệp tại MedPrecision"
+              alt={t('home.hero.imageAlt')}
               className="aspect-[4/5] h-auto w-full object-cover"
               fallbackClassName="aspect-[4/5] w-full"
               src={heroImage}
@@ -77,12 +79,12 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
                   <Icon name="verified" className="text-on-secondary-container" />
                 </div>
                 <div>
-                  <p className="font-label-md text-label-md text-on-surface">Chuyên gia đã xác thực</p>
+                  <p className="font-label-md text-label-md text-on-surface">{t('home.hero.verified')}</p>
                   <div className="mt-sm w-48 overflow-hidden sm:w-64">
                     <div className="hero-doctor-rail flex w-max items-center gap-sm">
                       {animatedDoctorImages.map((image, index) => (
                         <Image
-                          alt="Ảnh bác sĩ"
+                          alt={t('home.hero.doctorImageAlt')}
                           className="h-10 w-10 shrink-0 rounded-full border-2 border-surface object-cover shadow-sm"
                           fallbackClassName="h-10 w-10 shrink-0 rounded-full border-2 border-surface"
                           key={`${image}-${index}`}

@@ -6,6 +6,7 @@ import type { DoctorCardData } from '../components/Molecules/Home/DoctorCard'
 import Icon from '../components/Atoms/Icon'
 import Input from '../components/Atoms/Input'
 import PaginationControls from '../components/Molecules/Common/PaginationControls'
+import { useTranslation } from '../contexts/LanguageContext'
 import { getDoctorAssignments } from '../services/doctorAssignment.service'
 import type { DoctorAssignment } from '../services/doctorAssignment.service'
 import type { Doctor } from '../services/doctor.service'
@@ -52,7 +53,7 @@ const loadActiveSymptoms = async () => {
   const remainingPages = await Promise.all(
     Array.from({ length: firstPage.pagination.total_pages - 1 }, (_, index) => (
       getSymptoms({ limit: 100, page: index + 2, status: 'ACTIVE' })
-    ))
+    )),
   )
 
   return [
@@ -60,43 +61,6 @@ const loadActiveSymptoms = async () => {
     ...remainingPages.flatMap((result) => result.symptoms),
   ]
 }
-
-const mapAssignment = (assignment: DoctorAssignment): DoctorDirectoryItem | null => {
-  const doctor = assignment.doctor as Doctor | undefined
-  if (!doctor) return null
-
-  return {
-    departmentId: assignment.department_id,
-    departmentName: assignment.department?.name || 'Chưa phân khoa',
-    description: doctor.description,
-    email: doctor.user?.email,
-    experienceYears: doctor.experience_years,
-    fee: formatFee(doctor.consultation_fee),
-    feeValue: doctor.consultation_fee === undefined || doctor.consultation_fee === null
-      ? undefined
-      : Number(doctor.consultation_fee),
-    id: doctor.id,
-    image: doctor.image_url || '',
-    licenseNumber: doctor.license_number,
-    name: doctor.user?.full_name || doctor.license_number,
-    phone: doctor.user?.phone,
-    specialty: assignment.department?.name || '',
-  }
-}
-
-const experienceOptions = [
-  { label: 'Tất cả', value: 'all' },
-  { label: 'Từ 5 năm', value: '5' },
-  { label: 'Từ 10 năm', value: '10' },
-  { label: 'Từ 15 năm', value: '15' },
-]
-
-const feeOptions = [
-  { label: 'Tất cả', value: 'all' },
-  { label: 'Dưới 300.000đ', value: 'under-300000' },
-  { label: '300.000đ - 350.000đ', value: '300000-350000' },
-  { label: 'Trên 350.000đ', value: 'over-350000' },
-]
 
 const matchesFeeFilter = (doctor: DoctorDirectoryItem, feeFilter: string) => {
   if (feeFilter === 'all') return true
@@ -111,6 +75,7 @@ const matchesFeeFilter = (doctor: DoctorDirectoryItem, feeFilter: string) => {
 }
 
 const DoctorsPage = () => {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const [query, setQuery] = useState('')
   const [symptoms, setSymptoms] = useState<Symptom[]>([])
@@ -121,6 +86,43 @@ const DoctorsPage = () => {
   const [selectedFee, setSelectedFee] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
+
+  const experienceOptions = useMemo(() => [
+    { label: t('doctorsPage.experience.all'), value: 'all' },
+    { label: t('doctorsPage.experience.from5'), value: '5' },
+    { label: t('doctorsPage.experience.from10'), value: '10' },
+    { label: t('doctorsPage.experience.from15'), value: '15' },
+  ], [t])
+
+  const feeOptions = useMemo(() => [
+    { label: t('doctorsPage.fee.all'), value: 'all' },
+    { label: t('doctorsPage.fee.under300'), value: 'under-300000' },
+    { label: t('doctorsPage.fee.between300And350'), value: '300000-350000' },
+    { label: t('doctorsPage.fee.over350'), value: 'over-350000' },
+  ], [t])
+
+  const mapAssignment = (assignment: DoctorAssignment): DoctorDirectoryItem | null => {
+    const doctor = assignment.doctor as Doctor | undefined
+    if (!doctor) return null
+
+    return {
+      departmentId: assignment.department_id,
+      departmentName: assignment.department?.name || t('doctorsPage.unassignedDepartment'),
+      description: doctor.description,
+      email: doctor.user?.email,
+      experienceYears: doctor.experience_years,
+      fee: formatFee(doctor.consultation_fee),
+      feeValue: doctor.consultation_fee === undefined || doctor.consultation_fee === null
+        ? undefined
+        : Number(doctor.consultation_fee),
+      id: doctor.id,
+      image: doctor.image_url || '',
+      licenseNumber: doctor.license_number,
+      name: doctor.user?.full_name || doctor.license_number,
+      phone: doctor.user?.phone,
+      specialty: assignment.department?.name || '',
+    }
+  }
 
   useEffect(() => {
     let active = true
@@ -149,7 +151,7 @@ const DoctorsPage = () => {
     return () => {
       active = false
     }
-  }, [])
+  }, [t])
 
   const matchedSymptoms = useMemo(() => (
     findMatchingSymptoms(query, symptoms).slice(0, 8)
@@ -170,7 +172,7 @@ const DoctorsPage = () => {
           if (!active) return
 
           setRecommendedDepartmentIds(new Set(
-            recommendations.map((recommendation) => String(recommendation.department_id))
+            recommendations.map((recommendation) => String(recommendation.department_id)),
           ))
         })
         .catch(() => {
@@ -227,7 +229,7 @@ const DoctorsPage = () => {
   const paginatedDoctors = useMemo(() => (
     visibleDoctors.slice(
       (currentPage - 1) * DOCTORS_PER_PAGE,
-      currentPage * DOCTORS_PER_PAGE
+      currentPage * DOCTORS_PER_PAGE,
     )
   ), [currentPage, visibleDoctors])
 
@@ -273,37 +275,37 @@ const DoctorsPage = () => {
       <main className="mx-auto flex max-w-7xl flex-col gap-xxl px-lg py-xxl md:px-xxl">
         <section className="flex flex-col gap-lg border-b border-outline-variant/30 pb-xl">
           <div className="max-w-3xl">
-            <p className="font-label-md text-label-md text-primary">Danh bạ chuyên gia</p>
-            <h1 className="mt-sm font-headline-lg text-headline-lg text-on-background">Tất cả bác sĩ</h1>
+            <p className="font-label-md text-label-md text-primary">{t('doctorsPage.eyebrow')}</p>
+            <h1 className="mt-sm font-headline-lg text-headline-lg text-on-background">{t('doctorsPage.title')}</h1>
             <p className="mt-sm font-body-md text-body-md text-on-surface-variant">
-              Tìm bác sĩ theo triệu chứng, tên bác sĩ hoặc khoa. Dùng bộ lọc nhanh để thu hẹp theo chuyên khoa, phí tư vấn và kinh nghiệm.
+              {t('doctorsPage.description')}
             </p>
           </div>
           <div className="grid gap-md lg:grid-cols-[minmax(260px,420px)_minmax(0,1fr)_auto] lg:items-end">
             <Input
               icon="search"
-              label="Tìm kiếm bác sĩ"
+              label={t('doctorsPage.searchLabel')}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Nhập tên bác sĩ, khoa hoặc chuyên môn..."
+              placeholder={t('doctorsPage.searchPlaceholder')}
               type="search"
               value={query}
             />
             <div className="grid gap-md md:grid-cols-3">
               <label className="space-y-xs">
-                <span className="font-label-md text-label-md text-on-surface">Khoa</span>
+                <span className="font-label-md text-label-md text-on-surface">{t('doctorsPage.departmentLabel')}</span>
                 <select
                   className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
                   onChange={(event) => setSelectedDepartmentId(event.target.value)}
                   value={selectedDepartmentId}
                 >
-                  <option value="all">Tất cả khoa</option>
+                  <option value="all">{t('doctorsPage.allDepartments')}</option>
                   {departmentOptions.map(([departmentId, departmentName]) => (
                     <option key={departmentId} value={departmentId}>{departmentName}</option>
                   ))}
                 </select>
               </label>
               <label className="space-y-xs">
-                <span className="font-label-md text-label-md text-on-surface">Phí tư vấn</span>
+                <span className="font-label-md text-label-md text-on-surface">{t('doctorsPage.feeLabel')}</span>
                 <select
                   className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
                   onChange={(event) => setSelectedFee(event.target.value)}
@@ -315,7 +317,7 @@ const DoctorsPage = () => {
                 </select>
               </label>
               <label className="space-y-xs">
-                <span className="font-label-md text-label-md text-on-surface">Kinh nghiệm</span>
+                <span className="font-label-md text-label-md text-on-surface">{t('doctorsPage.experienceLabel')}</span>
                 <select
                   className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
                   onChange={(event) => setSelectedExperience(event.target.value)}
@@ -328,11 +330,11 @@ const DoctorsPage = () => {
               </label>
             </div>
             <div className="w-fit whitespace-nowrap rounded-lg bg-surface-container-low px-md py-sm font-label-md text-label-md text-on-surface-variant">
-              {visibleDoctors.length}/{doctors.length} bác sĩ
+              {t('doctorsPage.resultCount', { visible: visibleDoctors.length, total: doctors.length })}
             </div>
           </div>
           <button className="self-start font-label-sm text-label-sm text-primary hover:underline" onClick={resetFilters} type="button">
-            Xóa bộ lọc
+            {t('doctorsPage.clearFilters')}
           </button>
           {matchedSymptoms.length > 0 && (
             <div className="flex flex-wrap gap-xs">
@@ -348,21 +350,21 @@ const DoctorsPage = () => {
         <section className="space-y-xl">
           {status === 'loading' && (
             <p className="rounded-lg border border-outline-variant/30 bg-surface p-md font-body-md text-body-md text-on-surface-variant">
-              Đang tải danh sách bác sĩ...
+              {t('doctorsPage.loading')}
             </p>
           )}
 
           {status === 'error' && (
             <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
-              Không thể tải danh sách bác sĩ.
+              {t('doctorsPage.error')}
             </p>
           )}
 
           {status !== 'loading' && visibleDoctors.length === 0 && (
             <div className="rounded-lg border border-dashed border-outline-variant p-xl text-center">
               <Icon className="text-4xl text-outline" name="person_off" />
-              <p className="mt-sm font-label-md text-label-md text-on-surface">Không tìm thấy bác sĩ phù hợp</p>
-              <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">Thử nhập triệu chứng khác hoặc xóa bộ lọc tìm kiếm.</p>
+              <p className="mt-sm font-label-md text-label-md text-on-surface">{t('doctorsPage.emptyTitle')}</p>
+              <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">{t('doctorsPage.emptyDescription')}</p>
             </div>
           )}
 
@@ -375,7 +377,7 @@ const DoctorsPage = () => {
               </div>
 
               <PaginationControls
-                itemLabel="bác sĩ"
+                itemLabel={t('common.doctors')}
                 limit={DOCTORS_PER_PAGE}
                 onPageChange={setCurrentPage}
                 page={currentPage}

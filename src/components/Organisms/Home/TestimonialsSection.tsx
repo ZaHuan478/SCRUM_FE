@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { getDoctorRatings } from '../../../api/doctorRating.api'
 import type { DoctorRatingItem } from '../../../api/doctorRating.api'
 import { getDoctors } from '../../../services/doctor.service'
+import { useTranslation } from '../../../contexts/LanguageContext'
 import Icon from '../../Atoms/Icon'
 
 type TestimonialData = {
@@ -24,6 +25,7 @@ const getInitials = (name: string) => name
 const hasComment = (rating: DoctorRatingItem) => Boolean(rating.comment?.trim())
 
 const TestimonialsSection = () => {
+  const { t } = useTranslation()
   const [testimonials, setTestimonials] = useState<TestimonialData[]>([])
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
 
@@ -34,7 +36,7 @@ const TestimonialsSection = () => {
       .then(async (doctorResult) => {
         const doctors = doctorResult.doctors
         const ratingResults = await Promise.allSettled(
-          doctors.map((doctor) => getDoctorRatings(doctor.id, { limit: 3 }))
+          doctors.map((doctor) => getDoctorRatings(doctor.id, { limit: 3 })),
         )
 
         if (!active) return
@@ -44,12 +46,12 @@ const TestimonialsSection = () => {
             if (result.status !== 'fulfilled') return []
 
             const doctor = doctors[index]
-            const doctorName = doctor.user?.full_name || doctor.license_number || 'bác sĩ'
+            const doctorName = doctor.user?.full_name || doctor.license_number || t('home.testimonials.fallbackDoctor')
 
             return result.value.ratings.filter(hasComment).map((rating) => ({
               id: `${doctor.id}-${rating.id}`,
               name: rating.patientName,
-              meta: `Đánh giá cho ${doctorName}`,
+              meta: t('home.testimonials.meta', { doctorName }),
               quote: rating.comment?.trim() || '',
               rating: rating.rating,
               createdAt: rating.createdAt,
@@ -71,7 +73,7 @@ const TestimonialsSection = () => {
     return () => {
       active = false
     }
-  }, [])
+  }, [t])
 
   return (
     <section className="bg-surface-container px-lg py-xxxl md:px-xxl">
@@ -79,10 +81,10 @@ const TestimonialsSection = () => {
         <div className="mb-xxl max-w-3xl">
           <Icon name="format_quote" className="mb-lg text-xxxl text-primary" />
           <h2 className="mb-md font-headline-lg text-headline-lg text-on-background">
-            Đánh giá từ bệnh nhân
+            {t('home.testimonials.title')}
           </h2>
           <p className="font-body-md text-body-md text-on-surface-variant">
-            Những chia sẻ sau khi tìm bác sĩ, đặt lịch và theo dõi tư vấn trên hệ thống.
+            {t('home.testimonials.description')}
           </p>
         </div>
         {status === 'loading' && (
@@ -94,12 +96,12 @@ const TestimonialsSection = () => {
         )}
         {status === 'error' && (
           <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
-            Chưa tải được đánh giá từ backend.
+            {t('home.testimonials.backendError')}
           </p>
         )}
         {status === 'ready' && testimonials.length === 0 && (
           <p className="rounded-lg border border-outline-variant/30 bg-surface p-lg text-center font-body-md text-body-md text-on-surface-variant">
-            Chưa có đánh giá bệnh nhân để hiển thị.
+            {t('home.testimonials.empty')}
           </p>
         )}
         <div className="grid grid-cols-1 gap-lg md:grid-cols-3">

@@ -5,6 +5,7 @@ import DashboardSideNav from '../Organisms/Dashboard/DashboardSideNav'
 import DashboardStatsGrid from '../Organisms/Dashboard/DashboardStatsGrid'
 import DashboardTopBar from '../Organisms/Dashboard/DashboardTopBar'
 import DoctorManagementTable from '../Organisms/DoctorManage/DoctorManagementTable'
+import HospitalDocumentManager from '../Organisms/HospitalDocuments/HospitalDocumentManager'
 import PatientManagementTable from '../Organisms/PatientManage/PatientManagementTable'
 import SymptomRuleManagementTable from '../Organisms/SymptomRules/SymptomRuleManagementTable'
 import UserManagementTable from '../Organisms/UserManage/UserManagementTable'
@@ -17,7 +18,7 @@ import type { Department } from '../../services/department.service'
 import type { DepartmentSymptomRule } from '../../services/departmentSymptomRule.service'
 import type { DashboardPagination } from '../../utils/adminDashboard'
 
-type DashboardSection = 'overview' | 'departments' | 'doctors' | 'patients' | 'symptom-rules' | 'users'
+type DashboardSection = 'overview' | 'departments' | 'doctors' | 'patients' | 'symptom-rules' | 'users' | 'hospital-documents'
 
 const getDashboardSection = (pathname: string): DashboardSection => {
   if (pathname.endsWith('/departments')) return 'departments'
@@ -25,6 +26,7 @@ const getDashboardSection = (pathname: string): DashboardSection => {
   if (pathname.endsWith('/patients')) return 'patients'
   if (pathname.endsWith('/symptom-rules')) return 'symptom-rules'
   if (pathname.endsWith('/users')) return 'users'
+  if (pathname.endsWith('/hospital-documents')) return 'hospital-documents'
 
   return 'overview'
 }
@@ -222,6 +224,7 @@ const DashboardTemplate = ({
               users={users}
             />
           )}
+          {activeSection === 'hospital-documents' && <HospitalDocumentManager />}
         </main>
       </div>
     </div>

@@ -1,10 +1,13 @@
 import SignupForm from '../components/Organisms/Auth/SignupForm'
 import Image from '../components/Atoms/Image'
 import Logo from '../components/Atoms/Logo'
+import { useTranslation } from '../contexts/LanguageContext'
 
 const signupImage = ''
 
 const SignupPage = () => {
+  const { t } = useTranslation()
+
   return (
     <main className="flex min-h-screen">
       <section className="hidden lg:flex lg:w-1/2 relative bg-surface-container-low overflow-hidden items-center justify-center p-xxxl">
@@ -13,8 +16,8 @@ const SignupPage = () => {
             <Logo />
           </div>
           <div className="space-y-lg mb-xxxl">
-            <h2 className="font-display-lg text-display-lg text-on-surface">Bắt đầu hành trình chăm sóc sức khỏe chủ động.</h2>
-            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-md mx-auto">Tạo tài khoản để lưu lịch hẹn, quản lý hồ sơ và theo dõi các chuyên gia phù hợp.</p>
+            <h2 className="font-display-lg text-display-lg text-on-surface">{t('auth.signupHeroTitle')}</h2>
+            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-md mx-auto">{t('auth.signupHeroDescription')}</p>
           </div>
           {signupImage && (
             <div className="relative rounded-xl overflow-hidden shadow-md bg-white p-sm group transition-all duration-500 hover:shadow-xl">

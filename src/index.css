@@ -2,7 +2,109 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-on-tertiary-container: 255 237 230;
+  --color-on-secondary-fixed-variant: 0 76 110;
+  --color-on-primary-fixed-variant: 0 62 168;
+  --color-error: 186 26 26;
+  --color-on-surface-variant: 67 70 85;
+  --color-surface-tint: 0 83 219;
+  --color-on-secondary: 255 255 255;
+  --color-on-primary-fixed: 0 23 75;
+  --color-on-secondary-fixed: 0 30 47;
+  --color-on-tertiary-fixed-variant: 125 45 0;
+  --color-surface-bright: 250 248 255;
+  --color-inverse-surface: 46 48 57;
+  --color-primary: 0 74 198;
+  --color-primary-container: 37 99 235;
+  --color-tertiary-fixed: 255 219 205;
+  --color-surface-dim: 217 217 229;
+  --color-secondary-fixed: 201 230 255;
+  --color-surface-container-low: 243 243 254;
+  --color-tertiary-fixed-dim: 255 181 150;
+  --color-on-primary-container: 238 239 255;
+  --color-surface: 250 248 255;
+  --color-on-background: 25 27 35;
+  --color-on-error-container: 147 0 10;
+  --color-inverse-primary: 180 197 255;
+  --color-on-secondary-container: 0 70 102;
+  --color-outline-variant: 195 198 215;
+  --color-primary-fixed: 219 225 255;
+  --color-secondary: 0 101 145;
+  --color-secondary-fixed-dim: 137 206 255;
+  --color-background: 250 248 255;
+  --color-on-primary: 255 255 255;
+  --color-tertiary-container: 188 72 0;
+  --color-surface-container-lowest: 255 255 255;
+  --color-on-error: 255 255 255;
+  --color-tertiary: 148 55 0;
+  --color-primary-fixed-dim: 180 197 255;
+  --color-surface-variant: 225 226 237;
+  --color-surface-container: 237 237 249;
+  --color-outline: 115 118 134;
+  --color-error-container: 255 218 214;
+  --color-on-surface: 25 27 35;
+  --color-surface-container-highest: 225 226 237;
+  --color-inverse-on-surface: 240 240 251;
+  --color-on-tertiary-fixed: 54 15 0;
+  --color-secondary-container: 57 184 253;
+  --color-surface-container-high: 231 231 243;
+  --color-on-tertiary: 255 255 255;
+}
+
+.dark {
+  --color-on-tertiary-container: 255 219 205;
+  --color-on-secondary-fixed-variant: 137 206 255;
+  --color-on-primary-fixed-variant: 180 197 255;
+  --color-error: 255 180 171;
+  --color-on-surface-variant: 199 201 216;
+  --color-surface-tint: 180 197 255;
+  --color-on-secondary: 0 52 75;
+  --color-on-primary-fixed: 219 225 255;
+  --color-on-secondary-fixed: 201 230 255;
+  --color-on-tertiary-fixed-variant: 255 181 150;
+  --color-surface-bright: 49 51 61;
+  --color-inverse-surface: 226 226 238;
+  --color-primary: 180 197 255;
+  --color-primary-container: 31 80 190;
+  --color-tertiary-fixed: 97 32 0;
+  --color-surface-dim: 17 19 27;
+  --color-secondary-fixed: 0 73 105;
+  --color-surface-container-low: 25 27 35;
+  --color-tertiary-fixed-dim: 125 45 0;
+  --color-on-primary-container: 238 239 255;
+  --color-surface: 17 19 27;
+  --color-on-background: 226 226 238;
+  --color-on-error-container: 255 218 214;
+  --color-inverse-primary: 0 74 198;
+  --color-on-secondary-container: 201 230 255;
+  --color-outline-variant: 67 70 85;
+  --color-primary-fixed: 0 62 168;
+  --color-secondary: 137 206 255;
+  --color-secondary-fixed-dim: 0 101 145;
+  --color-background: 17 19 27;
+  --color-on-primary: 0 38 101;
+  --color-tertiary-container: 125 45 0;
+  --color-surface-container-lowest: 12 14 21;
+  --color-on-error: 105 0 5;
+  --color-tertiary: 255 181 150;
+  --color-primary-fixed-dim: 0 74 198;
+  --color-surface-variant: 67 70 85;
+  --color-surface-container: 29 31 40;
+  --color-outline: 141 144 159;
+  --color-error-container: 147 0 10;
+  --color-on-surface: 226 226 238;
+  --color-surface-container-highest: 58 60 70;
+  --color-inverse-on-surface: 25 27 35;
+  --color-on-tertiary-fixed: 255 219 205;
+  --color-secondary-container: 0 73 105;
+  --color-surface-container-high: 38 40 49;
+  --color-on-tertiary: 82 25 0;
+}
+
 body {
+  background: rgb(var(--color-background));
+  color: rgb(var(--color-on-background));
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 

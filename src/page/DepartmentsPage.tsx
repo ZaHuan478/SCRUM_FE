@@ -5,6 +5,7 @@ import TopNavBar from '../components/Organisms/TopNavBar'
 import Icon from '../components/Atoms/Icon'
 import Input from '../components/Atoms/Input'
 import PaginationControls from '../components/Molecules/Common/PaginationControls'
+import { useTranslation } from '../contexts/LanguageContext'
 import { getDepartments } from '../services/department.service'
 import type { Department, DepartmentsResult } from '../services/department.service'
 
@@ -25,6 +26,7 @@ const emptyPagination: DepartmentsResult['pagination'] = {
 }
 
 const DepartmentsPage = () => {
+  const { t } = useTranslation()
   const [query, setQuery] = useState('')
   const [page, setPage] = useState(1)
   const [departments, setDepartments] = useState<Department[]>([])
@@ -88,23 +90,23 @@ const DepartmentsPage = () => {
   }
 
   return (
-    <div className="min-h-screen  text-on-background">
+    <div className="min-h-screen text-on-background">
       <TopNavBar active="departments" />
       <main className="mx-auto flex max-w-7xl flex-col gap-xxl px-lg py-xxl md:px-xxl">
         <section className="flex flex-col gap-lg border-b border-outline-variant/30 pb-xl">
           <div className="max-w-3xl">
-            <p className="font-label-md text-label-md text-primary">Khoa chuyên môn</p>
-            <h1 className="mt-sm font-headline-lg text-headline-lg text-on-background">Danh sách khoa</h1>
+            <p className="font-label-md text-label-md text-primary">{t('departmentsPage.eyebrow')}</p>
+            <h1 className="mt-sm font-headline-lg text-headline-lg text-on-background">{t('departmentsPage.title')}</h1>
             <p className="mt-sm font-body-md text-body-md text-on-surface-variant">
-              Xem toàn bộ khoa đang hoạt động và chọn bác sĩ phù hợp theo nhu cầu khám.
+              {t('departmentsPage.description')}
             </p>
           </div>
           <div className="grid gap-md md:grid-cols-[minmax(240px,420px)_auto] md:items-end">
             <Input
               icon="search"
-              label="Tìm khoa"
+              label={t('departmentsPage.searchLabel')}
               onChange={handleQueryChange}
-              placeholder="Ví dụ: Tim mạch, Da liễu, Hô hấp..."
+              placeholder={t('departmentsPage.searchPlaceholder')}
               type="search"
               value={query}
             />
@@ -113,29 +115,28 @@ const DepartmentsPage = () => {
 
         {status === 'loading' && (
           <p className="rounded-lg border border-outline-variant/30 bg-surface p-md font-body-md text-body-md text-on-surface-variant">
-            Đang tải danh sách khoa...
+            {t('departmentsPage.loading')}
           </p>
         )}
 
         {status === 'error' && (
           <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
-            Không thể tải danh sách khoa.
+            {t('departmentsPage.error')}
           </p>
         )}
 
         {status !== 'loading' && departments.length === 0 && (
           <div className="rounded-lg border border-dashed border-outline-variant p-xl text-center">
             <Icon className="text-4xl text-outline" name="clinical_notes" />
-            <p className="mt-sm font-label-md text-label-md text-on-surface">Không tìm thấy khoa phù hợp</p>
+            <p className="mt-sm font-label-md text-label-md text-on-surface">{t('departmentsPage.emptyTitle')}</p>
             <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
-              Thử nhập từ khóa khác hoặc xóa nội dung tìm kiếm.
+              {t('departmentsPage.emptyDescription')}
             </p>
           </div>
         )}
 
         {status === 'ready' && departments.length > 0 && (
           <>
-
             <section className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-3">
               {departments.map((department, index) => (
                 <Link
@@ -152,24 +153,23 @@ const DepartmentsPage = () => {
                   </h2>
 
                   <p className="mt-sm min-h-20 font-body-sm text-body-sm text-on-surface-variant">
-                    {department.description || 'Khoa đang tiếp nhận lịch khám trong hệ thống.'}
+                    {department.description || t('departmentsPage.fallbackDescription')}
                   </p>
 
                   <span className="mt-lg inline-flex items-center gap-xs font-label-md text-label-md text-primary transition-all group-hover:gap-sm group-hover:underline">
-                    Xem chi tiết khoa <Icon name="arrow_forward" />
+                    {t('departmentsPage.viewDetails')} <Icon name="arrow_forward" />
                   </span>
                 </Link>
               ))}
             </section>
             <PaginationControls
-              itemLabel="khoa"
+              itemLabel={t('departmentsPage.itemLabel')}
               limit={pagination.limit}
               onPageChange={handlePageChange}
               page={pagination.page}
               totalItems={pagination.total}
               totalPages={totalPages}
             />
-
           </>
         )}
       </main>

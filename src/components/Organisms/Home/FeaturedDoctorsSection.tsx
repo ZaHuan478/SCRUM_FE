@@ -4,6 +4,7 @@ import Button from '../../Atoms/Button'
 import DoctorCard from '../../Molecules/Home/DoctorCard'
 import type { DoctorCardData } from '../../Molecules/Home/DoctorCard'
 import Icon from '../../Atoms/Icon'
+import { useTranslation } from '../../../contexts/LanguageContext'
 import { getDoctors } from '../../../services/doctor.service'
 import type { Doctor } from '../../../services/doctor.service'
 
@@ -40,6 +41,7 @@ type FeaturedDoctorsSectionProps = {
 }
 
 const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
+  const { t } = useTranslation()
   const [doctors, setDoctors] = useState<DoctorCardData[]>([])
   const [apiStatus, setApiStatus] = useState<'loading' | 'ready' | 'error'>('loading')
 
@@ -76,22 +78,22 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
     <section className="mx-auto max-w-7xl px-lg py-xxxl md:px-xxl" id="featured-doctors">
       <div className="mb-xxl flex flex-col justify-between gap-md md:flex-row md:items-end">
         <div>
-          <h2 className="mb-sm font-headline-lg text-headline-lg text-on-background">Chuyên gia nổi bật</h2>
+          <h2 className="mb-sm font-headline-lg text-headline-lg text-on-background">{t('home.featuredDoctors.title')}</h2>
           <p className="font-body-md text-body-md text-on-surface-variant"></p>
         </div>
         <Link to="/doctors">
           <Button className="flex items-center gap-xs self-start border-none p-0 text-primary shadow-none transition-all hover:gap-sm hover:bg-transparent" fullWidth={false} type="button" variant="ghost">
-            Xem tất cả <Icon name="arrow_forward" />
+            {t('common.viewAll')} <Icon name="arrow_forward" />
           </Button>
         </Link>
       </div>
       {apiStatus === 'error' && (
         <p className="mb-md rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
-          Chưa kết nối được backend nên chưa có dữ liệu bác sĩ để hiển thị.
+          {t('home.featuredDoctors.backendError')}
         </p>
       )}
       {apiStatus === 'loading' && (
-        <p className="mb-md font-body-sm text-body-sm text-on-surface-variant">Đang tải danh sách bác sĩ...</p>
+        <p className="mb-md font-body-sm text-body-sm text-on-surface-variant">{t('home.featuredDoctors.loading')}</p>
       )}
       {doctors.length > 0 ? (
         <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-4">
@@ -102,7 +104,7 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
       ) : (
         apiStatus !== 'loading' && (
           <p className="rounded-lg border border-outline-variant/30 bg-surface p-lg text-center font-body-md text-body-md text-on-surface-variant">
-            Chưa có dữ liệu bác sĩ.
+            {t('home.featuredDoctors.empty')}
           </p>
         )
       )}

@@ -2,6 +2,7 @@ import type { FormEvent } from 'react'
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import Input from '../../Atoms/Input'
+import { useTranslation } from '../../../contexts/LanguageContext'
 
 type ForgotPasswordModalProps = {
   email: string
@@ -24,6 +25,8 @@ const ForgotPasswordModal = ({
   onEmailChange,
   onSubmit,
 }: ForgotPasswordModalProps) => {
+  const { t } = useTranslation()
+
   if (!open) return null
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -33,7 +36,7 @@ const ForgotPasswordModal = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-inverse-surface/40 px-lg py-xl backdrop-blur-sm">
-      <button aria-label="Đóng popup" className="absolute inset-0 cursor-default" onClick={onClose} type="button" />
+      <button aria-label={t('auth.closePopup')} className="absolute inset-0 cursor-default" onClick={onClose} type="button" />
       <form
         aria-modal="true"
         className="relative w-full max-w-md overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0px_24px_60px_rgba(15,23,42,0.16)]"
@@ -46,12 +49,12 @@ const ForgotPasswordModal = ({
               <Icon className="text-3xl" name="lock_reset" />
             </div>
             <div>
-              <p className="font-label-sm text-label-sm text-primary">Quên mật khẩu</p>
-              <h2 className="mt-xs font-headline-sm text-headline-sm text-on-surface">Nhận mã xác thực</h2>
+              <p className="font-label-sm text-label-sm text-primary">{t('auth.forgotEyebrow')}</p>
+              <h2 className="mt-xs font-headline-sm text-headline-sm text-on-surface">{t('auth.forgotTitle')}</h2>
             </div>
           </div>
           <button
-            aria-label="Đóng"
+            aria-label={t('auth.close')}
             className="flex h-10 w-10 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
             onClick={onClose}
             type="button"
@@ -62,7 +65,7 @@ const ForgotPasswordModal = ({
 
         <div className="space-y-lg p-xl">
           <p className="font-body-md text-body-md text-on-surface-variant">
-            Nhập email bạn đã dùng để đăng ký. Hệ thống sẽ gửi mã xác thực 6 chữ số vào địa chỉ này để đặt lại mật khẩu.
+            {t('auth.forgotDescription')}
           </p>
 
           {error && (
@@ -92,10 +95,10 @@ const ForgotPasswordModal = ({
 
           <div className="flex flex-col-reverse gap-sm sm:flex-row sm:justify-end">
             <Button className="px-lg" fullWidth={false} onClick={onClose} type="button" variant="ghost">
-              Hủy
+              {t('auth.cancel')}
             </Button>
             <Button className="px-lg" fullWidth={false} isLoading={isLoading} type="submit">
-              Gửi mã xác thực
+              {t('auth.sendCode')}
             </Button>
           </div>
         </div>

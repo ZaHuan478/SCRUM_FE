@@ -9,10 +9,12 @@ import SocialLogin from '../../Molecules/Auth/SocialLogin'
 import Divider from '../../Molecules/Common/Divider'
 import ForgotPasswordModal from './ForgotPasswordModal'
 import ResetPasswordModal from './ResetPasswordModal'
+import { useTranslation } from '../../../contexts/LanguageContext'
 import { forgotPassword, login, resetPassword, saveAuthSession } from '../../../services/auth.service'
 
 const AuthForm = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(true)
@@ -58,20 +60,20 @@ const AuthForm = () => {
     setForgotMessage('')
 
     if (!submittedEmail) {
-      setForgotError('Vui lòng nhập email để nhận liên kết.')
+      setForgotError(t('auth.forgotMissingEmail'))
       return
     }
 
     setIsForgotSubmitting(true)
     try {
       await forgotPassword({ email: submittedEmail })
-      setForgotMessage('Mã xác thực đã gửi. Vui lòng kiểm tra email và nhập mã để đặt lại mật khẩu.')
+      setForgotMessage(t('auth.forgotSent'))
       setEmail(submittedEmail)
       setResetEmail(submittedEmail)
       setForgotModalOpen(false)
       setResetModalOpen(true)
     } catch (requestError) {
-      const message = requestError instanceof Error ? requestError.message : 'Yêu cầu không thành công.'
+      const message = requestError instanceof Error ? requestError.message : t('auth.requestFailed')
       setForgotError(message)
     } finally {
       setIsForgotSubmitting(false)
@@ -83,35 +85,35 @@ const AuthForm = () => {
     setResetSuccess('')
 
     if (!resetEmail) {
-      setResetError('Email đặt lại mật khẩu không hợp lệ.')
+      setResetError(t('auth.resetInvalidEmail'))
       return
     }
 
     if (!resetCode) {
-      setResetError('Vui lòng nhập mã xác thực.')
+      setResetError(t('auth.resetMissingCode'))
       return
     }
 
     if (!resetPasswordValue || !resetConfirmPassword) {
-      setResetError('Vui lòng nhập mật khẩu mới và xác nhận.')
+      setResetError(t('auth.resetMissingPassword'))
       return
     }
 
     if (resetPasswordValue !== resetConfirmPassword) {
-      setResetError('Mật khẩu xác nhận không khớp.')
+      setResetError(t('auth.passwordMismatch'))
       return
     }
 
     setIsResetSubmitting(true)
     try {
       await resetPassword({ email: resetEmail, code: resetCode, password: resetPasswordValue })
-      setResetSuccess('Đặt lại mật khẩu thành công. Bạn có thể đăng nhập bằng mật khẩu mới.')
+      setResetSuccess(t('auth.resetSuccess'))
       setResetModalOpen(false)
       setResetCode('')
       setResetPasswordValue('')
       setResetConfirmPassword('')
     } catch (requestError) {
-      const message = requestError instanceof Error ? requestError.message : 'Không thể đặt lại mật khẩu.'
+      const message = requestError instanceof Error ? requestError.message : t('auth.resetFailed')
       setResetError(message)
     } finally {
       setIsResetSubmitting(false)
@@ -123,7 +125,7 @@ const AuthForm = () => {
     setError('')
 
     if (!email || !password) {
-      setError('Vui lòng nhập email và mật khẩu.')
+      setError(t('auth.validationEmailPassword'))
       return
     }
 
@@ -134,7 +136,7 @@ const AuthForm = () => {
       saveAuthSession(session, remember)
       navigate(session.user.role === 'ADMIN' ? '/admin' : '/')
     } catch (requestError) {
-      const message = requestError instanceof Error ? requestError.message : 'Đăng nhập không thành công.'
+      const message = requestError instanceof Error ? requestError.message : t('auth.loginFailed')
       setError(message)
     } finally {
       setIsSubmitting(false)
@@ -148,8 +150,8 @@ const AuthForm = () => {
       </div>
 
       <header className="space-y-sm">
-        <h3 className="font-headline-lg text-headline-lg text-on-surface">Chào mừng trở lại</h3>
-        <p className="font-body-md text-body-md text-on-surface-variant">Nhập thông tin để truy cập cổng thông tin MedPrecision.</p>
+        <h3 className="font-headline-lg text-headline-lg text-on-surface">{t('auth.welcomeBack')}</h3>
+        <p className="font-body-md text-body-md text-on-surface-variant">{t('auth.loginDescription')}</p>
       </header>
 
       <SocialLogin remember={remember} onError={setError} />
@@ -163,7 +165,7 @@ const AuthForm = () => {
           autoComplete="email"
           icon="mail"
           id="email"
-          label="Địa chỉ email"
+          label={t('auth.emailLabel')}
           name="email"
           onChange={(event) => setEmail(event.target.value)}
           placeholder=""
@@ -174,7 +176,7 @@ const AuthForm = () => {
           autoComplete="current-password"
           icon="lock"
           id="password"
-          label="Mật khẩu"
+          label={t('auth.passwordLabel')}
           name="password"
           onChange={(event) => setPassword(event.target.value)}
           placeholder=""
@@ -188,7 +190,7 @@ const AuthForm = () => {
               checked={remember}
               onChange={(event) => setRemember(event.target.checked)}
             />
-            <span className="font-label-md text-label-md text-on-surface-variant group-hover:text-on-surface">Ghi nhớ đăng nhập</span>
+            <span className="font-label-md text-label-md text-on-surface-variant group-hover:text-on-surface">{t('auth.rememberMe')}</span>
           </label>
           <button
             type="button"
@@ -196,11 +198,11 @@ const AuthForm = () => {
             onClick={openForgotPasswordModal}
             className="font-label-md text-label-md text-primary hover:underline decoration-2 underline-offset-4"
           >
-            Quên mật khẩu?
+            {t('auth.forgotPassword')}
           </button>
         </div>
 
-        <Button isLoading={isSubmitting} type="submit">Đăng nhập</Button>
+        <Button isLoading={isSubmitting} type="submit">{t('auth.loginButton')}</Button>
       </form>
 
       <ForgotPasswordModal
@@ -232,7 +234,7 @@ const AuthForm = () => {
 
       <footer className="pt-lg text-center">
         <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Chưa có tài khoản? <Link className="text-primary font-bold hover:underline decoration-2 underline-offset-4" to="/signup">Đăng ký ngay</Link>
+          {t('auth.noAccount')} <Link className="text-primary font-bold hover:underline decoration-2 underline-offset-4" to="/signup">{t('auth.signupNow')}</Link>
         </p>
       </footer>
     </div>

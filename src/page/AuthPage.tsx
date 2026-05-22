@@ -1,10 +1,13 @@
 import AuthForm from '../components/Organisms/Auth/AuthForm'
 import Image from '../components/Atoms/Image'
 import Logo from '../components/Atoms/Logo'
+import { useTranslation } from '../contexts/LanguageContext'
 
 const authImage = ''
 
 const AuthPage = () => {
+  const { t } = useTranslation()
+
   return (
     <main className="flex min-h-screen">
       <section className="hidden lg:flex lg:w-1/2 relative bg-surface-container-low overflow-hidden items-center justify-center p-xxxl">
@@ -13,8 +16,8 @@ const AuthPage = () => {
             <Logo />
           </div>
           <div className="space-y-lg mb-xxxl">
-            <h2 className="font-display-lg text-display-lg text-on-surface">Quản lý chăm sóc sức khỏe trên một nền tảng an toàn.</h2>
-            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-md mx-auto">Truy cập hồ sơ cá nhân, đặt lịch và kết nối với chuyên gia y tế đã xác thực.</p>
+            <h2 className="font-display-lg text-display-lg text-on-surface">{t('auth.loginHeroTitle')}</h2>
+            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-md mx-auto">{t('auth.loginHeroDescription')}</p>
           </div>
           {authImage && (
             <div className="relative rounded-xl overflow-hidden shadow-md bg-white p-sm group transition-all duration-500 hover:shadow-xl">

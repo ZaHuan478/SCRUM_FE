@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from '../../Atoms/Icon'
+import { useTranslation } from '../../../contexts/LanguageContext'
 import type { User } from '../../../services/auth.service'
 
 type AccountMenuProps = {
@@ -22,6 +23,7 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const displayName = user.full_name || user.email
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (!open) return undefined
@@ -55,6 +57,7 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
       <button
         aria-expanded={open}
         aria-haspopup="menu"
+        aria-label={t('account.menu')}
         className="flex max-w-[13rem] items-center gap-sm rounded-full border border-outline-variant/40 bg-surface-container-lowest py-xs pl-xs pr-sm text-left shadow-sm transition-colors hover:bg-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/40"
         onClick={() => setOpen((current) => !current)}
         type="button"
@@ -91,7 +94,7 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
                 to="/doctor/schedule"
               >
                 <Icon className="text-xl text-primary" name="event_available" />
-                Lịch khám của tôi
+                {t('account.doctorSchedule')}
               </Link>
             )}
             {user.role === 'PATIENT' && (
@@ -102,7 +105,7 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
                 to="/appointments"
               >
                 <Icon className="text-xl text-primary" name="event_note" />
-                Lịch hẹn của tôi
+                {t('account.patientAppointments')}
               </Link>
             )}
             <Link
@@ -112,7 +115,7 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
               to="/profile"
             >
               <Icon className="text-xl text-primary" name="account_circle" />
-              Hồ sơ cá nhân
+              {t('account.profile')}
             </Link>
             <button
               className="mt-xs flex w-full items-center gap-sm rounded-lg px-md py-sm text-left font-label-md text-label-md text-error transition-colors hover:bg-error-container"
@@ -121,7 +124,7 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
               type="button"
             >
               <Icon className="text-xl" name="logout" />
-              Đăng xuất
+              {t('account.logout')}
             </button>
           </div>
         </div>

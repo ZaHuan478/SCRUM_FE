@@ -96,6 +96,7 @@ export const usePatientAppointments = ({
   const [searchParams, setSearchParams] = useSearchParams()
   const initialDoctorId = searchParams.get('doctor_id') || ''
   const initialDoctorName = searchParams.get('doctor_name') || ''
+  const initialDepartmentId = searchParams.get('department_id') || ''
   const upcomingDays = useMemo(() => buildUpcomingDays(), [])
   const [departments, setDepartments] = useState<Department[]>([])
   const [symptoms, setSymptoms] = useState<Symptom[]>([])
@@ -105,7 +106,7 @@ export const usePatientAppointments = ({
   const [appointmentPagination, setAppointmentPagination] = useState<PatientAppointmentPagination>(emptyPatientAppointmentPagination)
   const [slots, setSlots] = useState<AppointmentSlot[]>([])
   const [selectedDate, setSelectedDate] = useState('')
-  const [selectedDepartmentId, setSelectedDepartmentId] = useState('')
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState(initialDepartmentId)
   const [selectedDoctorId, setSelectedDoctorId] = useState(initialDoctorId)
   const [selectedDoctorName, setSelectedDoctorName] = useState(initialDoctorName)
   const [selectedSlotId, setSelectedSlotId] = useState<number | string | null>(null)

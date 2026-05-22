@@ -34,3 +34,11 @@ export const getInvoiceByAppointment = async (appointmentId: number | string) =>
 export const resendInvoiceEmail = async (invoiceId: number | string) => (
   unwrap<Invoice>(await paymentClient.post(`/invoices/${invoiceId}/resend-email`))
 )
+
+export const downloadInvoicePdf = async (appointmentId: number | string) => {
+  const response = await paymentClient.get<Blob>(`/invoices/${appointmentId}/download`, {
+    responseType: 'blob',
+  })
+
+  return response.data
+}
