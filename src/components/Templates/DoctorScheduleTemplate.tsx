@@ -44,6 +44,7 @@ const DoctorScheduleTemplate = ({
   status,
   storedUser,
   success,
+  currentTime,
   todayKey,
   upcomingDays,
   updateField,
@@ -128,6 +129,7 @@ const DoctorScheduleTemplate = ({
             selectedDaySlots={selectedDaySlots}
             selectedSummary={selectedSummary}
             slotActionId={slotActionId}
+            currentTime={currentTime}
           />
         </div>
       </main>

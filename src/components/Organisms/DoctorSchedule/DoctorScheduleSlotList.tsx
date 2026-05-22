@@ -8,6 +8,7 @@ type DoctorScheduleSlotListProps = {
   selectedDaySlots: AppointmentSlot[]
   selectedSummary: DaySummary
   slotActionId: number | string | null
+  currentTime: number
   onDeleteSlot: (slot: AppointmentSlot) => void
   onEditSlot: (slot: AppointmentSlot) => void
   onSlotStatusChange: (slot: AppointmentSlot, nextStatus: AppointmentSlotStatus) => void
@@ -18,6 +19,7 @@ const DoctorScheduleSlotList = ({
   selectedDaySlots,
   selectedSummary,
   slotActionId,
+  currentTime,
   onDeleteSlot,
   onEditSlot,
   onSlotStatusChange,
@@ -60,6 +62,7 @@ const DoctorScheduleSlotList = ({
             onEdit={onEditSlot}
             onStatusChange={onSlotStatusChange}
             slot={slot}
+            currentTime={currentTime}
           />
         ))}
       </div>

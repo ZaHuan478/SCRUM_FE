@@ -128,6 +128,10 @@ export const formatSlotRange = (slot: AppointmentSlot) => (
   `${getTimeInputValue(slot.start_time)} - ${getTimeInputValue(slot.end_time)}`
 )
 
+export const isSlotExpired = (slot: AppointmentSlot, now = Date.now()) => (
+  new Date(slot.start_time).getTime() <= now
+)
+
 export const isFullDayBlock = (slot: AppointmentSlot) => {
   const start = new Date(slot.start_time)
   const end = new Date(slot.end_time)
@@ -181,13 +185,11 @@ export const summarizeSlots = (slots: AppointmentSlot[]) => (
 export const buildScheduleStats = ({
   activeAssignment,
   slots,
-  todayKey,
 }: {
   activeAssignment: DoctorAssignment | null
   slots: AppointmentSlot[]
-  todayKey: string
 }): DoctorScheduleStat[] => {
-  const futureSlots = slots.filter((slot) => getDateKey(slot.start_time) >= todayKey)
+  const futureSlots = slots.filter((slot) => !isSlotExpired(slot))
   const availableSlots = futureSlots.filter((slot) => slot.status === 'AVAILABLE').length
   const bookedTotal = futureSlots.reduce((total, slot) => total + Number(slot.booked_count || 0), 0)
   const busyDays = new Set(futureSlots.filter((slot) => slot.status === 'CANCELLED').map((slot) => getDateKey(slot.start_time))).size

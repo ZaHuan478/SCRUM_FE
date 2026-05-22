@@ -147,6 +147,10 @@ export const sortSlotsByTime = (slots: AppointmentSlot[]) => (
   ))
 )
 
+export const isSlotUpcoming = (slot: AppointmentSlot, now = Date.now()) => (
+  new Date(slot.start_time).getTime() > now
+)
+
 export const sortAppointmentsByTime = (appointments: Appointment[]) => (
   [...appointments].sort((firstAppointment, secondAppointment) => {
     const firstTime = firstAppointment.slot?.start_time || firstAppointment.created_at || ''

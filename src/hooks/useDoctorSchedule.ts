@@ -28,6 +28,7 @@ import {
   getTimeMinutes,
   isAuthFailure,
   isFullDayBlock,
+  isSlotExpired,
   longDateFormatter,
   sortSlots,
   summarizeSlots,
@@ -71,6 +72,7 @@ export type DoctorScheduleState = {
   slotActionId: number | string | null
   status: LoadStatus
   success: string
+  currentTime: number
   todayKey: string
   upcomingDays: Date[]
   handleDateChange: (date: string) => void
@@ -103,6 +105,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
   const [slotActionId, setSlotActionId] = useState<number | string | null>(null)
   const [appointmentActionId, setAppointmentActionId] = useState<number | string | null>(null)
   const [dayAction, setDayAction] = useState<DayAction>(null)
+  const [currentTime, setCurrentTime] = useState(() => Date.now())
   const { success: toastSuccess, error: toastError, warning: toastWarning } = useToast()
 
   const showError = useCallback((message: string) => {
@@ -178,6 +181,16 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
   }, [applyScheduleData, fetchSchedule, onAuthFailure, showError])
 
   useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setCurrentTime(Date.now())
+    }, 30000)
+
+    return () => {
+      window.clearInterval(intervalId)
+    }
+  }, [])
+
+  useEffect(() => {
     let active = true
 
     fetchSchedule()
@@ -219,8 +232,8 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
   const selectedSummary = useMemo(() => summarizeSlots(selectedDaySlots), [selectedDaySlots])
 
   const scheduleStats = useMemo(() => (
-    buildScheduleStats({ activeAssignment, slots, todayKey })
-  ), [activeAssignment, slots, todayKey])
+    buildScheduleStats({ activeAssignment, slots })
+  ), [activeAssignment, currentTime, slots])
 
   const selectedDateLabel = useMemo(() => (
     longDateFormatter.format(dateFromKey(selectedDate))
@@ -302,6 +315,11 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
   }, [activeAssignment, editingSlot, form, handleRequestError, loadSchedule, showSuccess, showWarning])
 
   const handleEditSlot = useCallback((slot: AppointmentSlot) => {
+    if (isSlotExpired(slot)) {
+      showWarning('Khung giờ này đã quá giờ nên không thể chỉnh sửa.')
+      return
+    }
+
     const slotDate = getDateKey(slot.start_time)
     setSelectedDate(slotDate)
     setEditingSlot(slot)
@@ -314,9 +332,14 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
       startTime: getTimeInputValue(slot.start_time),
       status: slot.status === 'CANCELLED' ? 'CANCELLED' : 'AVAILABLE',
     })
-  }, [])
+  }, [showWarning])
 
   const handleSlotStatusChange = useCallback(async (slot: AppointmentSlot, nextStatus: AppointmentSlotStatus) => {
+    if (isSlotExpired(slot)) {
+      showWarning('Khung giờ này đã quá giờ nên không thể thay đổi trạng thái.')
+      return
+    }
+
     setError('')
     setSuccess('')
     setSlotActionId(slot.id)
@@ -330,11 +353,16 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
     } finally {
       setSlotActionId(null)
     }
-  }, [handleRequestError, loadSchedule, showSuccess])
+  }, [handleRequestError, loadSchedule, showSuccess, showWarning])
 
   const handleDeleteSlot = useCallback(async (slot: AppointmentSlot) => {
     setError('')
     setSuccess('')
+
+    if (isSlotExpired(slot)) {
+      showWarning('Khung giờ này đã quá giờ nên không thể xóa.')
+      return
+    }
 
     if (Number(slot.booked_count || 0) > 0) {
       showWarning('Không thể xóa khung giờ đã có bệnh nhân đặt lịch.')
@@ -369,6 +397,13 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
     setDayAction('busy')
 
     try {
+      const editableSlots = selectedDaySlots.filter((slot) => !isSlotExpired(slot))
+
+      if (editableSlots.length === 0 && selectedDaySlots.length > 0) {
+        showWarning('Các khung giờ trong ngày này đã quá giờ.')
+        return
+      }
+
       if (selectedDaySlots.length === 0) {
         await createAppointmentSlot({
           doctor_assignment_id: activeAssignment.id,
@@ -379,7 +414,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
         })
       } else {
         await Promise.all(
-          selectedDaySlots
+          editableSlots
             .filter((slot) => slot.status !== 'CANCELLED')
             .map((slot) => changeAppointmentSlotStatus(slot.id, 'CANCELLED'))
         )
@@ -398,7 +433,9 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
     setError('')
     setSuccess('')
 
-    const cancelledSlots = selectedDaySlots.filter((slot) => slot.status === 'CANCELLED')
+    const cancelledSlots = selectedDaySlots.filter((slot) => (
+      slot.status === 'CANCELLED' && !isSlotExpired(slot)
+    ))
     if (cancelledSlots.length === 0) {
       showSuccess('Ngày này hiện không có khung bận.')
       return
@@ -491,6 +528,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
     slotActionId,
     status,
     success,
+    currentTime,
     todayKey,
     upcomingDays,
     updateField,

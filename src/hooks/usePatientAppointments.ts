@@ -17,6 +17,7 @@ import {
   emptyPatientAppointmentPagination,
   findMatchingSymptoms,
   isAuthFailure,
+  isSlotUpcoming,
   patientAppointmentPageLimit,
   sortAppointmentsByTime,
   sortSlotsByTime,
@@ -178,18 +179,17 @@ export const usePatientAppointments = ({
     setSlotStatus('loading')
 
     try {
+      const now = new Date().toISOString()
       const result = await getAppointmentSlots({
         date: selectedDate || undefined,
         department_id: selectedDoctorId ? undefined : selectedDepartmentId || undefined,
         doctor_id: selectedDoctorId || undefined,
         limit: 100,
-        start_from: selectedDate ? undefined : new Date().toISOString(),
+        start_from: now,
         status: 'AVAILABLE',
       })
 
-      setSlots(sortSlotsByTime(result.appointment_slots).filter((slot) => (
-        selectedDate || new Date(slot.start_time).getTime() >= Date.now()
-      )))
+      setSlots(sortSlotsByTime(result.appointment_slots).filter((slot) => isSlotUpcoming(slot)))
       setSlotStatus('ready')
     } catch (requestError) {
       if (isAuthFailure(requestError)) {
@@ -370,10 +370,16 @@ export const usePatientAppointments = ({
   }, [setSearchParams])
 
   const selectSlot = useCallback((slot: AppointmentSlot) => {
+    if (!isSlotUpcoming(slot)) {
+      showBookingWarning('Khung giờ này đã quá giờ. Vui lòng chọn khung giờ khác.')
+      void loadSlots()
+      return
+    }
+
     setSelectedSlotId(slot.id)
     setBookingError('')
     setBookingSuccess('')
-  }, [])
+  }, [loadSlots, showBookingWarning])
 
   const openPaymentModal = useCallback((payment: Payment) => {
     setPaymentModalPayment(payment)
@@ -399,6 +405,13 @@ export const usePatientAppointments = ({
 
     if (!selectedSlot) {
       showBookingWarning('Vui lòng chọn một khung giờ còn trống.')
+      return
+    }
+
+    if (!isSlotUpcoming(selectedSlot)) {
+      setSelectedSlotId(null)
+      showBookingWarning('Khung giờ đã quá giờ. Vui lòng chọn khung giờ khác.')
+      await loadSlots()
       return
     }
 
