@@ -7,13 +7,11 @@ import {
   deleteHospitalDocument,
   getHospitalDocumentById,
   getHospitalDocuments,
-  syncHospitalDocumentEmbeddings,
   updateHospitalDocument,
   updateHospitalDocumentStatus,
   uploadHospitalDocument,
   type HospitalDocument,
   type HospitalDocumentDetail,
-  type SyncEmbeddingsStats,
 } from '../../../services/hospitalDocument.service'
 
 const MAX_DOCUMENT_FILE_SIZE = 100 * 1024 * 1024
@@ -35,8 +33,6 @@ const HospitalDocumentManager = () => {
   const [selectedDocument, setSelectedDocument] = useState<HospitalDocumentDetail | null>(null)
   const [detailStatus, setDetailStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
   const [error, setError] = useState('')
-  const [isSyncingEmbeddings, setIsSyncingEmbeddings] = useState(false)
-  const [syncStats, setSyncStats] = useState<SyncEmbeddingsStats | null>(null)
   const [editingDocument, setEditingDocument] = useState<HospitalDocument | null>(null)
   const [editTitle, setEditTitle] = useState('')
   const [editFile, setEditFile] = useState<File | null>(null)
@@ -250,22 +246,6 @@ const HospitalDocumentManager = () => {
     }
   }, [deletingDocumentId, selectedDocument])
 
-  const handleSyncEmbeddings = useCallback(async () => {
-    if (isSyncingEmbeddings) return
-
-    setIsSyncingEmbeddings(true)
-    setSyncStats(null)
-    setError('')
-    try {
-      const stats = await syncHospitalDocumentEmbeddings()
-      setSyncStats(stats)
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'Khong dong bo duoc embedding.')
-    } finally {
-      setIsSyncingEmbeddings(false)
-    }
-  }, [isSyncingEmbeddings])
-
   const handleOpenDetail = useCallback(async (document: HospitalDocument) => {
     setDetailStatus('loading')
     setError('')
@@ -294,27 +274,14 @@ const HospitalDocumentManager = () => {
               Upload PDF/DOCX, hệ thống sẽ chunk có overlap, embedding bằng Gemini và lưu vector vào DB.
             </p>
           </div>
-          <div className="flex w-full flex-col gap-sm sm:w-auto">
-            <Button
-              className="flex items-center justify-center gap-xs px-lg py-sm"
-              disabled={isSyncingEmbeddings}
-              fullWidth={false}
-              onClick={() => void handleSyncEmbeddings()}
-              type="button"
-              variant="ghost"
-            >
-              <Icon name="sync" />
-              {isSyncingEmbeddings ? 'Đang đồng bộ' : 'Đồng bộ embedding'}
-            </Button>
-            <div className="grid grid-cols-2 gap-sm">
-              <div className="rounded-lg bg-surface-container px-md py-sm">
-                <p className="font-label-sm text-label-sm text-on-surface-variant">Đang dùng</p>
-                <p className="font-title-md text-title-md text-on-surface">{activeDocuments}</p>
-              </div>
-              <div className="rounded-lg bg-surface-container px-md py-sm">
-                <p className="font-label-sm text-label-sm text-on-surface-variant">Vector chunks</p>
-                <p className="font-title-md text-title-md text-on-surface">{totalChunks}</p>
-              </div>
+          <div className="grid w-full grid-cols-2 gap-sm sm:w-auto">
+            <div className="rounded-lg bg-surface-container px-md py-sm">
+              <p className="font-label-sm text-label-sm text-on-surface-variant">Đang dùng</p>
+              <p className="font-title-md text-title-md text-on-surface">{activeDocuments}</p>
+            </div>
+            <div className="rounded-lg bg-surface-container px-md py-sm">
+              <p className="font-label-sm text-label-sm text-on-surface-variant">Vector chunks</p>
+              <p className="font-title-md text-title-md text-on-surface">{totalChunks}</p>
             </div>
           </div>
         </div>
@@ -379,11 +346,6 @@ const HospitalDocumentManager = () => {
         {error && (
           <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
             {error}
-          </p>
-        )}
-        {syncStats && (
-          <p className="rounded-lg bg-primary-container px-md py-sm font-body-sm text-body-sm text-on-primary-container">
-            Đã đồng bộ embedding: {syncStats.total} tổng, {syncStats.created} tạo mới, {syncStats.updated} cập nhật, {syncStats.skipped} bỏ qua, {syncStats.failed} lỗi.
           </p>
         )}
       </div>

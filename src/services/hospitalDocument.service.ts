@@ -42,14 +42,6 @@ export type HospitalDocumentDetail = HospitalDocument & {
   images: HospitalDocumentImage[]
 }
 
-export type SyncEmbeddingsStats = {
-  total: number
-  created: number
-  updated: number
-  skipped: number
-  failed: number
-}
-
 export const getHospitalDocuments = () =>
   apiRequest<HospitalDocument[]>('/hospital-documents')
 
@@ -96,9 +88,4 @@ export const updateHospitalDocument = (id: number | string, payload: { file?: Fi
 export const deleteHospitalDocument = (id: number | string) =>
   apiRequest<void>(`/hospital-documents/${id}`, {
     method: 'DELETE',
-  })
-
-export const syncHospitalDocumentEmbeddings = () =>
-  apiRequest<SyncEmbeddingsStats>('/hospital-documents/sync-embeddings', {
-    method: 'POST',
   })
