@@ -49,7 +49,7 @@ const SymptomCheckerTemplate = ({
           <SuggestedDepartmentsPanel departments={departments} />
           <SuggestedDoctorsPanel doctors={doctors} status={doctorStatus} />
         </section>
-        <EmergencyCtaSection />
+        <EmergencyCtaSection className="" />
       </main>
     </div>
   )

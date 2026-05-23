@@ -9,11 +9,13 @@ import SocialLogin from '../../Molecules/Auth/SocialLogin'
 import Divider from '../../Molecules/Common/Divider'
 import { useTranslation } from '../../../contexts/LanguageContext'
 import { register } from '../../../services/auth.service'
+import type { UserGender } from '../../../services/auth.service'
 
 const SignupForm = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const [fullName, setFullName] = useState('')
+  const [gender, setGender] = useState<UserGender | ''>('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -50,6 +52,7 @@ const SignupForm = () => {
         full_name: fullName.trim() || undefined,
         email,
         password,
+        gender: gender || undefined,
         phone: phone.trim() || undefined,
       })
       setSuccess(t('auth.signupSuccess'))
@@ -102,6 +105,21 @@ const SignupForm = () => {
           type="tel"
           value={phone}
         />
+        <div className="space-y-xs">
+          <label className="font-label-md text-label-md text-on-surface" htmlFor="signup-gender">Gioi tinh</label>
+          <select
+            className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
+            id="signup-gender"
+            name="gender"
+            onChange={(event) => setGender(event.target.value as UserGender | '')}
+            value={gender}
+          >
+            <option value="">Chua cap nhat</option>
+            <option value="MALE">Nam</option>
+            <option value="FEMALE">Nu</option>
+            <option value="OTHER">Khac</option>
+          </select>
+        </div>
         <Input
           autoComplete="email"
           icon="mail"

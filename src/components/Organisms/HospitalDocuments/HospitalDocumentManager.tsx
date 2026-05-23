@@ -383,7 +383,7 @@ const HospitalDocumentManager = () => {
             <header className="flex items-start justify-between gap-md border-b border-outline-variant/20 px-lg py-md">
               <div>
                 <h3 className="font-title-lg text-title-lg text-on-surface">
-                  {selectedDocument?.title || 'Dang tai chi tiet'}
+                  {selectedDocument?.title || 'Đang tải chi tiết ...'}
                 </h3>
                 {selectedDocument && (
                   <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">

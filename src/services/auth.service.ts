@@ -1,6 +1,7 @@
 import { apiRequest } from '../api/client'
 
 export type UserRole = 'PATIENT' | 'DOCTOR' | 'ADMIN'
+export type UserGender = 'MALE' | 'FEMALE' | 'OTHER'
 
 export type User = {
   id: number | string
@@ -9,6 +10,7 @@ export type User = {
   phone?: string | null
   avatar_url?: string | null
   date_of_birth?: string | null
+  gender?: UserGender | null
   cccd_number?: string | null
   cccd_front_image?: string | null
   cccd_back_image?: string | null
@@ -37,6 +39,7 @@ export type RegisterPayload = {
   phone?: string
   avatar_url?: string
   date_of_birth?: string
+  gender?: UserGender
   cccd_number?: string
   cccd_front_image?: string
   cccd_back_image?: string

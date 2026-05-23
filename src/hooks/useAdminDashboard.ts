@@ -456,6 +456,7 @@ export const useAdminDashboard = () => {
         email: payload.email,
         phone: payload.phone || null,
         date_of_birth: payload.dateOfBirth || null,
+        gender: payload.gender || null,
         cccd_number: payload.cccdNumber || null,
         cccd_front_image: payload.cccdFrontImage || null,
         cccd_back_image: payload.cccdBackImage || null,

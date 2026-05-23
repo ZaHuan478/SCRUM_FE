@@ -1,8 +1,12 @@
 import Button from '../../Atoms/Button'
 
-const EmergencyCtaSection = () => {
+type EmergencyCtaSectionProps = {
+  className?: string
+}
+
+const EmergencyCtaSection = ({ className = 'mt-xxl' }: EmergencyCtaSectionProps) => {
   return (
-    <section className="mt-xxl bg-primary py-xxl">
+    <section className={`${className} bg-primary py-xxl`.trim()}>
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-xl px-lg md:flex-row md:px-xxl">
         <div className="space-y-sm text-on-primary">
           <h2 className="font-headline-lg text-headline-lg">Cần hỗ trợ ngay lập tức?</h2>

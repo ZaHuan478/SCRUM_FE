@@ -10,6 +10,7 @@ export type ProfileFormState = {
   phone: string
   avatarUrl: string
   dateOfBirth: string
+  gender: string
   cccdNumber: string
   cccdFrontImage: string
   cccdBackImage: string
@@ -28,6 +29,7 @@ export const emptyProfileForm: ProfileFormState = {
   phone: '',
   avatarUrl: '',
   dateOfBirth: '',
+  gender: '',
   cccdNumber: '',
   cccdFrontImage: '',
   cccdBackImage: '',
@@ -48,6 +50,7 @@ export const buildProfileForm = (user: User): ProfileFormState => ({
   phone: user.phone || '',
   avatarUrl: user.avatar_url || '',
   dateOfBirth: user.date_of_birth || '',
+  gender: user.gender || '',
   cccdNumber: user.cccd_number || '',
   cccdFrontImage: user.cccd_front_image || '',
   cccdBackImage: user.cccd_back_image || '',

@@ -226,6 +226,7 @@ export const useProfile = ({ storedUser, onAuthFailure }: UseProfileOptions): Pr
         phone: normalizePhone(form.phone) || null,
         avatar_url: hasPendingAvatarUpload ? user.avatar_url || null : form.avatarUrl || null,
         date_of_birth: form.dateOfBirth || null,
+        gender: form.gender ? form.gender as User['gender'] : null,
         cccd_number: form.cccdNumber.trim() || null,
         cccd_front_image: form.cccdFrontImage || null,
         cccd_back_image: form.cccdBackImage || null,

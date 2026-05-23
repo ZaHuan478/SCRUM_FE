@@ -1,22 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ChangeEvent } from 'react'
-import { Link } from 'react-router-dom'
 import TopNavBar from '../components/Organisms/TopNavBar'
 import Icon from '../components/Atoms/Icon'
 import Input from '../components/Atoms/Input'
+import DepartmentCard from '../components/Molecules/Home/DepartmentCard'
 import PaginationControls from '../components/Molecules/Common/PaginationControls'
 import { useTranslation } from '../contexts/LanguageContext'
 import { getDepartments } from '../services/department.service'
 import type { Department, DepartmentsResult } from '../services/department.service'
 
 const DEPARTMENTS_PAGE_SIZE = 9
-
-const tones = [
-  'bg-primary-fixed/30 text-primary',
-  'bg-secondary-fixed/30 text-secondary',
-  'bg-tertiary-fixed/30 text-tertiary',
-  'bg-surface-variant text-outline',
-]
 
 const emptyPagination: DepartmentsResult['pagination'] = {
   page: 1,
@@ -139,27 +132,13 @@ const DepartmentsPage = () => {
           <>
             <section className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-3">
               {departments.map((department, index) => (
-                <Link
-                  className="group rounded-lg border border-outline-variant/30 bg-surface p-lg shadow-sm transition-all hover:border-primary/40 hover:shadow-md"
+                <DepartmentCard
+                  description={department.description || t('departmentsPage.fallbackDescription')}
                   key={department.id}
+                  label={department.name}
+                  style={{ animationDelay: `${index * 60}ms` }}
                   to={`/departments/${department.id}`}
-                >
-                  <div className={`mb-md flex h-14 w-14 items-center justify-center rounded-full ${tones[index % tones.length]}`}>
-                    <Icon className="text-3xl" name="clinical_notes" />
-                  </div>
-
-                  <h2 className="font-headline-sm text-headline-sm text-on-surface">
-                    {department.name}
-                  </h2>
-
-                  <p className="mt-sm min-h-20 font-body-sm text-body-sm text-on-surface-variant">
-                    {department.description || t('departmentsPage.fallbackDescription')}
-                  </p>
-
-                  <span className="mt-lg inline-flex items-center gap-xs font-label-md text-label-md text-primary transition-all group-hover:gap-sm group-hover:underline">
-                    {t('departmentsPage.viewDetails')} <Icon name="arrow_forward" />
-                  </span>
-                </Link>
+                />
               ))}
             </section>
             <PaginationControls

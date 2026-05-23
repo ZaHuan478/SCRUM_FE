@@ -4,6 +4,7 @@ import FeaturedDoctorsSection from '../Organisms/Home/FeaturedDoctorsSection'
 import DepartmentsSection from '../Organisms/DepartmentDesign/DepartmentsSection'
 import HowItWorksSection from '../Organisms/Home/HowItWorksSection'
 import TestimonialsSection from '../Organisms/Home/TestimonialsSection'
+import EmergencyCtaSection from '../Organisms/SymptomChecker/EmergencyCtaSection'
 
 type HomeTemplateProps = {
   searchQuery: string
@@ -12,7 +13,7 @@ type HomeTemplateProps = {
 
 const HomeTemplate = ({ searchQuery, onSearch }: HomeTemplateProps) => {
   return (
-    <div className="min-h-screen bg-background text-on-background">
+    <div className="min-h-screen  text-on-background">
       <TopNavBar active="homepage" />
       <main>
         <HeroSection onSearch={onSearch} />
@@ -20,6 +21,7 @@ const HomeTemplate = ({ searchQuery, onSearch }: HomeTemplateProps) => {
         <DepartmentsSection />
         <HowItWorksSection />
         <TestimonialsSection />
+        <EmergencyCtaSection className="" />
       </main>
     </div>
   )

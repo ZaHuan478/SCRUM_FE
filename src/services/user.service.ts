@@ -1,5 +1,5 @@
 import { apiRequest } from '../api/client'
-import type { User, UserRole } from './auth.service'
+import type { User, UserGender, UserRole } from './auth.service'
 import type { CreateDoctorPayload } from './doctor.service'
 
 export type UsersResult = {
@@ -44,6 +44,7 @@ export type CreateUserPayload = {
   phone?: string | null
   avatar_url?: string | null
   date_of_birth?: string | null
+  gender?: UserGender | null
   cccd_number?: string | null
   cccd_front_image?: string | null
   cccd_back_image?: string | null
@@ -64,6 +65,7 @@ export type UpdateUserPayload = {
   phone?: string | null
   avatar_url?: string | null
   date_of_birth?: string | null
+  gender?: UserGender | null
   cccd_number?: string | null
   cccd_front_image?: string | null
   cccd_back_image?: string | null

@@ -362,6 +362,7 @@ export const getUserInfoFields = (user: User | null): AdminInfoField[] => (
       { label: 'Vai trò', value: user.role },
       { label: 'Trạng thái', value: user.status },
       { label: 'Ngày sinh', value: user.date_of_birth },
+      { label: 'Gioi tinh', value: user.gender },
       { label: 'Số CCCD', value: user.cccd_number },
       { label: 'CCCD mặt trước', value: user.cccd_front_image ? 'Đã upload' : 'Chưa upload' },
       { label: 'CCCD mặt sau', value: user.cccd_back_image ? 'Đã upload' : 'Chưa upload' },

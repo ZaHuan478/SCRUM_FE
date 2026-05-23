@@ -8,8 +8,6 @@ import type { Department } from '../../../services/department.service'
 const DEPARTMENTS_PER_SLIDE = 4
 const AUTO_SLIDE_INTERVAL = 4500
 
-const tones: Array<'primary' | 'secondary' | 'tertiary' | 'neutral'> = ['primary', 'secondary', 'tertiary', 'neutral']
-
 const DepartmentsSection = () => {
   const { t } = useTranslation()
   const [departments, setDepartments] = useState<Department[]>([])
@@ -125,13 +123,11 @@ const DepartmentsSection = () => {
                       {slideDepartments.map((department, departmentIndex) => (
                         <DepartmentCard
                           description={department.description}
-                          icon="clinical_notes"
                           key={department.id}
                           label={department.name}
                           className="department-card-motion"
                           style={{ animationDelay: `${departmentIndex * 90}ms` }}
                           to={`/departments/${department.id}`}
-                          tone={tones[(slideIndex * DEPARTMENTS_PER_SLIDE + departmentIndex) % tones.length]}
                         />
                       ))}
                     </div>
