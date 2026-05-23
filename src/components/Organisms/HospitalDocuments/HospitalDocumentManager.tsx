@@ -8,6 +8,7 @@ import {
   getHospitalDocumentById,
   getHospitalDocuments,
   syncHospitalDocumentEmbeddings,
+  updateHospitalDocument,
   updateHospitalDocumentStatus,
   uploadHospitalDocument,
   type HospitalDocument,
@@ -36,7 +37,12 @@ const HospitalDocumentManager = () => {
   const [error, setError] = useState('')
   const [isSyncingEmbeddings, setIsSyncingEmbeddings] = useState(false)
   const [syncStats, setSyncStats] = useState<SyncEmbeddingsStats | null>(null)
+  const [editingDocument, setEditingDocument] = useState<HospitalDocument | null>(null)
+  const [editTitle, setEditTitle] = useState('')
+  const [editFile, setEditFile] = useState<File | null>(null)
+  const [updatingDocumentId, setUpdatingDocumentId] = useState<number | string | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const editFileInputRef = useRef<HTMLInputElement | null>(null)
 
   const activeDocuments = useMemo(
     () => documents.filter((document) => document.status === 'ACTIVE').length,
@@ -138,6 +144,91 @@ const HospitalDocumentManager = () => {
       setError(requestError instanceof Error ? requestError.message : 'Khong cap nhat duoc trang thai.')
     }
   }, [])
+
+  const handleOpenEdit = useCallback((document: HospitalDocument) => {
+    setEditingDocument(document)
+    setEditTitle(document.title)
+    setEditFile(null)
+    setError('')
+    if (editFileInputRef.current) editFileInputRef.current.value = ''
+  }, [])
+
+  const handleCloseEdit = useCallback(() => {
+    if (updatingDocumentId) return
+    setEditingDocument(null)
+    setEditTitle('')
+    setEditFile(null)
+    if (editFileInputRef.current) editFileInputRef.current.value = ''
+  }, [updatingDocumentId])
+
+  const handleSelectedEditFile = useCallback((selectedFile?: File | null) => {
+    if (!selectedFile) {
+      setEditFile(null)
+      return
+    }
+
+    const fileName = selectedFile.name.toLowerCase()
+    const isAllowedFile = fileName.endsWith('.pdf') || fileName.endsWith('.docx')
+
+    if (!isAllowedFile) {
+      setError('Chi ho tro file PDF hoac DOCX.')
+      setEditFile(null)
+      if (editFileInputRef.current) editFileInputRef.current.value = ''
+      return
+    }
+
+    if (selectedFile.size > MAX_DOCUMENT_FILE_SIZE) {
+      setError('File tai lieu phai nho hon hoac bang 100 MB.')
+      setEditFile(null)
+      if (editFileInputRef.current) editFileInputRef.current.value = ''
+      return
+    }
+
+    setError('')
+    setEditFile(selectedFile)
+  }, [])
+
+  const handleUpdateDocument = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!editingDocument || updatingDocumentId) return
+
+    const nextTitle = editTitle.trim()
+    if (!nextTitle) {
+      setError('Tieu de tai lieu la bat buoc.')
+      return
+    }
+
+    setUpdatingDocumentId(editingDocument.id)
+    setError('')
+    try {
+      const updatedDocument = await updateHospitalDocument(editingDocument.id, {
+        file: editFile,
+        title: nextTitle,
+      })
+      const replacedFile = Boolean(editFile)
+      setDocuments((currentDocuments) => currentDocuments.map((item) => (
+        item.id === updatedDocument.id ? { ...item, ...updatedDocument } : item
+      )))
+      setSelectedDocument((currentDocument) => (
+        currentDocument?.id === updatedDocument.id
+          ? replacedFile
+            ? null
+            : { ...currentDocument, ...updatedDocument, chunks: currentDocument.chunks }
+          : currentDocument
+      ))
+      if (replacedFile && selectedDocument?.id === updatedDocument.id) {
+        setDetailStatus('idle')
+      }
+      setEditingDocument(null)
+      setEditTitle('')
+      setEditFile(null)
+      if (editFileInputRef.current) editFileInputRef.current.value = ''
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Khong cap nhat duoc tai lieu.')
+    } finally {
+      setUpdatingDocumentId(null)
+    }
+  }, [editFile, editTitle, editingDocument, selectedDocument, updatingDocumentId])
 
   const handleDeleteDocument = useCallback(async (document: HospitalDocument) => {
     const confirmed = window.confirm(`Xoa tai lieu "${document.title}" va tat ca chunks/images cua no?`)
@@ -344,6 +435,15 @@ const HospitalDocumentManager = () => {
                       <Button
                         className="px-md py-sm"
                         fullWidth={false}
+                        onClick={() => handleOpenEdit(document)}
+                        type="button"
+                        variant="ghost"
+                      >
+                        Sửa
+                      </Button>
+                      <Button
+                        className="px-md py-sm"
+                        fullWidth={false}
                         onClick={() => void handleOpenDetail(document)}
                         type="button"
                         variant="ghost"
@@ -375,6 +475,108 @@ const HospitalDocumentManager = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+      {editingDocument && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim/40 px-md py-lg">
+          <form
+            className="w-full max-w-xl rounded-xl bg-surface-container-lowest p-lg shadow-2xl"
+            onSubmit={handleUpdateDocument}
+          >
+            <div className="flex items-start justify-between gap-md">
+              <div>
+                <h3 className="font-title-lg text-title-lg text-on-surface">Sửa tài liệu</h3>
+                <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
+                  Cập nhật tiêu đề hoặc thay file để hệ thống xử lý lại nội dung AI.
+                </p>
+              </div>
+              <Button
+                aria-label="Dong form sua tai lieu"
+                className="rounded-full p-sm"
+                disabled={Boolean(updatingDocumentId)}
+                fullWidth={false}
+                onClick={handleCloseEdit}
+                type="button"
+                variant="ghost"
+              >
+                <Icon name="close" />
+              </Button>
+            </div>
+
+            <div className="mt-lg space-y-md">
+              <Input
+                autoFocus
+                id="hospital-document-edit-title"
+                label="Tiêu đề tài liệu"
+                maxLength={255}
+                onChange={(event) => setEditTitle(event.target.value)}
+                value={editTitle}
+              />
+              <div className="rounded-lg bg-surface-container px-md py-sm">
+                <p className="font-label-sm text-label-sm text-on-surface-variant">File gốc</p>
+                <p className="mt-xs break-all font-body-sm text-body-sm text-on-surface">
+                  {editingDocument.original_filename}
+                </p>
+              </div>
+              <label className="block rounded-lg border border-dashed border-outline-variant/60 bg-surface-container-low px-md py-md">
+                <span className="font-label-md text-label-md text-on-surface">Thay thế file</span>
+                <span className="mt-xs block font-body-sm text-body-sm text-on-surface-variant">
+                  Tùy chọn. Khi chọn file mới, hệ thống sẽ đọc lại nội dung, chia chunk và tạo embedding mới.
+                </span>
+                <input
+                  accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  className="mt-sm block w-full font-body-sm text-body-sm text-on-surface file:mr-md file:rounded-lg file:border-0 file:bg-primary file:px-md file:py-sm file:font-label-sm file:text-label-sm file:text-on-primary"
+                  disabled={Boolean(updatingDocumentId)}
+                  onChange={(event) => handleSelectedEditFile(event.target.files?.[0] ?? null)}
+                  ref={editFileInputRef}
+                  type="file"
+                />
+                {editFile && (
+                  <span className="mt-sm flex items-center justify-between gap-sm rounded-lg bg-primary-container px-md py-sm text-on-primary-container">
+                    <span className="break-all font-body-sm text-body-sm">
+                      {editFile.name} - {formatFileSize(editFile.size)}
+                    </span>
+                    <button
+                      className="shrink-0 font-label-sm text-label-sm text-primary"
+                      disabled={Boolean(updatingDocumentId)}
+                      onClick={() => {
+                        setEditFile(null)
+                        if (editFileInputRef.current) editFileInputRef.current.value = ''
+                      }}
+                      type="button"
+                    >
+                      Bỏ chọn
+                    </button>
+                  </span>
+                )}
+              </label>
+              {error && (
+                <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
+                  {error}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-lg flex flex-col-reverse gap-sm sm:flex-row sm:justify-end">
+              <Button
+                disabled={Boolean(updatingDocumentId)}
+                fullWidth={false}
+                onClick={handleCloseEdit}
+                type="button"
+                variant="ghost"
+              >
+                Hủy
+              </Button>
+              <Button
+                className="px-lg py-sm"
+                disabled={Boolean(updatingDocumentId) || !editTitle.trim()}
+                fullWidth={false}
+                type="submit"
+              >
+                {updatingDocumentId ? 'Đang xử lý' : editFile ? 'Thay file và lưu' : 'Lưu thay đổi'}
+              </Button>
+            </div>
+          </form>
         </div>
       )}
       {(detailStatus === 'loading' || selectedDocument) && (

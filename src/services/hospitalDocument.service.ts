@@ -75,6 +75,24 @@ export const updateHospitalDocumentStatus = (id: number | string, status: Hospit
     body: JSON.stringify({ status }),
   })
 
+export const updateHospitalDocument = (id: number | string, payload: { file?: File | null; title: string }) => {
+  if (payload.file) {
+    const formData = new FormData()
+    formData.append('title', payload.title.trim())
+    formData.append('file', payload.file)
+
+    return apiRequest<HospitalDocument>(`/hospital-documents/${id}`, {
+      method: 'PATCH',
+      body: formData,
+    })
+  }
+
+  return apiRequest<HospitalDocument>(`/hospital-documents/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ title: payload.title }),
+  })
+}
+
 export const deleteHospitalDocument = (id: number | string) =>
   apiRequest<void>(`/hospital-documents/${id}`, {
     method: 'DELETE',
