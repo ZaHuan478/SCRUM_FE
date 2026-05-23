@@ -111,6 +111,22 @@ export const buildUpcomingDays = () => {
   })
 }
 
+export const buildWeekDays = (dateKey: string) => {
+  const selectedDate = dateFromKey(dateKey)
+  selectedDate.setHours(0, 0, 0, 0)
+
+  const mondayOffset = selectedDate.getDay() === 0 ? -6 : 1 - selectedDate.getDay()
+  const weekStart = new Date(selectedDate)
+  weekStart.setDate(selectedDate.getDate() + mondayOffset)
+
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(weekStart)
+    date.setDate(weekStart.getDate() + index)
+
+    return date
+  })
+}
+
 export const emptySummary = (): DaySummary => ({
   available: 0,
   booked: 0,

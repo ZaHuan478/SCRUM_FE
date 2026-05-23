@@ -19,7 +19,7 @@ import {
   buildDaySummaryMap,
   buildEmptySlotForm,
   buildScheduleStats,
-  buildUpcomingDays,
+  buildWeekDays,
   dateFromKey,
   formatSlotRange,
   getDateKey,
@@ -90,7 +90,6 @@ export type DoctorScheduleState = {
 
 export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorScheduleOptions): DoctorScheduleState => {
   const todayKey = useMemo(() => getDateKey(new Date()), [])
-  const upcomingDays = useMemo(() => buildUpcomingDays(), [])
   const [doctor, setDoctor] = useState<Doctor | null>(null)
   const [activeAssignment, setActiveAssignment] = useState<DoctorAssignment | null>(null)
   const [appointments, setAppointments] = useState<Appointment[]>([])
@@ -107,6 +106,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
   const [dayAction, setDayAction] = useState<DayAction>(null)
   const [currentTime, setCurrentTime] = useState(() => Date.now())
   const { success: toastSuccess, error: toastError, warning: toastWarning } = useToast()
+  const upcomingDays = useMemo(() => buildWeekDays(selectedDate), [selectedDate])
 
   const showError = useCallback((message: string) => {
     setError(message)

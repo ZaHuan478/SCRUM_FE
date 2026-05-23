@@ -72,6 +72,12 @@ export const getDateKey = (value: Date | string) => {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }
 
+export const dateFromKey = (dateKey: string) => {
+  const [year, month, day] = dateKey.split('-').map(Number)
+
+  return new Date(year, month - 1, day)
+}
+
 export const buildUpcomingDays = (length = 14) => {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -79,6 +85,22 @@ export const buildUpcomingDays = (length = 14) => {
   return Array.from({ length }, (_, index) => {
     const date = new Date(today)
     date.setDate(today.getDate() + index)
+
+    return date
+  })
+}
+
+export const buildWeekDays = (dateKey: string) => {
+  const selectedDate = dateFromKey(dateKey)
+  selectedDate.setHours(0, 0, 0, 0)
+
+  const mondayOffset = selectedDate.getDay() === 0 ? -6 : 1 - selectedDate.getDay()
+  const weekStart = new Date(selectedDate)
+  weekStart.setDate(selectedDate.getDate() + mondayOffset)
+
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(weekStart)
+    date.setDate(weekStart.getDate() + index)
 
     return date
   })

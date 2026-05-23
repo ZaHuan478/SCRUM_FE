@@ -14,6 +14,7 @@ import { getSymptoms } from '../services/symptom.service'
 import {
   buildAppointmentStats,
   buildUpcomingDays,
+  buildWeekDays,
   emptyPatientAppointmentPagination,
   findMatchingSymptoms,
   isAuthFailure,
@@ -97,7 +98,6 @@ export const usePatientAppointments = ({
   const initialDoctorId = searchParams.get('doctor_id') || ''
   const initialDoctorName = searchParams.get('doctor_name') || ''
   const initialDepartmentId = searchParams.get('department_id') || ''
-  const upcomingDays = useMemo(() => buildUpcomingDays(), [])
   const [departments, setDepartments] = useState<Department[]>([])
   const [symptoms, setSymptoms] = useState<Symptom[]>([])
   const [recommendedDepartments, setRecommendedDepartments] = useState<RecommendedDepartment[]>([])
@@ -120,6 +120,9 @@ export const usePatientAppointments = ({
   const [appointmentActionId, setAppointmentActionId] = useState<number | string | null>(null)
   const [paymentModalPayment, setPaymentModalPayment] = useState<Payment | null>(null)
   const { success: toastSuccess, error: toastError, warning: toastWarning } = useToast()
+  const upcomingDays = useMemo(() => (
+    selectedDate ? buildWeekDays(selectedDate) : buildUpcomingDays(7)
+  ), [selectedDate])
 
   const showBookingError = useCallback((message: string) => {
     setBookingError(message)
