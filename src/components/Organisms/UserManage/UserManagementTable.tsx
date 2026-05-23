@@ -19,7 +19,7 @@ type UserManagementTableProps = {
 }
 
 const roleLabels: Record<User['role'], string> = {
-  ADMIN: 'Admin',
+  ADMIN: 'Quản trị viên',
   DOCTOR: 'Bác sĩ',
   PATIENT: 'Bệnh nhân',
 }
@@ -59,42 +59,42 @@ const UserManagementTable = ({
     <section className="overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0px_4px_20px_rgba(15,23,42,0.05)]" id="user-management">
       <div className="flex flex-col items-start justify-between gap-lg border-b border-outline-variant/20 p-lg md:flex-row md:items-center md:p-xl">
         <div>
-          <h2 className="font-headline-sm text-headline-sm text-on-surface">Quản lý user</h2>
+          <h2 className="font-headline-sm text-headline-sm text-on-surface">Quản lý người dùng</h2>
           <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">Tạo, cập nhật, khóa và xóa tài khoản trong hệ thống.</p>
         </div>
         <div className="flex w-full flex-col gap-md sm:flex-row md:w-auto md:items-center">
           <Input
-            aria-label="Tìm kiếm user"
+            aria-label="Tìm kiếm người dùng"
             className="py-sm text-body-sm"
             icon="search"
             onChange={(event) => onSearchQueryChange(event.target.value)}
-            placeholder="Tìm kiếm user..."
+            placeholder="Tìm kiếm người dùng..."
             type="search"
             value={searchQuery}
             wrapperClassName="w-full sm:w-64"
           />
           <Button className="flex items-center gap-xs px-lg py-sm" fullWidth={false} onClick={onCreateUser} type="button">
             <Icon name="person_add" />
-            Thêm user
+            Thêm người dùng
           </Button>
         </div>
       </div>
 
-      {status === 'loading' && <div className="p-xl font-body-sm text-body-sm text-on-surface-variant">Đang tải danh sách user...</div>}
+      {status === 'loading' && <div className="p-xl font-body-sm text-body-sm text-on-surface-variant">Đang tải danh sách người dùng...</div>}
       {status === 'error' && (
         <div className="m-lg rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
-          Chưa tải được danh sách user.
+          Chưa tải được danh sách người dùng.
         </div>
       )}
       {status === 'ready' && users.length === 0 && (
-        <div className="p-xl text-center font-body-md text-body-md text-on-surface-variant">Chưa có user nào.</div>
+        <div className="p-xl text-center font-body-md text-body-md text-on-surface-variant">Chưa có người dùng nào.</div>
       )}
       {users.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="border-b border-outline-variant/20 bg-surface-container-low">
               <tr>
-                <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">User</th>
+                <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Người dùng</th>
                 <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Vai trò</th>
                 <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Ngày sinh</th>
                 <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">CCCD</th>
@@ -165,7 +165,7 @@ const UserManagementTable = ({
       )}
       <div className="flex flex-col justify-between gap-md border-t border-outline-variant/20 bg-surface-container-low p-lg sm:flex-row sm:items-center">
         <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Đang hiển thị {firstItem}-{lastItem} trên {totalUsers} user
+          Đang hiển thị {firstItem}-{lastItem} trên {totalUsers} người dùng
         </p>
         <div className="flex items-center gap-sm">
           <Button
