@@ -96,7 +96,7 @@ export const isAuthFailure = (error: unknown) => {
 }
 
 export const getProfileRoleLabel = (user?: User | null) => {
-  if (!user) return 'User'
+  if (!user) return 'Người dùng'
   if (user.role === 'PATIENT') return 'Bệnh nhân'
   if (user.role === 'DOCTOR') return 'Bác sĩ'
   if (user.role === 'ADMIN') return 'Quản trị viên'

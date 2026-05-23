@@ -68,7 +68,7 @@ const SymptomRuleEditModal = ({
       >
         <div className="mb-xl flex items-start justify-between gap-lg border-b border-outline-variant/30 pb-lg">
           <div>
-            <h2 className="font-headline-sm text-headline-sm text-on-surface">{isEditing ? 'Cập nhật rule triệu chứng' : 'Thêm rule triệu chứng'}</h2>
+            <h2 className="font-headline-sm text-headline-sm text-on-surface">{isEditing ? 'Cập nhật ghi chú triệu chứng' : 'Thêm ghi chú triệu chứng'}</h2>
             <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">Quản lý khoa gợi ý và lưu ý trước khi khám theo triệu chứng.</p>
           </div>
           <Button

@@ -114,8 +114,8 @@ const UserEditModal = ({
       >
         <div className="mb-xl flex items-start justify-between gap-lg border-b border-outline-variant/30 pb-lg">
           <div>
-            <h2 className="font-headline-sm text-headline-sm text-on-surface">{isEditing ? 'Cap nhat user' : 'Them user'}</h2>
-            <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">{email || 'Tao tai khoan moi'}</p>
+            <h2 className="font-headline-sm text-headline-sm text-on-surface">{isEditing ? 'Cập nhật người dùng' : 'Thêm người dùng'}</h2>
+            <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">{email || 'Tạo tài khoản mới'}</p>
           </div>
           <Button
             aria-label="Dong"
@@ -170,9 +170,9 @@ const UserEditModal = ({
                 onChange={(event) => setRole(event.target.value as UserRole)}
                 value={role}
               >
-                <option value="PATIENT">Benh nhan</option>
-                <option value="DOCTOR">Bac si</option>
-                <option value="ADMIN">Admin</option>
+                <option value="PATIENT">Bệnh nhân</option>
+                <option value="DOCTOR">Bác sĩ</option>
+                <option value="ADMIN">Quản trị viên</option>
               </select>
             </div>
             <div className="space-y-xs">
@@ -183,17 +183,17 @@ const UserEditModal = ({
                 onChange={(event) => setStatus(event.target.value as User['status'])}
                 value={status}
               >
-                <option value="ACTIVE">Dang hoat dong</option>
-                <option value="INACTIVE">Tam ngung</option>
+                <option value="ACTIVE">Đang hoạt động</option>
+                <option value="INACTIVE">Tạm ngưng</option>
               </select>
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-lg md:grid-cols-2">
             <div className="space-y-sm">
-              <p className="font-label-md text-label-md text-on-surface">CCCD mat truoc</p>
+              <p className="font-label-md text-label-md text-on-surface">CCCD mặt trước</p>
               <div className="aspect-[16/10] overflow-hidden rounded-lg border border-outline-variant/30 bg-surface-variant">
-                <Image alt="CCCD mat truoc" className="h-full w-full object-cover" fallbackClassName="h-full w-full" src={cccdFrontImage || undefined} />
+                <Image alt="CCCD mặt trước" className="h-full w-full object-cover" fallbackClassName="h-full w-full" src={cccdFrontImage || undefined} />
               </div>
               <input accept="image/*" className="w-full font-body-sm text-body-sm text-on-surface-variant" onChange={(event) => void handleImageChange(event, setCccdFrontImage)} type="file" />
               {cccdFrontImage && (
@@ -203,9 +203,9 @@ const UserEditModal = ({
               )}
             </div>
             <div className="space-y-sm">
-              <p className="font-label-md text-label-md text-on-surface">CCCD mat sau</p>
+              <p className="font-label-md text-label-md text-on-surface">CCCD mặt sau</p>
               <div className="aspect-[16/10] overflow-hidden rounded-lg border border-outline-variant/30 bg-surface-variant">
-                <Image alt="CCCD mat sau" className="h-full w-full object-cover" fallbackClassName="h-full w-full" src={cccdBackImage || undefined} />
+                <Image alt="CCCD mặt sau" className="h-full w-full object-cover" fallbackClassName="h-full w-full" src={cccdBackImage || undefined} />
               </div>
               <input accept="image/*" className="w-full font-body-sm text-body-sm text-on-surface-variant" onChange={(event) => void handleImageChange(event, setCccdBackImage)} type="file" />
               {cccdBackImage && (
@@ -219,10 +219,10 @@ const UserEditModal = ({
 
         <div className="mt-xl flex justify-end gap-md border-t border-outline-variant/30 pt-lg">
           <Button className="px-lg py-sm" fullWidth={false} onClick={onClose} type="button" variant="ghost">
-            Huy
+            ủy
           </Button>
           <Button className="px-lg py-sm" fullWidth={false} isLoading={isSaving} type="submit">
-            Luu
+            Lưu
           </Button>
         </div>
       </form>

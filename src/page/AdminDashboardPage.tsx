@@ -141,7 +141,7 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         onClose={() => setSelectedUser(null)}
         open={Boolean(selectedUser)}
         subtitle={selectedUser?.email || undefined}
-        title={selectedUser?.full_name || 'Thông tin user'}
+        title={selectedUser?.full_name || 'Thông tin người dùng'}
       />
       <AdminInfoModal
         fields={doctorFields}

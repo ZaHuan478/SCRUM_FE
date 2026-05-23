@@ -9,6 +9,8 @@ import type { User } from '../../services/auth.service'
 import type { AIChatHistoryItem, AIChatMessage } from '../../types/aiChat.types'
 import type { AIChatStreamError } from '../../services/aiChatService'
 
+const CHATBOT_ALLOWED_ROLES: Array<User['role']> = ['PATIENT', 'DOCTOR', 'ADMIN']
+
 const DEFAULT_MESSAGE = 'Xin chào, tôi là trợ lý AI. Bạn đang gặp triệu chứng gì? Tôi có thể gợi ý khoa phù hợp để bạn đặt lịch khám.'
 
 const buildMessage = (message: Omit<AIChatMessage, 'id'>): AIChatMessage => ({
@@ -82,7 +84,7 @@ const AIChatBox = () => {
   const [error, setError] = useState('')
   const [messages, setMessages] = useState<AIChatMessage[]>(buildDefaultMessages)
   const scrollRef = useRef<HTMLDivElement | null>(null)
-  const isPatient = currentUser?.role === 'PATIENT'
+  const canUseChatbot = currentUser ? CHATBOT_ALLOWED_ROLES.includes(currentUser.role) : false
   const userKey = currentUser ? `${currentUser.role}:${currentUser.id}` : 'guest'
 
   useEffect(() => {
@@ -237,7 +239,7 @@ const AIChatBox = () => {
     }
   }, [conversationHistory, input, isLoading])
 
-  if (!isPatient) return null
+  if (!canUseChatbot) return null
 
   return (
     <>

@@ -309,7 +309,7 @@ export const useAdminDashboard = () => {
       }))
     } catch {
       setDashboard((currentDashboard) => ({ ...currentDashboard, symptomRuleStatus: 'error' }))
-      toastError('Không thể tải danh sách rule triệu chứng.')
+      toastError('Không thể tải danh sách ghi chú triệu chứng.')
     }
   }, [toastError])
 
@@ -355,7 +355,7 @@ export const useAdminDashboard = () => {
       }))
     } catch {
       setDashboard((currentDashboard) => ({ ...currentDashboard, userStatus: 'error' }))
-      toastError('Không thể tải danh sách user.')
+      toastError('Không thể tải danh sách người dùng.')
     }
   }, [toastError, userSearchQuery])
 
@@ -418,14 +418,14 @@ export const useAdminDashboard = () => {
   }, [])
 
   const handleDeleteUser = useCallback(async (user: User) => {
-    if (!window.confirm(`Xóa user ${user.email}?`)) return
+    if (!window.confirm(`Xóa người dùng ${user.email}?`)) return
 
     try {
       await deleteUser(user.id)
       await refreshDashboard()
-      toastSuccess('User đã được xóa.')
+      toastSuccess('Người dùng đã được xóa.')
     } catch (error) {
-      const message = getRequestMessage(error, 'Không thể xóa user.')
+      const message = getRequestMessage(error, 'Không thể xóa người dùng.')
       setSelectedUser(user)
       setUserEditError(message)
       toastError(message)
@@ -441,7 +441,7 @@ export const useAdminDashboard = () => {
     }
 
     if (!editingUser && !payload.password) {
-      const message = 'Mật khẩu là bắt buộc khi tạo user.'
+      const message = 'Mật khẩu là bắt buộc khi tạo người dùng.'
       setUserEditError(message)
       toastWarning(message)
       return
@@ -478,9 +478,9 @@ export const useAdminDashboard = () => {
 
       await refreshDashboard()
       closeUserModal()
-      toastSuccess(editingUser ? 'User đã được cập nhật.' : 'User đã được tạo.')
+      toastSuccess(editingUser ? 'Người dùng đã được cập nhật.' : 'Người dùng đã được tạo.')
     } catch (error) {
-      const message = getRequestMessage(error, 'Không thể lưu user.')
+      const message = getRequestMessage(error, 'Không thể lưu người dùng.')
       setUserEditError(message)
       toastError(message)
     } finally {
@@ -565,14 +565,14 @@ export const useAdminDashboard = () => {
   const handleDeleteSymptomRule = useCallback(async (rule: DepartmentSymptomRule) => {
     const symptomName = rule.symptom?.name || `triệu chứng #${rule.symptom_id}`
     const departmentName = rule.department?.name || `khoa #${rule.department_id}`
-    if (!window.confirm(`Xóa rule ${symptomName} - ${departmentName}?`)) return
+    if (!window.confirm(`Xóa ghi chú ${symptomName} - ${departmentName}?`)) return
 
     try {
       await deleteDepartmentSymptomRule(rule.id)
       await fetchSymptomRulesPage(dashboard.symptomRulePagination.page)
-      toastSuccess('Rule triệu chứng đã được xóa.')
+      toastSuccess('Ghi chú triệu chứng đã được xóa.')
     } catch (error) {
-      const message = getRequestMessage(error, 'Không thể xóa rule triệu chứng.')
+      const message = getRequestMessage(error, 'Không thể xóa ghi chú triệu chứng.')
       setEditingSymptomRule(rule)
       setSymptomRuleEditError(message)
       setIsSymptomRuleModalOpen(true)
@@ -623,9 +623,9 @@ export const useAdminDashboard = () => {
 
       await fetchSymptomRulesPage(dashboard.symptomRulePagination.page)
       closeSymptomRuleModal()
-      toastSuccess(editingSymptomRule ? 'Rule triệu chứng đã được cập nhật.' : 'Rule triệu chứng đã được tạo.')
+      toastSuccess(editingSymptomRule ? 'Ghi chú triệu chứng đã được cập nhật.' : 'Ghi chú triệu chứng đã được tạo.')
     } catch (error) {
-      const message = getRequestMessage(error, 'Không thể lưu rule triệu chứng.')
+      const message = getRequestMessage(error, 'Không thể lưu ghi chú triệu chứng.')
       setSymptomRuleEditError(message)
       toastError(message)
     } finally {

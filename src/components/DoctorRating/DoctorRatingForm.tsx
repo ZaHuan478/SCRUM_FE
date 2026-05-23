@@ -21,8 +21,8 @@ const DoctorRatingForm: React.FC<DoctorRatingFormProps> = ({
   isSubmitting = false,
   error,
   success,
-  submitLabel = 'Submit Review',
-  updateLabel = 'Update Review',
+  submitLabel = 'Gửi đánh giá',
+  updateLabel = 'Cập nhật đánh giá',
   onSubmit,
   onDelete,
   canDelete = false,
@@ -48,7 +48,7 @@ const DoctorRatingForm: React.FC<DoctorRatingFormProps> = ({
 
   return (
     <form className="rounded-xl border border-outline-variant/30 bg-surface p-lg shadow-sm" onSubmit={handleSubmit}>
-      <h3 className="font-headline-md text-headline-md text-on-surface">Your review</h3>
+      <h3 className="font-headline-md text-headline-md text-on-surface">Đánh giá của bạn</h3>
 
       <div className="mt-md">
         <DoctorRatingStars
@@ -60,7 +60,7 @@ const DoctorRatingForm: React.FC<DoctorRatingFormProps> = ({
           sizeClassName="text-2xl"
         />
         <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
-          {rating ? `${rating} / 5` : 'Select a rating'}
+          {rating ? `${rating} / 5` : 'Chọn số sao'}
         </p>
       </div>
 
@@ -69,7 +69,7 @@ const DoctorRatingForm: React.FC<DoctorRatingFormProps> = ({
           className="min-h-[120px] w-full rounded-lg border border-outline-variant/40 bg-white px-md py-sm font-body-md text-body-md text-on-surface outline-none transition focus:border-primary"
           maxLength={2000}
           onChange={(event) => setComment(event.target.value)}
-          placeholder="Share your experience (optional)"
+          placeholder="Chia sẻ trải nghiệm của bạn (không bắt buộc)"
           value={comment}
         />
       </div>
@@ -97,7 +97,7 @@ const DoctorRatingForm: React.FC<DoctorRatingFormProps> = ({
             type="button"
             variant="ghost"
           >
-            Delete
+            Xóa
           </Button>
         )}
       </div>

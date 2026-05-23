@@ -16,7 +16,7 @@ const DoctorRatingSummary: React.FC<DoctorRatingSummaryProps> = ({ summary, isLo
   if (isLoading) {
     return (
       <div className={containerClassName}>
-        <p className="font-body-md text-body-md text-on-surface-variant">Loading rating summary...</p>
+        <p className="font-body-md text-body-md text-on-surface-variant">Đang tải tổng quan đánh giá...</p>
       </div>
     )
   }
@@ -24,7 +24,7 @@ const DoctorRatingSummary: React.FC<DoctorRatingSummaryProps> = ({ summary, isLo
   if (!summary) {
     return (
       <div className={containerClassName}>
-        <p className="font-body-md text-body-md text-on-surface-variant">No ratings yet.</p>
+        <p className="font-body-md text-body-md text-on-surface-variant">Chưa có đánh giá nào.</p>
       </div>
     )
   }
@@ -43,7 +43,7 @@ const DoctorRatingSummary: React.FC<DoctorRatingSummaryProps> = ({ summary, isLo
           <div className="mt-xs">
             <DoctorRatingStars rating={displayStars} sizeClassName="text-2xl" />
           </div>
-          <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">{summary.totalRatings} reviews</p>
+          <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">{summary.totalRatings} đánh giá</p>
         </div>
         <div className="flex-1 space-y-xs">
           {rows.map((value) => {
@@ -52,7 +52,7 @@ const DoctorRatingSummary: React.FC<DoctorRatingSummaryProps> = ({ summary, isLo
 
             return (
               <div className="flex items-center gap-sm" key={value}>
-                <span className="w-10 font-body-sm text-body-sm text-on-surface-variant">{value} star</span>
+                <span className="w-10 font-body-sm text-body-sm text-on-surface-variant">{value} sao</span>
                 <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-container-low">
                   <div
                     className="h-full rounded-full bg-yellow-400"

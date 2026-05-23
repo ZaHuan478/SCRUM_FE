@@ -7,12 +7,11 @@ import {
   deleteHospitalDocument,
   getHospitalDocumentById,
   getHospitalDocuments,
-  syncHospitalDocumentEmbeddings,
+  updateHospitalDocument,
   updateHospitalDocumentStatus,
   uploadHospitalDocument,
   type HospitalDocument,
   type HospitalDocumentDetail,
-  type SyncEmbeddingsStats,
 } from '../../../services/hospitalDocument.service'
 
 const MAX_DOCUMENT_FILE_SIZE = 100 * 1024 * 1024
@@ -34,9 +33,12 @@ const HospitalDocumentManager = () => {
   const [selectedDocument, setSelectedDocument] = useState<HospitalDocumentDetail | null>(null)
   const [detailStatus, setDetailStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
   const [error, setError] = useState('')
-  const [isSyncingEmbeddings, setIsSyncingEmbeddings] = useState(false)
-  const [syncStats, setSyncStats] = useState<SyncEmbeddingsStats | null>(null)
+  const [editingDocument, setEditingDocument] = useState<HospitalDocument | null>(null)
+  const [editTitle, setEditTitle] = useState('')
+  const [editFile, setEditFile] = useState<File | null>(null)
+  const [updatingDocumentId, setUpdatingDocumentId] = useState<number | string | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const editFileInputRef = useRef<HTMLInputElement | null>(null)
 
   const activeDocuments = useMemo(
     () => documents.filter((document) => document.status === 'ACTIVE').length,
@@ -55,7 +57,7 @@ const HospitalDocumentManager = () => {
       setStatus('ready')
     } catch (requestError) {
       setStatus('error')
-      setError(requestError instanceof Error ? requestError.message : 'Khong tai duoc tai lieu.')
+      setError(requestError instanceof Error ? requestError.message : 'Không tải được tài liệu.')
     }
   }, [])
 
@@ -78,7 +80,7 @@ const HospitalDocumentManager = () => {
       form.reset()
       if (fileInputRef.current) fileInputRef.current.value = ''
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'Upload tai lieu that bai.')
+      setError(requestError instanceof Error ? requestError.message : 'Tải tài liệu lên thất bại.')
     } finally {
       setIsUploading(false)
     }
@@ -91,14 +93,14 @@ const HospitalDocumentManager = () => {
     const isAllowedFile = fileName.endsWith('.pdf') || fileName.endsWith('.docx')
 
     if (!isAllowedFile) {
-      setError('Chi ho tro file PDF hoac DOCX.')
+      setError('Chỉ hỗ trợ file PDF hoặc DOCX.')
       setFile(null)
       if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
 
     if (selectedFile.size > MAX_DOCUMENT_FILE_SIZE) {
-      setError('File tai lieu phai nho hon hoac bang 100 MB.')
+      setError('File tài liệu phải nhỏ hơn hoặc bằng 100 MB.')
       setFile(null)
       if (fileInputRef.current) fileInputRef.current.value = ''
       return
@@ -135,12 +137,97 @@ const HospitalDocumentManager = () => {
         item.id === document.id ? { ...item, status: updatedDocument.status } : item
       )))
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'Khong cap nhat duoc trang thai.')
+      setError(requestError instanceof Error ? requestError.message : 'Không cập nhật được trạng thái.')
     }
   }, [])
 
+  const handleOpenEdit = useCallback((document: HospitalDocument) => {
+    setEditingDocument(document)
+    setEditTitle(document.title)
+    setEditFile(null)
+    setError('')
+    if (editFileInputRef.current) editFileInputRef.current.value = ''
+  }, [])
+
+  const handleCloseEdit = useCallback(() => {
+    if (updatingDocumentId) return
+    setEditingDocument(null)
+    setEditTitle('')
+    setEditFile(null)
+    if (editFileInputRef.current) editFileInputRef.current.value = ''
+  }, [updatingDocumentId])
+
+  const handleSelectedEditFile = useCallback((selectedFile?: File | null) => {
+    if (!selectedFile) {
+      setEditFile(null)
+      return
+    }
+
+    const fileName = selectedFile.name.toLowerCase()
+    const isAllowedFile = fileName.endsWith('.pdf') || fileName.endsWith('.docx')
+
+    if (!isAllowedFile) {
+      setError('Chỉ hỗ trợ file PDF hoặc DOCX.')
+      setEditFile(null)
+      if (editFileInputRef.current) editFileInputRef.current.value = ''
+      return
+    }
+
+    if (selectedFile.size > MAX_DOCUMENT_FILE_SIZE) {
+      setError('File tài liệu phải nhỏ hơn hoặc bằng 100 MB.')
+      setEditFile(null)
+      if (editFileInputRef.current) editFileInputRef.current.value = ''
+      return
+    }
+
+    setError('')
+    setEditFile(selectedFile)
+  }, [])
+
+  const handleUpdateDocument = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!editingDocument || updatingDocumentId) return
+
+    const nextTitle = editTitle.trim()
+    if (!nextTitle) {
+      setError('Tiêu đề tài liệu là bắt buộc.')
+      return
+    }
+
+    setUpdatingDocumentId(editingDocument.id)
+    setError('')
+    try {
+      const updatedDocument = await updateHospitalDocument(editingDocument.id, {
+        file: editFile,
+        title: nextTitle,
+      })
+      const replacedFile = Boolean(editFile)
+      setDocuments((currentDocuments) => currentDocuments.map((item) => (
+        item.id === updatedDocument.id ? { ...item, ...updatedDocument } : item
+      )))
+      setSelectedDocument((currentDocument) => (
+        currentDocument?.id === updatedDocument.id
+          ? replacedFile
+            ? null
+            : { ...currentDocument, ...updatedDocument, chunks: currentDocument.chunks }
+          : currentDocument
+      ))
+      if (replacedFile && selectedDocument?.id === updatedDocument.id) {
+        setDetailStatus('idle')
+      }
+      setEditingDocument(null)
+      setEditTitle('')
+      setEditFile(null)
+      if (editFileInputRef.current) editFileInputRef.current.value = ''
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Không cập nhật được tài liệu.')
+    } finally {
+      setUpdatingDocumentId(null)
+    }
+  }, [editFile, editTitle, editingDocument, selectedDocument, updatingDocumentId])
+
   const handleDeleteDocument = useCallback(async (document: HospitalDocument) => {
-    const confirmed = window.confirm(`Xoa tai lieu "${document.title}" va tat ca chunks/images cua no?`)
+    const confirmed = window.confirm(`Xóa tài liệu "${document.title}" và tất cả đoạn nội dung/ảnh của tài liệu này?`)
     if (!confirmed || deletingDocumentId) return
 
     setDeletingDocumentId(document.id)
@@ -153,27 +240,11 @@ const HospitalDocumentManager = () => {
         setDetailStatus('idle')
       }
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'Khong xoa duoc tai lieu.')
+      setError(requestError instanceof Error ? requestError.message : 'Không xóa được tài liệu.')
     } finally {
       setDeletingDocumentId(null)
     }
   }, [deletingDocumentId, selectedDocument])
-
-  const handleSyncEmbeddings = useCallback(async () => {
-    if (isSyncingEmbeddings) return
-
-    setIsSyncingEmbeddings(true)
-    setSyncStats(null)
-    setError('')
-    try {
-      const stats = await syncHospitalDocumentEmbeddings()
-      setSyncStats(stats)
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'Khong dong bo duoc embedding.')
-    } finally {
-      setIsSyncingEmbeddings(false)
-    }
-  }, [isSyncingEmbeddings])
 
   const handleOpenDetail = useCallback(async (document: HospitalDocument) => {
     setDetailStatus('loading')
@@ -184,7 +255,7 @@ const HospitalDocumentManager = () => {
       setDetailStatus('ready')
     } catch (requestError) {
       setDetailStatus('error')
-      setError(requestError instanceof Error ? requestError.message : 'Khong tai duoc chi tiet tai lieu.')
+      setError(requestError instanceof Error ? requestError.message : 'Không tải được chi tiết tài liệu.')
     }
   }, [])
 
@@ -200,37 +271,24 @@ const HospitalDocumentManager = () => {
           <div>
             <h2 className="font-headline-sm text-headline-sm text-on-surface">Tài liệu AI bệnh viện</h2>
             <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
-              Upload PDF/DOCX, hệ thống sẽ chunk có overlap, embedding bằng Gemini và lưu vector vào DB.
+              Tải lên PDF/DOCX, hệ thống sẽ chia nội dung thành các đoạn có chồng lặp, tạo embedding bằng Gemini và lưu dữ liệu vector.
             </p>
           </div>
-          <div className="flex w-full flex-col gap-sm sm:w-auto">
-            <Button
-              className="flex items-center justify-center gap-xs px-lg py-sm"
-              disabled={isSyncingEmbeddings}
-              fullWidth={false}
-              onClick={() => void handleSyncEmbeddings()}
-              type="button"
-              variant="ghost"
-            >
-              <Icon name="sync" />
-              {isSyncingEmbeddings ? 'Đang đồng bộ' : 'Đồng bộ embedding'}
-            </Button>
-            <div className="grid grid-cols-2 gap-sm">
-              <div className="rounded-lg bg-surface-container px-md py-sm">
-                <p className="font-label-sm text-label-sm text-on-surface-variant">Đang dùng</p>
-                <p className="font-title-md text-title-md text-on-surface">{activeDocuments}</p>
-              </div>
-              <div className="rounded-lg bg-surface-container px-md py-sm">
-                <p className="font-label-sm text-label-sm text-on-surface-variant">Vector chunks</p>
-                <p className="font-title-md text-title-md text-on-surface">{totalChunks}</p>
-              </div>
+          <div className="grid w-full grid-cols-2 gap-sm sm:w-auto">
+            <div className="rounded-lg bg-surface-container px-md py-sm">
+              <p className="font-label-sm text-label-sm text-on-surface-variant">Đang dùng</p>
+              <p className="font-title-md text-title-md text-on-surface">{activeDocuments}</p>
+            </div>
+            <div className="rounded-lg bg-surface-container px-md py-sm">
+              <p className="font-label-sm text-label-sm text-on-surface-variant">Đoạn vector</p>
+              <p className="font-title-md text-title-md text-on-surface">{totalChunks}</p>
             </div>
           </div>
         </div>
 
         <form className="grid gap-lg rounded-lg bg-surface-container-low p-md lg:grid-cols-[minmax(220px,0.75fr)_minmax(360px,1.25fr)]" onSubmit={handleSubmit}>
           <Input
-            aria-label="Tieu de tai lieu"
+            aria-label="Tiêu đề tài liệu"
             className="py-sm text-body-sm"
             icon="description"
             onChange={(event) => setTitle(event.target.value)}
@@ -258,10 +316,10 @@ const HospitalDocumentManager = () => {
             </span>
             <span className="z-10 inline-flex items-center gap-xs rounded-lg bg-primary px-lg py-sm font-label-md text-label-md text-on-primary shadow-md">
               <Icon name="cloud_upload" />
-              Upload
+              Tải lên
             </span>
             <span className="z-10 mt-sm block font-body-sm text-body-sm text-on-surface-variant">
-              {file ? `${file.name} - ${formatFileSize(file.size)}` : 'or drop your PDF/DOCX file here'}
+              {file ? `${file.name} - ${formatFileSize(file.size)}` : 'hoặc kéo thả file PDF/DOCX vào đây'}
             </span>
             <span className="z-10 mt-xs block font-body-sm text-body-sm text-on-surface-variant">
               Hỗ trợ .pdf, .docx tối đa 100 MB
@@ -281,18 +339,13 @@ const HospitalDocumentManager = () => {
             type="submit"
           >
             <Icon name="cloud_upload" />
-            {isUploading ? 'Dang xu ly' : 'Import document'}
+            {isUploading ? 'Đang xử lý' : 'Nhập tài liệu'}
           </Button>
         </form>
 
         {error && (
           <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
             {error}
-          </p>
-        )}
-        {syncStats && (
-          <p className="rounded-lg bg-primary-container px-md py-sm font-body-sm text-body-sm text-on-primary-container">
-            Đã đồng bộ embedding: {syncStats.total} tổng, {syncStats.created} tạo mới, {syncStats.updated} cập nhật, {syncStats.skipped} bỏ qua, {syncStats.failed} lỗi.
           </p>
         )}
       </div>
@@ -313,7 +366,7 @@ const HospitalDocumentManager = () => {
               <tr>
                 <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Tài liệu</th>
                 <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Loại</th>
-                <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Vector</th>
+                <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Đoạn vector</th>
                 <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Ảnh</th>
                 <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Trạng thái</th>
                 <th className="px-xl py-md text-right font-label-md text-label-md text-on-surface-variant">Hành động</th>
@@ -341,6 +394,15 @@ const HospitalDocumentManager = () => {
                   </td>
                   <td className="px-xl py-lg text-right">
                     <div className="flex justify-end gap-sm">
+                      <Button
+                        className="px-md py-sm"
+                        fullWidth={false}
+                        onClick={() => handleOpenEdit(document)}
+                        type="button"
+                        variant="ghost"
+                      >
+                        Sửa
+                      </Button>
                       <Button
                         className="px-md py-sm"
                         fullWidth={false}
@@ -377,6 +439,108 @@ const HospitalDocumentManager = () => {
           </table>
         </div>
       )}
+      {editingDocument && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim/40 px-md py-lg">
+          <form
+            className="w-full max-w-xl rounded-xl bg-surface-container-lowest p-lg shadow-2xl"
+            onSubmit={handleUpdateDocument}
+          >
+            <div className="flex items-start justify-between gap-md">
+              <div>
+                <h3 className="font-title-lg text-title-lg text-on-surface">Sửa tài liệu</h3>
+                <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
+                  Cập nhật tiêu đề hoặc thay file để hệ thống xử lý lại nội dung AI.
+                </p>
+              </div>
+              <Button
+                aria-label="Đóng form sửa tài liệu"
+                className="rounded-full p-sm"
+                disabled={Boolean(updatingDocumentId)}
+                fullWidth={false}
+                onClick={handleCloseEdit}
+                type="button"
+                variant="ghost"
+              >
+                <Icon name="close" />
+              </Button>
+            </div>
+
+            <div className="mt-lg space-y-md">
+              <Input
+                autoFocus
+                id="hospital-document-edit-title"
+                label="Tiêu đề tài liệu"
+                maxLength={255}
+                onChange={(event) => setEditTitle(event.target.value)}
+                value={editTitle}
+              />
+              <div className="rounded-lg bg-surface-container px-md py-sm">
+                <p className="font-label-sm text-label-sm text-on-surface-variant">File gốc</p>
+                <p className="mt-xs break-all font-body-sm text-body-sm text-on-surface">
+                  {editingDocument.original_filename}
+                </p>
+              </div>
+              <label className="block rounded-lg border border-dashed border-outline-variant/60 bg-surface-container-low px-md py-md">
+                <span className="font-label-md text-label-md text-on-surface">Thay thế file</span>
+                <span className="mt-xs block font-body-sm text-body-sm text-on-surface-variant">
+                  Tùy chọn. Khi chọn file mới, hệ thống sẽ đọc lại nội dung, chia thành các đoạn và tạo embedding mới.
+                </span>
+                <input
+                  accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  className="mt-sm block w-full font-body-sm text-body-sm text-on-surface file:mr-md file:rounded-lg file:border-0 file:bg-primary file:px-md file:py-sm file:font-label-sm file:text-label-sm file:text-on-primary"
+                  disabled={Boolean(updatingDocumentId)}
+                  onChange={(event) => handleSelectedEditFile(event.target.files?.[0] ?? null)}
+                  ref={editFileInputRef}
+                  type="file"
+                />
+                {editFile && (
+                  <span className="mt-sm flex items-center justify-between gap-sm rounded-lg bg-primary-container px-md py-sm text-on-primary-container">
+                    <span className="break-all font-body-sm text-body-sm">
+                      {editFile.name} - {formatFileSize(editFile.size)}
+                    </span>
+                    <button
+                      className="shrink-0 font-label-sm text-label-sm text-primary"
+                      disabled={Boolean(updatingDocumentId)}
+                      onClick={() => {
+                        setEditFile(null)
+                        if (editFileInputRef.current) editFileInputRef.current.value = ''
+                      }}
+                      type="button"
+                    >
+                      Bỏ chọn
+                    </button>
+                  </span>
+                )}
+              </label>
+              {error && (
+                <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
+                  {error}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-lg flex flex-col-reverse gap-sm sm:flex-row sm:justify-end">
+              <Button
+                disabled={Boolean(updatingDocumentId)}
+                fullWidth={false}
+                onClick={handleCloseEdit}
+                type="button"
+                variant="ghost"
+              >
+                Hủy
+              </Button>
+              <Button
+                className="px-lg py-sm"
+                disabled={Boolean(updatingDocumentId) || !editTitle.trim()}
+                fullWidth={false}
+                type="submit"
+              >
+                {updatingDocumentId ? 'Đang xử lý' : editFile ? 'Thay file và lưu' : 'Lưu thay đổi'}
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
       {(detailStatus === 'loading' || selectedDocument) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim/40 px-md py-lg">
           <section className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-surface-container-lowest shadow-2xl">
@@ -387,12 +551,12 @@ const HospitalDocumentManager = () => {
                 </h3>
                 {selectedDocument && (
                   <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
-                    {selectedDocument.original_filename} - {selectedDocument.file_type} - {selectedDocument.chunk_count} chunks - {selectedDocument.image_count} ảnh
+                    {selectedDocument.original_filename} - {selectedDocument.file_type} - {selectedDocument.chunk_count} đoạn - {selectedDocument.image_count} ảnh
                   </p>
                 )}
               </div>
               <Button
-                aria-label="Dong chi tiet tai lieu"
+                aria-label="Đóng chi tiết tài liệu"
                 className="rounded-full p-sm"
                 fullWidth={false}
                 onClick={handleCloseDetail}
@@ -406,7 +570,7 @@ const HospitalDocumentManager = () => {
             <div className="grid min-h-0 flex-1 gap-lg overflow-y-auto p-lg lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)]">
               {detailStatus === 'loading' && (
                 <div className="lg:col-span-2 rounded-lg bg-surface-container px-md py-lg font-body-sm text-body-sm text-on-surface-variant">
-                  Đang tải chunks và ảnh...
+                  Đang tải các đoạn nội dung và ảnh...
                 </div>
               )}
 
@@ -414,15 +578,15 @@ const HospitalDocumentManager = () => {
                 <>
                   <section className="min-w-0">
                     <div className="mb-md flex items-center justify-between gap-md">
-                      <h4 className="font-title-md text-title-md text-on-surface">Chunks đã embedding</h4>
+                      <h4 className="font-title-md text-title-md text-on-surface">Các đoạn đã xử lý AI</h4>
                       <span className="rounded-full bg-primary-container px-sm py-xs font-label-sm text-label-sm text-on-primary-container">
-                        {selectedDocument.chunks.length} chunks
+                        {selectedDocument.chunks.length} đoạn
                       </span>
                     </div>
                     <div className="space-y-md">
                       {selectedDocument.chunks.length === 0 && (
                         <p className="rounded-lg bg-surface-container px-md py-sm font-body-sm text-body-sm text-on-surface-variant">
-                          Chưa có chunk nào cho tài liệu này.
+                          Chưa có đoạn nào cho tài liệu này.
                         </p>
                       )}
                       {selectedDocument.chunks.map((chunk) => (
@@ -433,10 +597,10 @@ const HospitalDocumentManager = () => {
                           <div className="flex flex-col justify-between gap-sm md:flex-row md:items-start">
                             <div>
                               <h5 className="font-label-md text-label-md text-on-surface">
-                                Chunk {chunk.chunk_index}
+                                Đoạn {chunk.chunk_index}
                               </h5>
                               <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
-                                {chunk.embedding_model} - {chunk.embedding_dimensions} dimensions
+                                {chunk.embedding_model} - {chunk.embedding_dimensions} chiều
                               </p>
                             </div>
                             <span className={`w-fit rounded-full px-sm py-xs font-label-sm text-label-sm ${
@@ -449,7 +613,7 @@ const HospitalDocumentManager = () => {
                             {chunk.content}
                           </p>
                           <p className="mt-sm break-all font-body-sm text-body-sm text-on-surface-variant">
-                            Hash: {chunk.content_hash}
+                            Mã băm: {chunk.content_hash}
                           </p>
                         </article>
                       ))}

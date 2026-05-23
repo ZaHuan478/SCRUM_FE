@@ -25,7 +25,7 @@ const DoctorRatingList: React.FC<DoctorRatingListProps> = ({
   if (isLoading && ratings.length === 0) {
     return (
       <div className={emptyStateClassName}>
-        <p className="font-body-md text-body-md text-on-surface-variant">Loading reviews...</p>
+        <p className="font-body-md text-body-md text-on-surface-variant">Đang tải đánh giá...</p>
       </div>
     )
   }
@@ -34,7 +34,7 @@ const DoctorRatingList: React.FC<DoctorRatingListProps> = ({
     <div className="space-y-md">
       {ratings.length === 0 ? (
         <div className={emptyStateClassName}>
-          <p className="font-body-md text-body-md text-on-surface-variant">No reviews yet.</p>
+          <p className="font-body-md text-body-md text-on-surface-variant">Chưa có đánh giá nào.</p>
         </div>
       ) : (
         ratings.map((rating) => (
@@ -56,7 +56,7 @@ const DoctorRatingList: React.FC<DoctorRatingListProps> = ({
           type="button"
           variant="ghost"
         >
-          {isLoading ? 'Loading...' : 'Load more'}
+          {isLoading ? 'Đang tải...' : 'Tải thêm'}
         </Button>
       )}
     </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import Icon from '../Atoms/Icon'
 import Logo from '../Atoms/Logo'
 import AccountMenu from '../Molecules/Common/AccountMenu'
 import AppPreferences from '../Molecules/Common/AppPreferences'
@@ -68,6 +69,15 @@ const TopNavBar = ({ active = 'homepage' }: TopNavBarProps) => {
         </div>
         <div className="flex items-center justify-end gap-sm justify-self-end lg:gap-md">
           <AppPreferences />
+          {user?.role === 'ADMIN' && (
+            <Link
+              aria-label="Điều hành"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-on-primary shadow-sm transition-all hover:opacity-90 hover:shadow-md active:scale-95"
+              to="/admin"
+            >
+              <Icon name="admin_panel_settings" />
+            </Link>
+          )}
           {user?.role === 'PATIENT' && (
             <Link className="whitespace-nowrap rounded-lg bg-primary-container px-md py-sm font-label-md text-label-md text-on-primary-container shadow-sm transition-all hover:opacity-90 active:scale-95 lg:px-lg" to="/appointments">
               {t('common.appointments')}

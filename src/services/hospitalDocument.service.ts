@@ -42,14 +42,6 @@ export type HospitalDocumentDetail = HospitalDocument & {
   images: HospitalDocumentImage[]
 }
 
-export type SyncEmbeddingsStats = {
-  total: number
-  created: number
-  updated: number
-  skipped: number
-  failed: number
-}
-
 export const getHospitalDocuments = () =>
   apiRequest<HospitalDocument[]>('/hospital-documents')
 
@@ -75,12 +67,25 @@ export const updateHospitalDocumentStatus = (id: number | string, status: Hospit
     body: JSON.stringify({ status }),
   })
 
+export const updateHospitalDocument = (id: number | string, payload: { file?: File | null; title: string }) => {
+  if (payload.file) {
+    const formData = new FormData()
+    formData.append('title', payload.title.trim())
+    formData.append('file', payload.file)
+
+    return apiRequest<HospitalDocument>(`/hospital-documents/${id}`, {
+      method: 'PATCH',
+      body: formData,
+    })
+  }
+
+  return apiRequest<HospitalDocument>(`/hospital-documents/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ title: payload.title }),
+  })
+}
+
 export const deleteHospitalDocument = (id: number | string) =>
   apiRequest<void>(`/hospital-documents/${id}`, {
     method: 'DELETE',
-  })
-
-export const syncHospitalDocumentEmbeddings = () =>
-  apiRequest<SyncEmbeddingsStats>('/hospital-documents/sync-embeddings', {
-    method: 'POST',
   })

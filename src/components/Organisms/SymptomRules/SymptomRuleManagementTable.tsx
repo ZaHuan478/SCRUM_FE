@@ -38,18 +38,18 @@ const SymptomRuleManagementTable = ({
         </div>
         <Button className="flex items-center gap-xs px-lg py-sm" fullWidth={false} onClick={onCreateRule} type="button">
           <Icon name="add" />
-          Thêm rule
+          Thêm ghi chú
         </Button>
       </div>
 
-      {status === 'loading' && <div className="p-xl font-body-sm text-body-sm text-on-surface-variant">Đang tải danh sách rule...</div>}
+      {status === 'loading' && <div className="p-xl font-body-sm text-body-sm text-on-surface-variant">Đang tải danh sách ghi chú...</div>}
       {status === 'error' && (
         <div className="m-lg rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
-          Chưa tải được danh sách rule triệu chứng.
+          Chưa tải được danh sách ghi chú triệu chứng.
         </div>
       )}
       {status === 'ready' && rules.length === 0 && (
-        <div className="p-xl text-center font-body-md text-body-md text-on-surface-variant">Chưa có rule triệu chứng nào.</div>
+        <div className="p-xl text-center font-body-md text-body-md text-on-surface-variant">Chưa có ghi chú triệu chứng nào.</div>
       )}
       {rules.length > 0 && (
         <div className="overflow-x-auto">
@@ -83,7 +83,7 @@ const SymptomRuleManagementTable = ({
                   </td>
                   <td className="px-xl py-lg text-right">
                     <Button
-                      aria-label={`Sửa rule ${rule.id}`}
+                      aria-label={`Sửa ghi chú ${rule.id}`}
                       className="mr-xs rounded-full border-none p-sm text-primary shadow-none hover:bg-primary/5"
                       fullWidth={false}
                       onClick={() => onEditRule(rule)}
@@ -93,7 +93,7 @@ const SymptomRuleManagementTable = ({
                       <Icon name="edit" />
                     </Button>
                     <Button
-                      aria-label={`Xóa rule ${rule.id}`}
+                      aria-label={`Xóa ghi chú ${rule.id}`}
                       className="rounded-full border-none p-sm text-error shadow-none hover:bg-error-container"
                       fullWidth={false}
                       onClick={() => onDeleteRule(rule)}
@@ -111,7 +111,7 @@ const SymptomRuleManagementTable = ({
       )}
       <div className="flex flex-col justify-between gap-md border-t border-outline-variant/20 bg-surface-container-low p-lg sm:flex-row sm:items-center">
         <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Đang hiển thị {firstItem}-{lastItem} trên {totalRules} rule
+          Đang hiển thị {firstItem}-{lastItem} trên {totalRules} ghi chú
         </p>
         <div className="flex items-center gap-sm">
           <Button

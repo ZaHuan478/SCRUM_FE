@@ -100,7 +100,7 @@ const DoctorScheduleForm = ({
         type="submit"
       >
         <Icon className="text-lg" name="save" />
-        {editingSlot ? 'Lưu thay đổi' : 'Thêm khung'}
+        {editingSlot ? 'Lưu thay đổi' : 'Thêm khung giờ'}
       </Button>
       {editingSlot && (
         <Button
