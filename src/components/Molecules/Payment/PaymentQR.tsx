@@ -22,8 +22,20 @@ const getTransferContent = (payment: Payment) => {
   }
 }
 
+const getCheckoutUrl = (payment: Payment) => {
+  if (!payment.qr_payload) return ''
+
+  try {
+    const parsedPayload = JSON.parse(payment.qr_payload)
+    return parsedPayload.checkoutUrl || ''
+  } catch {
+    return ''
+  }
+}
+
 const PaymentQR = ({ payment }: PaymentQRProps) => {
   const transferContent = getTransferContent(payment)
+  const checkoutUrl = getCheckoutUrl(payment)
 
   return (
     <section className="rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-lg shadow-sm">
@@ -63,6 +75,16 @@ const PaymentQR = ({ payment }: PaymentQRProps) => {
               <p className="font-label-sm text-label-sm text-on-surface-variant">Nội dung chuyển khoản</p>
               <p className="mt-xs break-words font-label-lg text-label-lg text-on-surface">{transferContent}</p>
             </div>
+          )}
+          {checkoutUrl && (
+            <a
+              className="inline-flex rounded-lg bg-primary px-md py-sm font-label-md text-label-md text-on-primary"
+              href={checkoutUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Mo trang thanh toan PayOS
+            </a>
           )}
         </div>
       </div>
