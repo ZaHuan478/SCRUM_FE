@@ -4,6 +4,7 @@ import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import Image from '../../Atoms/Image'
 import Input from '../../Atoms/Input'
+import Select from '../../Molecules/Common/Select'
 import type { DoctorManagementRowData } from '../../Molecules/Management/DoctorManagementRow'
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024
@@ -305,39 +306,30 @@ const DoctorEditModal = ({
           </div>
 
           <div className="grid grid-cols-1 gap-md sm:grid-cols-2">
-            <div className="space-y-xs">
-              <label className="font-label-md text-label-md text-on-surface" htmlFor="doctor-department">
-                Khoa
-              </label>
-              <select
-                className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-                disabled={departmentOptions.length === 0}
-                id="doctor-department"
-                onChange={(event) => setDepartmentId(event.target.value)}
-                value={departmentId}
-              >
-                <option value="">Chưa chọn khoa</option>
-                {departmentOptions.map((option) => (
-                  <option key={option.departmentId} value={option.departmentId}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-xs">
-              <label className="font-label-md text-label-md text-on-surface" htmlFor="doctor-status">
-                Trạng thái
-              </label>
-              <select
-                className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-                id="doctor-status"
-                onChange={(event) => setStatus(event.target.value as 'ACTIVE' | 'INACTIVE')}
-                value={status}
-              >
-                <option value="ACTIVE">Đang hoạt động</option>
-                <option value="INACTIVE">Ngoại tuyến</option>
-              </select>
-            </div>
+            <Select
+              disabled={departmentOptions.length === 0}
+              id="doctor-department"
+              label="Khoa"
+              onChange={setDepartmentId}
+              options={[
+                { label: 'Chưa chọn khoa', value: '' },
+                ...departmentOptions.map((option) => ({
+                  label: option.label,
+                  value: String(option.departmentId),
+                })),
+              ]}
+              value={departmentId}
+            />
+            <Select
+              id="doctor-status"
+              label="Trạng thái"
+              onChange={(value) => setStatus(value as 'ACTIVE' | 'INACTIVE')}
+              options={[
+                { label: 'Đang hoạt động', value: 'ACTIVE' },
+                { label: 'Ngoại tuyến', value: 'INACTIVE' },
+              ]}
+              value={status}
+            />
           </div>
 
           <div className="space-y-xs">

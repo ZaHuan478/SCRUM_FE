@@ -1,4 +1,5 @@
 import Icon from '../../Atoms/Icon'
+import Select from './Select'
 import { languages, useTranslation } from '../../../contexts/LanguageContext'
 import { useTheme } from '../../../contexts/ThemeContext'
 
@@ -8,25 +9,19 @@ const AppPreferences = () => {
 
   return (
     <div className="flex items-center gap-sm">
-      <label className="sr-only" htmlFor="language-select">
-        {t('preferences.language')}
-      </label>
-      <select
-        className="h-10 rounded-lg border border-outline-variant/50 bg-surface-container-lowest px-sm font-label-md text-label-md text-on-surface shadow-sm outline-none transition-colors hover:bg-surface-container-high focus:ring-2 focus:ring-primary/40"
+      <Select
+        className="h-10 px-sm py-0 font-label-md text-label-md focus:ring-2 focus:ring-primary/40"
         id="language-select"
-        onChange={(event) => setLanguage(event.target.value as typeof language)}
+        label=""
+        menuClassName="min-w-28"
+        onChange={(value) => setLanguage(value as typeof language)}
+        options={languages.map((item) => ({ label: item.shortLabel, value: item.code }))}
         title={t('preferences.language')}
         value={language}
-      >
-        {languages.map((item) => (
-          <option key={item.code} value={item.code}>
-            {item.shortLabel}
-          </option>
-        ))}
-      </select>
+      />
       <button
         aria-label={theme === 'dark' ? t('preferences.light') : t('preferences.dark')}
-        className="flex h-10 w-10 items-center justify-center rounded-lg border border-outline-variant/50 bg-surface-container-lowest text-on-surface shadow-sm transition-colors hover:bg-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/40"
+        className="flex h-10 w-10 items-center justify-center rounded-xl border border-outline-variant/50 bg-surface-container-lowest text-on-surface shadow-sm transition-colors hover:bg-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/40"
         onClick={toggleTheme}
         title={theme === 'dark' ? t('preferences.light') : t('preferences.dark')}
         type="button"

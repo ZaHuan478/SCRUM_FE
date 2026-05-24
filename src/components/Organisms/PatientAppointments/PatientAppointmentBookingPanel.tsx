@@ -4,6 +4,7 @@ import Icon from '../../Atoms/Icon'
 import Input from '../../Atoms/Input'
 import PatientAppointmentDayButton from '../../Molecules/PatientAppointments/PatientAppointmentDayButton'
 import PatientAppointmentSlotCard from '../../Molecules/PatientAppointments/PatientAppointmentSlotCard'
+import Select from '../../Molecules/Common/Select'
 import type { AppointmentSlot } from '../../../services/appointmentSlot.service'
 import type { RecommendedDepartment } from '../../../services/departmentSymptomRule.service'
 import type { Department } from '../../../services/department.service'
@@ -137,20 +138,20 @@ const PatientAppointmentBookingPanel = ({
             value={selectedDate}
             wrapperClassName="md:w-48"
           />
-          <label className="space-y-xs md:w-56">
-            <span className="font-label-md text-label-md text-on-surface">Khoa</span>
-            <select
-              className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-              disabled={departmentStatus === 'loading' || Boolean(selectedDoctorId)}
-              onChange={(event) => onDepartmentChange(event.target.value)}
-              value={selectedDepartmentId}
-            >
-              <option value="">Tất cả khoa</option>
-              {departments.map((department) => (
-                <option key={department.id} value={department.id}>{department.name}</option>
-              ))}
-            </select>
-          </label>
+          <Select
+            disabled={departmentStatus === 'loading' || Boolean(selectedDoctorId)}
+            label="Khoa"
+            onChange={onDepartmentChange}
+            options={[
+              { label: 'Tất cả khoa', value: '' },
+              ...departments.map((department) => ({
+                label: department.name,
+                value: String(department.id),
+              })),
+            ]}
+            value={selectedDepartmentId}
+            wrapperClassName="md:w-56"
+          />
         </div>
       </div>
 

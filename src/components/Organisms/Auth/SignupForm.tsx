@@ -7,6 +7,7 @@ import Button from '../../Atoms/Button'
 import Checkbox from '../../Atoms/Checkbox'
 import SocialLogin from '../../Molecules/Auth/SocialLogin'
 import Divider from '../../Molecules/Common/Divider'
+import GenderSelect from '../../Molecules/Common/GenderSelect'
 import { useTranslation } from '../../../contexts/LanguageContext'
 import { register } from '../../../services/auth.service'
 import type { UserGender } from '../../../services/auth.service'
@@ -105,21 +106,7 @@ const SignupForm = () => {
           type="tel"
           value={phone}
         />
-        <div className="space-y-xs">
-          <label className="font-label-md text-label-md text-on-surface" htmlFor="signup-gender">Gioi tinh</label>
-          <select
-            className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-            id="signup-gender"
-            name="gender"
-            onChange={(event) => setGender(event.target.value as UserGender | '')}
-            value={gender}
-          >
-            <option value="">Chua cap nhat</option>
-            <option value="MALE">Nam</option>
-            <option value="FEMALE">Nu</option>
-            <option value="OTHER">Khac</option>
-          </select>
-        </div>
+        <GenderSelect id="signup-gender" name="gender" onChange={setGender} value={gender} />
         <Input
           autoComplete="email"
           icon="mail"

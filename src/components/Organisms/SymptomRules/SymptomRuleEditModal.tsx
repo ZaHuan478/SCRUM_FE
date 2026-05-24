@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
+import Select from '../../Molecules/Common/Select'
 import type { Department } from '../../../services/department.service'
 import type { DepartmentSymptomRule } from '../../../services/departmentSymptomRule.service'
 import type { Symptom } from '../../../services/symptom.service'
@@ -87,37 +88,35 @@ const SymptomRuleEditModal = ({
           {error && <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">{error}</p>}
 
           <div className="grid grid-cols-1 gap-lg md:grid-cols-2">
-            <label className="space-y-xs">
-              <span className="font-label-md text-label-md text-on-surface">Triệu chứng</span>
-              <select
-                className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:bg-surface-container-low"
-                disabled={isEditing}
-                onChange={(event) => setSymptomId(event.target.value)}
-                required
-                value={symptomId}
-              >
-                <option value="">Chọn triệu chứng</option>
-                {symptoms.map((symptom) => (
-                  <option key={symptom.id} value={symptom.id}>{symptom.name}</option>
-                ))}
-              </select>
-            </label>
+            <Select
+              disabled={isEditing}
+              label="Triệu chứng"
+              onChange={setSymptomId}
+              options={[
+                { label: 'Chọn triệu chứng', value: '' },
+                ...symptoms.map((symptom) => ({
+                  label: symptom.name,
+                  value: String(symptom.id),
+                })),
+              ]}
+              required
+              value={symptomId}
+            />
 
-            <label className="space-y-xs">
-              <span className="font-label-md text-label-md text-on-surface">Khoa</span>
-              <select
-                className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:bg-surface-container-low"
-                disabled={isEditing}
-                onChange={(event) => setDepartmentId(event.target.value)}
-                required
-                value={departmentId}
-              >
-                <option value="">Chọn khoa</option>
-                {departments.map((department) => (
-                  <option key={department.id} value={department.id}>{department.name}</option>
-                ))}
-              </select>
-            </label>
+            <Select
+              disabled={isEditing}
+              label="Khoa"
+              onChange={setDepartmentId}
+              options={[
+                { label: 'Chọn khoa', value: '' },
+                ...departments.map((department) => ({
+                  label: department.name,
+                  value: String(department.id),
+                })),
+              ]}
+              required
+              value={departmentId}
+            />
           </div>
 
           <label className="block space-y-xs">

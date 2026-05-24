@@ -6,6 +6,7 @@ import type { DoctorCardData } from '../components/Molecules/Home/DoctorCard'
 import Icon from '../components/Atoms/Icon'
 import Input from '../components/Atoms/Input'
 import PaginationControls from '../components/Molecules/Common/PaginationControls'
+import Select from '../components/Molecules/Common/Select'
 import { useTranslation } from '../contexts/LanguageContext'
 import { getDoctorAssignments } from '../services/doctorAssignment.service'
 import type { DoctorAssignment } from '../services/doctorAssignment.service'
@@ -291,43 +292,30 @@ const DoctorsPage = () => {
               value={query}
             />
             <div className="grid gap-md md:grid-cols-3">
-              <label className="space-y-xs">
-                <span className="font-label-md text-label-md text-on-surface">{t('doctorsPage.departmentLabel')}</span>
-                <select
-                  className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-                  onChange={(event) => setSelectedDepartmentId(event.target.value)}
-                  value={selectedDepartmentId}
-                >
-                  <option value="all">{t('doctorsPage.allDepartments')}</option>
-                  {departmentOptions.map(([departmentId, departmentName]) => (
-                    <option key={departmentId} value={departmentId}>{departmentName}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="space-y-xs">
-                <span className="font-label-md text-label-md text-on-surface">{t('doctorsPage.feeLabel')}</span>
-                <select
-                  className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-                  onChange={(event) => setSelectedFee(event.target.value)}
-                  value={selectedFee}
-                >
-                  {feeOptions.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="space-y-xs">
-                <span className="font-label-md text-label-md text-on-surface">{t('doctorsPage.experienceLabel')}</span>
-                <select
-                  className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-                  onChange={(event) => setSelectedExperience(event.target.value)}
-                  value={selectedExperience}
-                >
-                  {experienceOptions.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
-              </label>
+              <Select
+                label={t('doctorsPage.departmentLabel')}
+                onChange={setSelectedDepartmentId}
+                options={[
+                  { label: t('doctorsPage.allDepartments'), value: 'all' },
+                  ...departmentOptions.map(([departmentId, departmentName]) => ({
+                    label: departmentName,
+                    value: departmentId,
+                  })),
+                ]}
+                value={selectedDepartmentId}
+              />
+              <Select
+                label={t('doctorsPage.feeLabel')}
+                onChange={setSelectedFee}
+                options={feeOptions}
+                value={selectedFee}
+              />
+              <Select
+                label={t('doctorsPage.experienceLabel')}
+                onChange={setSelectedExperience}
+                options={experienceOptions}
+                value={selectedExperience}
+              />
             </div>
             <div className="w-fit whitespace-nowrap rounded-lg bg-surface-container-low px-md py-sm font-label-md text-label-md text-on-surface-variant">
               {t('doctorsPage.resultCount', { visible: visibleDoctors.length, total: doctors.length })}

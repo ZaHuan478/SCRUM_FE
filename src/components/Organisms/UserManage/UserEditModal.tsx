@@ -4,6 +4,8 @@ import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import Image from '../../Atoms/Image'
 import Input from '../../Atoms/Input'
+import GenderSelect from '../../Molecules/Common/GenderSelect'
+import Select from '../../Molecules/Common/Select'
 import type { User, UserGender, UserRole } from '../../../services/auth.service'
 
 export type UserFormValues = {
@@ -144,49 +146,32 @@ const UserEditModal = ({
             )}
             <Input id="user-phone" label="So dien thoai" onChange={(event) => setPhone(event.target.value)} type="tel" value={phone} />
             <Input id="user-date-of-birth" label="Ngay sinh" onChange={(event) => setDateOfBirth(event.target.value)} type="date" value={dateOfBirth} />
-            <div className="space-y-xs">
-              <label className="font-label-md text-label-md text-on-surface" htmlFor="user-gender">Gioi tinh</label>
-              <select
-                className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-                id="user-gender"
-                onChange={(event) => setGender(event.target.value as UserGender | '')}
-                value={gender}
-              >
-                <option value="">Chua cap nhat</option>
-                <option value="MALE">Nam</option>
-                <option value="FEMALE">Nu</option>
-                <option value="OTHER">Khac</option>
-              </select>
-            </div>
+            <GenderSelect id="user-gender" onChange={setGender} value={gender} />
             <Input id="user-cccd-number" label="So CCCD" onChange={(event) => setCccdNumber(event.target.value)} type="text" value={cccdNumber} />
           </div>
 
           <div className="grid grid-cols-1 gap-lg md:grid-cols-2">
-            <div className="space-y-xs">
-              <label className="font-label-md text-label-md text-on-surface" htmlFor="user-role">Vai tro</label>
-              <select
-                className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-                id="user-role"
-                onChange={(event) => setRole(event.target.value as UserRole)}
-                value={role}
-              >
-                <option value="PATIENT">Bệnh nhân</option>
-                <option value="DOCTOR">Bác sĩ</option>
-                <option value="ADMIN">Quản trị viên</option>
-              </select>
-            </div>
-            <div className="space-y-xs">
-              <label className="font-label-md text-label-md text-on-surface" htmlFor="user-status">Trang thai</label>
-              <select
-                className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-                id="user-status"
-                onChange={(event) => setStatus(event.target.value as User['status'])}
-                value={status}
-              >
-                <option value="ACTIVE">Đang hoạt động</option>
-                <option value="INACTIVE">Tạm ngưng</option>
-              </select>
-            </div>
+            <Select
+              id="user-role"
+              label="Vai tro"
+              onChange={(nextValue) => setRole(nextValue as UserRole)}
+              options={[
+                { label: 'Bệnh nhân', value: 'PATIENT' },
+                { label: 'Bác sĩ', value: 'DOCTOR' },
+                { label: 'Quản trị viên', value: 'ADMIN' },
+              ]}
+              value={role}
+            />
+            <Select
+              id="user-status"
+              label="Trang thai"
+              onChange={(nextValue) => setStatus(nextValue as User['status'])}
+              options={[
+                { label: 'Đang hoạt động', value: 'ACTIVE' },
+                { label: 'Tạm ngưng', value: 'INACTIVE' },
+              ]}
+              value={status}
+            />
           </div>
 
           <div className="grid grid-cols-1 gap-lg md:grid-cols-2">

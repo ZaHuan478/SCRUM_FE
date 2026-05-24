@@ -108,6 +108,17 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
                 {t('account.patientAppointments')}
               </Link>
             )}
+            {user.role === 'ADMIN' && (
+              <Link
+                className="flex w-full items-center gap-sm rounded-lg px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-high"
+                onClick={() => setOpen(false)}
+                role="menuitem"
+                to="/admin"
+              >
+                <Icon className="text-xl text-primary" name="dashboard" />
+                Quản trị hệ thống
+              </Link>
+            )}
             <Link
               className="flex w-full items-center gap-sm rounded-lg px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-high"
               onClick={() => setOpen(false)}

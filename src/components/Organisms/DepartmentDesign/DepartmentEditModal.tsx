@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import Input from '../../Atoms/Input'
+import Select from '../../Molecules/Common/Select'
 import type { Department } from '../../../services/department.service'
 
 export type DepartmentFormValues = {
@@ -98,20 +99,16 @@ const DepartmentEditModal = ({
               value={description}
             />
           </div>
-          <div className="space-y-xs">
-            <label className="font-label-md text-label-md text-on-surface" htmlFor="department-status">
-              Trạng thái
-            </label>
-            <select
-              className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-              id="department-status"
-              onChange={(event) => setStatus(event.target.value as 'ACTIVE' | 'INACTIVE')}
-              value={status}
-            >
-              <option value="ACTIVE">Đang hoạt động</option>
-              <option value="INACTIVE">Tạm ngưng</option>
-            </select>
-          </div>
+          <Select
+            id="department-status"
+            label="Trạng thái"
+            onChange={(value) => setStatus(value as 'ACTIVE' | 'INACTIVE')}
+            options={[
+              { label: 'Đang hoạt động', value: 'ACTIVE' },
+              { label: 'Tạm ngưng', value: 'INACTIVE' },
+            ]}
+            value={status}
+          />
         </div>
 
         <div className="mt-xl flex justify-end gap-md border-t border-outline-variant/30 pt-lg">

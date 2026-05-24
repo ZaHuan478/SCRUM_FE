@@ -1,6 +1,7 @@
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import Input from '../../Atoms/Input'
+import GenderSelect from '../../Molecules/Common/GenderSelect'
 import type { User } from '../../../services/auth.service'
 import type { LoadStatus, ProfileFormState } from '../../../utils/profile'
 
@@ -65,20 +66,11 @@ const ProfileIdentitySection = ({
         type="date"
         value={form.dateOfBirth}
       />
-      <div className="space-y-xs">
-        <label className="font-label-md text-label-md text-on-surface" htmlFor="profile-gender">Gioi tinh</label>
-        <select
-          className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-          id="profile-gender"
-          onChange={(event) => onFieldChange('gender', event.target.value)}
-          value={form.gender}
-        >
-          <option value="">Chua cap nhat</option>
-          <option value="MALE">Nam</option>
-          <option value="FEMALE">Nu</option>
-          <option value="OTHER">Khac</option>
-        </select>
-      </div>
+      <GenderSelect
+        id="profile-gender"
+        onChange={(value) => onFieldChange('gender', value)}
+        value={form.gender as 'MALE' | 'FEMALE' | 'OTHER' | ''}
+      />
       <Input
         autoComplete="email"
         error={!emailMatches && form.emailConfirmation ? 'Email xác nhận không khớp.' : undefined}

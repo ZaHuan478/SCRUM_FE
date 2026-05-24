@@ -2,6 +2,7 @@ import type { FormEvent } from 'react'
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import Input from '../../Atoms/Input'
+import Select from '../../Molecules/Common/Select'
 import type { AppointmentSlot } from '../../../services/appointmentSlot.service'
 import { slotStatusOptions } from '../../../utils/doctorSchedule'
 import type { LoadStatus, SlotFormState } from '../../../utils/doctorSchedule'
@@ -77,18 +78,12 @@ const DoctorScheduleForm = ({
         type="number"
         value={form.maxPatients}
       />
-      <label className="space-y-xs">
-        <span className="font-label-md text-label-md text-on-surface">Trạng thái</span>
-        <select
-          className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
-          onChange={(event) => onFieldChange('status', event.target.value)}
-          value={form.status}
-        >
-          {slotStatusOptions.map((option) => (
-            <option key={option.value} value={option.value}>{option.label}</option>
-          ))}
-        </select>
-      </label>
+      <Select
+        label="Trạng thái"
+        onChange={(value) => onFieldChange('status', value)}
+        options={slotStatusOptions}
+        value={form.status}
+      />
     </div>
 
     <div className="mt-lg flex flex-col gap-sm sm:flex-row sm:flex-wrap">

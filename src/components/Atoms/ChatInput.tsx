@@ -18,7 +18,7 @@ const ChatInput = ({ disabled = false, value, onChange, onSubmit }: ChatInputPro
     <form className="flex items-end gap-sm border-t border-outline-variant/30 bg-surface p-sm" onSubmit={handleSubmit}>
       <label className="sr-only" htmlFor="ai-chat-input">Triệu chứng</label>
       <textarea
-        className="max-h-28 min-h-11 flex-1 resize-none rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-sm text-body-sm text-on-surface outline-none transition-all placeholder:text-on-surface-variant focus:border-primary focus:ring-4 focus:ring-primary/10"
+        className="max-h-28 min-h-11 flex-1 resize-none rounded-xl border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-sm text-body-sm text-on-surface outline-none transition-all placeholder:text-on-surface-variant focus:border-primary focus:ring-4 focus:ring-primary/10"
         disabled={disabled}
         id="ai-chat-input"
         onChange={(event) => onChange(event.target.value)}
@@ -32,7 +32,7 @@ const ChatInput = ({ disabled = false, value, onChange, onSubmit }: ChatInputPro
         value={value}
       />
       <button
-        className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary text-on-primary shadow-sm transition-all hover:bg-primary-container disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-on-primary shadow-sm transition-all hover:bg-primary-container disabled:cursor-not-allowed disabled:opacity-60"
         disabled={disabled || !value.trim()}
         type="submit"
       >

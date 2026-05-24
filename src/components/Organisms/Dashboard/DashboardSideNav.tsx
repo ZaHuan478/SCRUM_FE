@@ -28,6 +28,7 @@ const DashboardSideNav = ({ onLogout }: DashboardSideNavProps) => {
       </nav>
       <div className="flex flex-col gap-md px-md">
         <div className="flex flex-col gap-xs border-t border-outline-variant pt-md">
+          <DashboardNavItem icon="home" label="Trang chủ" to="/" />
           <DashboardNavItem icon="logout" label="Đăng xuất" onClick={onLogout} />
         </div>
       </div>
