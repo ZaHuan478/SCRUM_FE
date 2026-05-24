@@ -76,54 +76,54 @@ const TestimonialsSection = () => {
   }, [t])
 
   return (
-    <section className="bg-surface-container px-lg py-xxxl md:px-xxl">
-      <div className="mx-auto max-w-7xl">
+    <section className="bg-[#1a1a1a] px-lg py-[80px] md:px-xxl">
+      <div className="mx-auto max-w-[1366px]">
         <div className="mb-xxl max-w-3xl">
-          <Icon name="format_quote" className="mb-lg text-xxxl text-primary" />
-          <h2 className="mb-md font-headline-lg text-headline-lg text-on-background">
+          <Icon name="format_quote" className="mb-lg text-[44px] text-[#296ef9]" />
+          <h2 className="mb-md font-headline-lg text-[44px] font-medium leading-none tracking-normal text-white">
             {t('home.testimonials.title')}
           </h2>
-          <p className="font-body-md text-body-md text-on-surface-variant">
+          <p className="font-body-md text-body-md text-[#c2c2c2]">
             {t('home.testimonials.description')}
           </p>
         </div>
         {status === 'loading' && (
           <div className="grid grid-cols-1 gap-lg md:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
-              <div className="h-64 animate-pulse rounded-xl bg-surface-container-lowest shadow-lg" key={index} />
+              <div className="h-64 animate-pulse rounded-[16px] bg-white/10" key={index} />
             ))}
           </div>
         )}
         {status === 'error' && (
-          <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
+          <p className="rounded-[8px] bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
             {t('home.testimonials.backendError')}
           </p>
         )}
         {status === 'ready' && testimonials.length === 0 && (
-          <p className="rounded-lg border border-outline-variant/30 bg-surface p-lg text-center font-body-md text-body-md text-on-surface-variant">
+          <p className="rounded-[8px] border border-white/20 bg-white p-lg text-center font-body-md text-body-md text-[#3d3d3d]">
             {t('home.testimonials.empty')}
           </p>
         )}
         <div className="grid grid-cols-1 gap-lg md:grid-cols-3">
           {testimonials.map((testimonial, index) => (
             <article
-              className="testimonial-card-motion relative overflow-hidden rounded-xl bg-surface p-xl shadow-lg"
+              className="testimonial-card-motion relative overflow-hidden rounded-[16px] bg-white p-xl shadow-[0_2px_8px_rgba(26,26,26,0.08)]"
               key={testimonial.id}
-              style={{ animationDelay: `${index * 180}ms, ${900 + index * 180}ms` }}
+              style={{ animationDelay: `${index * 120}ms` }}
             >
               <div className="mb-lg flex items-center gap-md">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-fixed font-label-md text-label-md text-on-primary-fixed">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[4px] bg-[#1a1a1a] font-label-md text-label-md text-white">
                   {getInitials(testimonial.name)}
                 </div>
                 <div>
-                  <h4 className="font-label-md text-label-md text-on-background">{testimonial.name}</h4>
-                  <p className="font-body-sm text-body-sm text-on-surface-variant">{testimonial.meta}</p>
+                  <h4 className="font-label-md text-label-md text-[#1a1a1a]">{testimonial.name}</h4>
+                  <p className="font-body-sm text-body-sm text-[#636363]">{testimonial.meta}</p>
                 </div>
               </div>
-              <p className="font-body-md text-body-md leading-relaxed text-on-surface">{testimonial.quote}</p>
+              <p className="font-body-md text-body-md leading-relaxed text-[#3d3d3d]">{testimonial.quote}</p>
               <div className="mt-lg flex gap-xs">
                 {Array.from({ length: testimonial.rating }).map((_, index) => (
-                  <Icon className="text-tertiary" key={index} name="star" />
+                  <Icon className="text-[#024ad8]" key={index} name="star" />
                 ))}
               </div>
             </article>

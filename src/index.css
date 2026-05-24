@@ -108,6 +108,53 @@ body {
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+.hp-home {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.hp-home nav select,
+.hp-home nav button {
+  border-color: #c2c2c2;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #1a1a1a;
+  box-shadow: none;
+}
+
+.hp-home nav a[aria-label="MedPrecision"] * {
+  color: #024ad8;
+}
+
+.hp-home .hero-doctor-rail {
+  animation: hero-doctor-rail 18s linear infinite;
+}
+
+.hp-home .testimonial-card-motion {
+  animation: hp-card-rise 520ms ease both;
+}
+
+@keyframes hero-doctor-rail {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes hp-card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .material-symbols-outlined {
   font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
 }
@@ -129,6 +176,11 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hp-home .hero-doctor-rail,
+  .hp-home .testimonial-card-motion {
+    animation: none;
+  }
+
   .department-card-motion {
     animation: none;
   }

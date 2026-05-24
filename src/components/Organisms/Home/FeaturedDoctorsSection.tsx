@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import Button from '../../Atoms/Button'
 import DoctorCard from '../../Molecules/Home/DoctorCard'
 import type { DoctorCardData } from '../../Molecules/Home/DoctorCard'
 import Icon from '../../Atoms/Icon'
@@ -75,35 +74,36 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
   }, [query])
 
   return (
-    <section className="mx-auto max-w-7xl px-lg py-xxxl md:px-xxl" id="featured-doctors">
+    <section className="mx-auto max-w-[1366px] bg-white px-lg py-[80px] md:px-xxl" id="featured-doctors">
       <div className="mb-xxl flex flex-col justify-between gap-md md:flex-row md:items-end">
         <div>
-          <h2 className="mb-sm font-headline-lg text-headline-lg text-on-background">{t('home.featuredDoctors.title')}</h2>
-          <p className="font-body-md text-body-md text-on-surface-variant"></p>
+          <h2 className="mb-sm font-headline-lg text-[44px] font-medium leading-none tracking-normal text-[#1a1a1a]">{t('home.featuredDoctors.title')}</h2>
+          <p className="font-body-md text-body-md text-[#3d3d3d]"></p>
         </div>
-        <Link to="/doctors">
-          <Button className="flex items-center gap-xs self-start border-none p-0 text-primary shadow-none transition-all hover:gap-sm hover:bg-transparent" fullWidth={false} type="button" variant="ghost">
-            {t('common.viewAll')} <Icon name="arrow_forward" />
-          </Button>
+        <Link
+          className="inline-flex min-h-11 items-center justify-center gap-xs self-start rounded-[4px] border border-[#024ad8] bg-white px-xl py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-[#024ad8] transition-colors hover:bg-[#f7f7f7]"
+          to="/doctors"
+        >
+          {t('common.viewAll')} <Icon name="arrow_forward" />
         </Link>
       </div>
       {apiStatus === 'error' && (
-        <p className="mb-md rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
+        <p className="mb-md rounded-[8px] bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
           {t('home.featuredDoctors.backendError')}
         </p>
       )}
       {apiStatus === 'loading' && (
-        <p className="mb-md font-body-sm text-body-sm text-on-surface-variant">{t('home.featuredDoctors.loading')}</p>
+        <p className="mb-md font-body-sm text-body-sm text-[#636363]">{t('home.featuredDoctors.loading')}</p>
       )}
       {doctors.length > 0 ? (
         <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-4">
           {doctors.map((doctor, index) => (
-            <DoctorCard doctor={doctor} key={doctor.id ? String(doctor.id) : `${doctor.name || 'doctor'}-${index}`} />
+            <DoctorCard doctor={doctor} key={doctor.id ? String(doctor.id) : `${doctor.name || 'doctor'}-${index}`} variant="hp" />
           ))}
         </div>
       ) : (
         apiStatus !== 'loading' && (
-          <p className="rounded-lg border border-outline-variant/30 bg-surface p-lg text-center font-body-md text-body-md text-on-surface-variant">
+          <p className="rounded-[8px] border border-[#e8e8e8] bg-white p-lg text-center font-body-md text-body-md text-[#3d3d3d]">
             {t('home.featuredDoctors.empty')}
           </p>
         )
