@@ -1,6 +1,7 @@
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import Input from '../../Atoms/Input'
+import ActionMenu from '../../Molecules/Common/ActionMenu'
 import type { User } from '../../../services/auth.service'
 import type { DashboardPagination } from '../../../utils/adminDashboard'
 
@@ -104,8 +105,8 @@ const UserManagementTable = ({
                 <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Vai trò</th>
                 <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Ngày sinh</th>
                 <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">CCCD</th>
-                <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Trang thai</th>
-                <th className="px-xl py-md text-right font-label-md text-label-md text-on-surface-variant">Hanh dong</th>
+                <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Trạng thái</th>
+                <th className="px-xl py-md text-right font-label-md text-label-md text-on-surface-variant">Hành động</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/10">
@@ -132,36 +133,27 @@ const UserManagementTable = ({
                       </span>
                     </td>
                     <td className="px-xl py-lg text-right">
-                      <Button
-                        aria-label={`Xem ${user.email}`}
-                        className="mr-xs rounded-full border-none p-sm text-primary shadow-none hover:bg-primary/5"
-                        fullWidth={false}
-                        onClick={() => onViewUser(user)}
-                        type="button"
-                        variant="ghost"
-                      >
-                        <Icon name="visibility" />
-                      </Button>
-                      <Button
-                        aria-label={`Sua ${user.email}`}
-                        className="mr-xs rounded-full border-none p-sm text-primary shadow-none hover:bg-primary/5"
-                        fullWidth={false}
-                        onClick={() => onEditUser(user)}
-                        type="button"
-                        variant="ghost"
-                      >
-                        <Icon name="edit" />
-                      </Button>
-                      <Button
-                        aria-label={`Xoa ${user.email}`}
-                        className="rounded-full border-none p-sm text-error shadow-none hover:bg-error-container"
-                        fullWidth={false}
-                        onClick={() => onDeleteUser(user)}
-                        type="button"
-                        variant="ghost"
-                      >
-                        <Icon name="delete" />
-                      </Button>
+                      <ActionMenu
+                        ariaLabel={`Hành động cho ${user.email}`}
+                        items={[
+                          {
+                            icon: 'visibility',
+                            label: 'Xem',
+                            onClick: () => onViewUser(user),
+                          },
+                          {
+                            icon: 'edit',
+                            label: 'Sửa',
+                            onClick: () => onEditUser(user),
+                          },
+                          {
+                            icon: 'delete',
+                            label: 'Xóa',
+                            tone: 'danger',
+                            onClick: () => onDeleteUser(user),
+                          },
+                        ]}
+                      />
                     </td>
                   </tr>
                 )
