@@ -305,7 +305,7 @@ const HospitalDocumentManager = () => {
             onDragOver={handleDragOver}
             onDrop={handleDrop}
           >
-            <span className="pointer-events-none absolute -right-2 bottom-4 h-20 w-16 rotate-[-8deg] rounded-sm border border-outline-variant/20 bg-white/80 shadow-lg">
+            <span className="pointer-events-none absolute -right-2 bottom-4 h-20 w-16 rotate-[-8deg] rounded-sm border border-outline-variant/20 bg-surface/80 shadow-lg">
               <span className="mx-auto mt-4 block h-2 w-9 rounded-full bg-outline-variant/20" />
               <span className="mx-auto mt-2 block h-2 w-10 rounded-full bg-outline-variant/20" />
               <span className="mx-auto mt-2 block h-2 w-8 rounded-full bg-outline-variant/20" />

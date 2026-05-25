@@ -9,6 +9,8 @@ import {
   getAppointmentDepartmentName,
   getAppointmentDoctorName,
 } from '../../../utils/patientAppointments'
+import { useTranslation } from '../../../contexts/LanguageContext'
+import { translateDepartmentName } from '../../../utils/contentTranslation'
 
 type PatientAppointmentCardProps = {
   appointment: Appointment
@@ -18,6 +20,7 @@ type PatientAppointmentCardProps = {
 }
 
 const PatientAppointmentCard = ({ appointment, isActing, onCancel, onPay }: PatientAppointmentCardProps) => {
+  const { language } = useTranslation()
   const meta = appointmentStatusMeta[appointment.status]
   const canCancel = ['PENDING_PAYMENT', 'PENDING', 'CONFIRMED'].includes(appointment.status)
   const pendingPayment = appointment.payments?.find((payment) => payment.status === 'PENDING')
@@ -33,7 +36,7 @@ const PatientAppointmentCard = ({ appointment, isActing, onCancel, onPay }: Pati
               {meta.label}
             </span>
           </div>
-          <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">{getAppointmentDepartmentName(appointment)}</p>
+          <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">{translateDepartmentName(getAppointmentDepartmentName(appointment), language)}</p>
         </div>
 
         {(pendingPayment || canCancel) && (

@@ -10,6 +10,12 @@ import type { Department } from '../services/department.service'
 import { getDoctorAssignments } from '../services/doctorAssignment.service'
 import type { DoctorAssignment } from '../services/doctorAssignment.service'
 import type { Doctor } from '../services/doctor.service'
+import {
+  translateDepartmentDescription,
+  translateDepartmentName,
+  translateDoctorDescription,
+} from '../utils/contentTranslation'
+import type { Language } from '../contexts/LanguageContext'
 
 const formatFee = (fee?: string | number | null) => {
   if (fee === undefined || fee === null || fee === '') return undefined
@@ -24,12 +30,12 @@ const formatFee = (fee?: string | number | null) => {
   }).format(amount)
 }
 
-const mapDoctor = (assignment: DoctorAssignment): DoctorCardData | null => {
+const mapDoctor = (assignment: DoctorAssignment, language: Language): DoctorCardData | null => {
   const doctor = assignment.doctor as Doctor | undefined
   if (!doctor) return null
 
   return {
-    description: doctor.description,
+    description: translateDoctorDescription(doctor.description, language),
     email: doctor.user?.email,
     experienceYears: doctor.experience_years,
     fee: formatFee(doctor.consultation_fee),
@@ -37,13 +43,13 @@ const mapDoctor = (assignment: DoctorAssignment): DoctorCardData | null => {
     image: doctor.image_url || '',
     name: doctor.user?.full_name || doctor.license_number,
     phone: doctor.user?.phone,
-    specialty: assignment.department?.name || '',
+    specialty: assignment.department?.name ? translateDepartmentName(assignment.department.name, language) : '',
   }
 }
 
 const DepartmentDetailPage = () => {
   const { id } = useParams()
-  const { t } = useTranslation()
+  const { language, t } = useTranslation()
   const [department, setDepartment] = useState<Department | null>(null)
   const [doctors, setDoctors] = useState<DoctorCardData[]>([])
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
@@ -62,7 +68,7 @@ const DepartmentDetailPage = () => {
 
         setDepartment(nextDepartment)
         setDoctors(assignmentResult.doctor_assignments
-          .map(mapDoctor)
+          .map((assignment) => mapDoctor(assignment, language))
           .filter((doctor): doctor is DoctorCardData => Boolean(doctor)))
         setStatus('ready')
       })
@@ -77,7 +83,12 @@ const DepartmentDetailPage = () => {
     return () => {
       active = false
     }
-  }, [id])
+  }, [id, language])
+
+  const departmentName = department ? translateDepartmentName(department.name, language) : ''
+  const departmentDescription = department?.description
+    ? translateDepartmentDescription(department.description, language)
+    : ''
 
   const biography = useMemo(() => (
     department
@@ -85,7 +96,7 @@ const DepartmentDetailPage = () => {
         {
           icon: 'clinical_notes',
           title: t('departmentDetail.overviewTitle'),
-          text: department.description || t('departmentDetail.overviewFallback'),
+          text: departmentDescription || t('departmentDetail.overviewFallback'),
         },
         {
           icon: 'groups',
@@ -99,20 +110,20 @@ const DepartmentDetailPage = () => {
         },
       ]
       : []
-  ), [department, t])
+  ), [department, departmentDescription, t])
 
   if (!id) return <Navigate replace to="/departments" />
 
   return (
-    <div className="min-h-screen text-on-background">
+    <div className="min-h-screen bg-background text-on-background">
       <TopNavBar active="departments" />
-      <main className="mx-auto flex max-w-7xl flex-col gap-xxl px-lg py-xxl md:px-xxl">
+      <main className="mx-auto flex max-w-[1366px] flex-col gap-xxl px-lg py-[48px] md:px-xxl md:py-[64px]">
         <Link className="inline-flex items-center gap-xs self-start font-label-md text-label-md text-primary transition-all hover:gap-sm hover:underline" to="/departments">
           <Icon name="arrow_back" /> {t('departmentDetail.back')}
         </Link>
 
         {status === 'loading' && (
-          <p className="rounded-lg border border-outline-variant/30 bg-surface p-md font-body-md text-body-md text-on-surface-variant">
+          <p className="rounded-lg border border-outline-variant bg-surface p-md font-body-md text-body-md text-on-surface-variant">
             {t('departmentDetail.loading')}
           </p>
         )}
@@ -125,16 +136,16 @@ const DepartmentDetailPage = () => {
 
         {department && (
           <>
-            <section className="grid gap-xl border-b border-outline-variant/30 pb-xxl lg:grid-cols-[minmax(0,1fr)_320px]">
+            <section className="grid gap-xl rounded-xl border border-outline-variant bg-surface p-xl shadow-[0_2px_8px_rgba(26,26,26,0.08)] lg:grid-cols-[minmax(0,1fr)_320px]">
               <div>
                 <p className="font-label-md text-label-md text-primary">{t('departmentDetail.infoEyebrow')}</p>
-                <h1 className="mt-sm font-headline-lg text-headline-lg text-on-background">{department.name}</h1>
+                <h1 className="mt-sm font-headline-lg text-[32px] font-medium leading-none text-on-background sm:text-[40px] md:text-[44px]">{departmentName}</h1>
                 <p className="mt-md max-w-3xl font-body-lg text-body-lg text-on-surface-variant">
-                  {department.description || t('departmentDetail.fallbackDescription')}
+                  {departmentDescription || t('departmentDetail.fallbackDescription')}
                 </p>
               </div>
 
-              <aside className="rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-lg shadow-sm">
+              <aside className="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg shadow-[0_2px_8px_rgba(26,26,26,0.08)]">
                 <div className="flex items-center gap-sm">
                   <Icon className="text-primary" name="verified" />
                   <h2 className="font-headline-sm text-headline-sm text-on-surface">{t('departmentDetail.statusTitle')}</h2>
@@ -150,8 +161,8 @@ const DepartmentDetailPage = () => {
 
             <section className="grid grid-cols-1 gap-lg md:grid-cols-3">
               {biography.map((item) => (
-                <article className="rounded-lg border border-outline-variant/30 bg-surface p-lg shadow-sm" key={item.title}>
-                  <div className="mb-md flex h-12 w-12 items-center justify-center rounded-full bg-primary-fixed/30 text-primary">
+                <article className="rounded-xl bg-surface p-lg shadow-[0_2px_8px_rgba(26,26,26,0.08)] ring-1 ring-outline-variant" key={item.title}>
+                  <div className="mb-md flex h-12 w-12 items-center justify-center rounded-lg bg-primary-fixed text-primary">
                     <Icon className="text-2xl" name={item.icon} />
                   </div>
                   <h2 className="font-headline-sm text-headline-sm text-on-surface">{item.title}</h2>
@@ -161,10 +172,10 @@ const DepartmentDetailPage = () => {
             </section>
 
             <section className="space-y-lg">
-              <div className="flex flex-col justify-between gap-sm border-b border-outline-variant/30 pb-md sm:flex-row sm:items-end">
+              <div className="flex flex-col justify-between gap-sm border-b border-outline-variant pb-md sm:flex-row sm:items-end">
                 <div>
                   <p className="font-label-md text-label-md text-primary">{t('departmentDetail.doctorsEyebrow')}</p>
-                  <h2 className="mt-xs font-headline-md text-headline-md text-on-background">{department.name}</h2>
+                  <h2 className="mt-xs font-headline-md text-headline-md text-on-background">{departmentName}</h2>
                 </div>
                 <Link
                   className="inline-flex items-center gap-xs font-label-md text-label-md text-primary transition-all hover:gap-sm hover:underline"
@@ -181,7 +192,7 @@ const DepartmentDetailPage = () => {
                   ))}
                 </div>
               ) : (
-                <div className="rounded-lg border border-dashed border-outline-variant p-xl text-center">
+                <div className="rounded-lg border border-dashed border-outline-variant bg-surface p-xl text-center">
                   <Icon className="text-4xl text-outline" name="person_off" />
                   <p className="mt-sm font-label-md text-label-md text-on-surface">{t('departmentDetail.emptyTitle')}</p>
                   <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">{t('departmentDetail.emptyDescription')}</p>

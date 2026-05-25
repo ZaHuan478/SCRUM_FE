@@ -24,7 +24,13 @@ import {
   buildFallbackBiography,
 } from '../utils/doctorDetail'
 import type { EducationItem } from '../utils/doctorDetail'
+import { useTranslation } from '../contexts/LanguageContext'
 import { useToast } from '../contexts/ToastContext'
+import {
+  translateDepartmentName,
+  translateDoctorBiography,
+  translateDoctorDescription,
+} from '../utils/contentTranslation'
 
 type LoadStatus = 'loading' | 'ready' | 'error'
 
@@ -60,6 +66,7 @@ export type DoctorDetailState = {
 }
 
 export const useDoctorDetail = (doctorId?: string): DoctorDetailState => {
+  const { language, t } = useTranslation()
   const hasDoctorId = Boolean(doctorId)
   const [doctor, setDoctor] = useState<Doctor | null>(null)
   const [assignments, setAssignments] = useState<DoctorAssignment[]>([])
@@ -270,12 +277,12 @@ export const useDoctorDetail = (doctorId?: string): DoctorDetailState => {
     setRatingSuccess('')
 
     if (!rating || rating < 1) {
-      showRatingWarning('Vui lòng chọn số sao trước khi gửi đánh giá.')
+      showRatingWarning(t('doctorDetail.ratingSelectWarning'))
       return
     }
 
     if (!appointmentId) {
-      showRatingWarning('Bạn cần hoàn thành lịch hẹn trước khi đánh giá.')
+      showRatingWarning(t('doctorDetail.ratingAppointmentRequired'))
       return
     }
 
@@ -287,7 +294,7 @@ export const useDoctorDetail = (doctorId?: string): DoctorDetailState => {
         rating,
         comment: comment || null,
       })
-      showRatingSuccess('Đánh giá đã được gửi thành công.')
+      showRatingSuccess(t('doctorDetail.ratingSubmitSuccess'))
       await reloadRatings()
       const latestRating = await getMyDoctorRating(doctorId)
       setMyRating(latestRating)
@@ -295,12 +302,12 @@ export const useDoctorDetail = (doctorId?: string): DoctorDetailState => {
         setAppointmentId(latestRating.appointment_id)
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Không thể gửi đánh giá.'
+      const message = error instanceof Error ? error.message : t('doctorDetail.ratingSubmitError')
       showRatingError(message)
     } finally {
       setIsSubmittingRating(false)
     }
-  }, [appointmentId, doctorId, reloadRatings, showRatingError, showRatingSuccess, showRatingWarning])
+  }, [appointmentId, doctorId, reloadRatings, showRatingError, showRatingSuccess, showRatingWarning, t])
 
   const handleDeleteRating = useCallback(async () => {
     if (!doctorId) return
@@ -311,19 +318,23 @@ export const useDoctorDetail = (doctorId?: string): DoctorDetailState => {
 
     try {
       await deleteMyDoctorRating(doctorId)
-      showRatingSuccess('Đánh giá đã được xóa.')
+      showRatingSuccess(t('doctorDetail.ratingDeleteSuccess'))
       setMyRating(null)
       await reloadRatings()
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Không thể xóa đánh giá.'
+      const message = error instanceof Error ? error.message : t('doctorDetail.ratingDeleteError')
       showRatingError(message)
     } finally {
       setIsSubmittingRating(false)
     }
-  }, [doctorId, reloadRatings, showRatingError, showRatingSuccess])
+  }, [doctorId, reloadRatings, showRatingError, showRatingSuccess, t])
 
-  const primarySpecialty = assignments[0]?.department?.name || doctor?.description || 'Chuyên khoa'
-  const biography = doctor?.prof_biography || buildFallbackBiography(doctor || undefined, primarySpecialty)
+  const primarySpecialty = assignments[0]?.department?.name
+    ? translateDepartmentName(assignments[0].department.name, language)
+    : translateDoctorDescription(doctor?.description, language) || t('doctorDetail.specialtyFallback')
+  const biography = doctor?.prof_biography
+    ? translateDoctorBiography(doctor.prof_biography, language)
+    : buildFallbackBiography(doctor || undefined, primarySpecialty)
   const educationItems = useMemo(() => buildEducation(doctor || undefined, primarySpecialty), [doctor, primarySpecialty])
   const bookingPath = useMemo(() => buildDoctorBookingPath(doctor), [doctor])
 

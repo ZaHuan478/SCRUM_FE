@@ -11,8 +11,8 @@ type DoctorScheduleTopBarProps = {
 }
 
 const DoctorScheduleTopBar = ({ doctor, user, onLogout }: DoctorScheduleTopBarProps) => (
-  <header className="sticky top-0 z-50 bg-surface/90 shadow-sm backdrop-blur-md">
-    <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-md px-lg py-md md:px-xxl">
+  <header className="sticky top-0 z-50 border-b border-outline-variant bg-surface">
+    <div className="mx-auto flex h-16 w-full max-w-[1366px] items-center justify-between gap-md px-lg md:px-xxl">
       <Link aria-label="MedPrecision" className="shrink-0 md:hidden" to="/">
         <Logo compact />
       </Link>
@@ -24,6 +24,17 @@ const DoctorScheduleTopBar = ({ doctor, user, onLogout }: DoctorScheduleTopBarPr
       </div>
       <AccountMenu onLogout={onLogout} user={user} />
     </div>
+    <nav className="mx-auto flex max-w-[1366px] gap-sm overflow-x-auto border-t border-outline-variant px-lg py-sm md:hidden">
+      <Link className="shrink-0 rounded bg-primary px-md py-sm font-label-sm text-label-sm text-on-primary" to="/doctor/schedule">
+        Lịch khám
+      </Link>
+      <Link className="shrink-0 rounded border border-outline-variant bg-surface px-md py-sm font-label-sm text-label-sm text-on-surface-variant" to="/profile">
+        Hồ sơ
+      </Link>
+      <Link className="shrink-0 rounded border border-outline-variant bg-surface px-md py-sm font-label-sm text-label-sm text-on-surface-variant" to="/">
+        Trang chủ
+      </Link>
+    </nav>
   </header>
 )
 

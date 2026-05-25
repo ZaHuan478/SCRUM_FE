@@ -1,4 +1,5 @@
 import type { FormEvent } from 'react'
+import { useTranslation } from '../../contexts/LanguageContext'
 import Icon from './Icon'
 
 type ChatInputProps = {
@@ -9,6 +10,8 @@ type ChatInputProps = {
 }
 
 const ChatInput = ({ disabled = false, value, onChange, onSubmit }: ChatInputProps) => {
+  const { t } = useTranslation()
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     onSubmit()
@@ -16,7 +19,7 @@ const ChatInput = ({ disabled = false, value, onChange, onSubmit }: ChatInputPro
 
   return (
     <form className="flex items-end gap-sm border-t border-outline-variant/30 bg-surface p-sm" onSubmit={handleSubmit}>
-      <label className="sr-only" htmlFor="ai-chat-input">Triệu chứng</label>
+      <label className="sr-only" htmlFor="ai-chat-input">{t('symptomChecker.searchAria')}</label>
       <textarea
         className="max-h-28 min-h-11 flex-1 resize-none rounded-xl border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-sm text-body-sm text-on-surface outline-none transition-all placeholder:text-on-surface-variant focus:border-primary focus:ring-4 focus:ring-primary/10"
         disabled={disabled}
@@ -28,7 +31,7 @@ const ChatInput = ({ disabled = false, value, onChange, onSubmit }: ChatInputPro
             onSubmit()
           }
         }}
-        placeholder="Nhập triệu chứng của bạn..."
+        placeholder={t('symptomChecker.searchPlaceholder')}
         value={value}
       />
       <button

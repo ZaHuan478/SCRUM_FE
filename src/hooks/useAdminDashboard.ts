@@ -5,7 +5,8 @@ import type { SymptomRuleFormValues } from '../components/Organisms/SymptomRules
 import type { UserFormValues } from '../components/Organisms/UserManage/UserEditModal'
 import type { DoctorManagementRowData } from '../components/Molecules/Management/DoctorManagementRow'
 import type { PatientManagementRowData } from '../components/Molecules/Management/PatientManagementRow'
-import { getAppointments } from '../services/appointment.service'
+import { cancelAppointment, completeAppointment, confirmAppointment, getAppointments } from '../services/appointment.service'
+import type { Appointment, AppointmentStatus } from '../services/appointment.service'
 import { getAppointmentSlots } from '../services/appointmentSlot.service'
 import type { User } from '../services/auth.service'
 import { createDepartment, getDepartments, updateDepartment } from '../services/department.service'
@@ -48,6 +49,8 @@ type DashboardDataQuery = {
   doctorPage?: number
   patientKeyword?: string
   patientPage?: number
+  appointmentPage?: number
+  appointmentStatus?: AppointmentStatus | 'all'
   symptomRulePage?: number
   userKeyword?: string
   userPage?: number
@@ -66,6 +69,8 @@ export const loadDashboardData = async ({
   doctorPage = 1,
   patientKeyword,
   patientPage = 1,
+  appointmentPage = 1,
+  appointmentStatus,
   symptomRulePage = 1,
   userKeyword,
   userPage = 1,
@@ -114,7 +119,11 @@ export const loadDashboardData = async ({
     getDoctorAssignments({ limit: 100, status: 'ACTIVE' }),
     getAppointmentSlots({ limit: 100 }),
     getAppointmentSlots({ limit: 1, status: 'AVAILABLE' }),
-    getAppointments({ limit: 100 }),
+    getAppointments({
+      page: appointmentPage,
+      limit: ADMIN_PAGE_LIMIT,
+      status: appointmentStatus && appointmentStatus !== 'all' ? appointmentStatus : undefined,
+    }),
   ])
 
   const doctors = getFulfilledValue(doctorsResponse)
@@ -147,6 +156,9 @@ export const loadDashboardData = async ({
     patients: mapPatients(patients),
     patientPagination: toDashboardPagination(patients?.pagination),
     patientStatus: patients ? 'ready' : 'error',
+    appointments: appointments?.appointments || [],
+    appointmentPagination: toDashboardPagination(appointments?.pagination),
+    appointmentStatus: appointments ? 'ready' : 'error',
     users: users?.users || [],
     userPagination: toDashboardPagination(users?.pagination),
     userStatus: users ? 'ready' : 'error',
@@ -165,6 +177,7 @@ export const loadDashboardData = async ({
     totalSymptomRules: symptomRules?.pagination.total || 0,
     totalDoctors: doctors?.pagination.total || 0,
     totalPatients: patients?.pagination.total || 0,
+    totalAppointments: appointments?.pagination.total || 0,
     totalUsers: users?.pagination.total || 0,
   }
 }
@@ -173,6 +186,7 @@ export const useAdminDashboard = () => {
   const [departmentSearchQuery, setDepartmentSearchQuery] = useState('')
   const [doctorSearchQuery, setDoctorSearchQuery] = useState('')
   const [patientSearchQuery, setPatientSearchQuery] = useState('')
+  const [appointmentStatusFilter, setAppointmentStatusFilter] = useState<AppointmentStatus | 'all'>('all')
   const [userSearchQuery, setUserSearchQuery] = useState('')
   const [dashboard, setDashboard] = useState<DashboardState>(emptyDashboardState)
   const [selectedDoctor, setSelectedDoctor] = useState<DoctorManagementRowData | null>(null)
@@ -204,6 +218,8 @@ export const useAdminDashboard = () => {
       doctorPage: dashboard.doctorPagination.page,
       patientKeyword: patientSearchQuery,
       patientPage: dashboard.patientPagination.page,
+      appointmentPage: dashboard.appointmentPagination.page,
+      appointmentStatus: appointmentStatusFilter,
       symptomRulePage: dashboard.symptomRulePagination.page,
       userKeyword: userSearchQuery,
       userPage: dashboard.userPagination.page,
@@ -213,11 +229,13 @@ export const useAdminDashboard = () => {
     dashboard.departmentPagination.page,
     dashboard.doctorPagination.page,
     dashboard.patientPagination.page,
+    dashboard.appointmentPagination.page,
     dashboard.symptomRulePagination.page,
     dashboard.userPagination.page,
     departmentSearchQuery,
     doctorSearchQuery,
     patientSearchQuery,
+    appointmentStatusFilter,
     userSearchQuery,
   ])
 
@@ -336,6 +354,29 @@ export const useAdminDashboard = () => {
     }
   }, [patientSearchQuery, toastError])
 
+  const fetchAppointmentsPage = useCallback(async (page: number, statusFilter = appointmentStatusFilter) => {
+    setDashboard((currentDashboard) => ({ ...currentDashboard, appointmentStatus: 'loading' }))
+
+    try {
+      const appointments = await getAppointments({
+        page,
+        limit: ADMIN_PAGE_LIMIT,
+        status: statusFilter === 'all' ? undefined : statusFilter,
+      })
+
+      setDashboard((currentDashboard) => ({
+        ...currentDashboard,
+        appointments: appointments.appointments,
+        appointmentPagination: toDashboardPagination(appointments.pagination),
+        appointmentStatus: 'ready',
+        totalAppointments: appointments.pagination.total,
+      }))
+    } catch {
+      setDashboard((currentDashboard) => ({ ...currentDashboard, appointmentStatus: 'error' }))
+      toastError('Không thể tải danh sách lịch hẹn.')
+    }
+  }, [appointmentStatusFilter, toastError])
+
   const fetchUsersPage = useCallback(async (page: number, keyword = userSearchQuery) => {
     setDashboard((currentDashboard) => ({ ...currentDashboard, userStatus: 'loading' }))
 
@@ -371,6 +412,10 @@ export const useAdminDashboard = () => {
     void fetchPatientsPage(page)
   }, [fetchPatientsPage])
 
+  const handleAppointmentPageChange = useCallback((page: number) => {
+    void fetchAppointmentsPage(page)
+  }, [fetchAppointmentsPage])
+
   const handleSymptomRulePageChange = useCallback((page: number) => {
     void fetchSymptomRulesPage(page)
   }, [fetchSymptomRulesPage])
@@ -393,6 +438,44 @@ export const useAdminDashboard = () => {
     setPatientSearchQuery(query)
     void fetchPatientsPage(1, query)
   }, [fetchPatientsPage])
+
+  const handleAppointmentStatusFilterChange = useCallback((status: AppointmentStatus | 'all') => {
+    setAppointmentStatusFilter(status)
+    void fetchAppointmentsPage(1, status)
+  }, [fetchAppointmentsPage])
+
+  const handleConfirmAppointment = useCallback(async (appointment: Appointment) => {
+    try {
+      await confirmAppointment(appointment.id)
+      await fetchAppointmentsPage(dashboard.appointmentPagination.page)
+      toastSuccess('Lịch hẹn đã được xác nhận.')
+    } catch (error) {
+      toastError(getRequestMessage(error, 'Không thể xác nhận lịch hẹn.'))
+    }
+  }, [dashboard.appointmentPagination.page, fetchAppointmentsPage, toastError, toastSuccess])
+
+  const handleCompleteAppointment = useCallback(async (appointment: Appointment) => {
+    try {
+      await completeAppointment(appointment.id)
+      await fetchAppointmentsPage(dashboard.appointmentPagination.page)
+      toastSuccess('Lịch hẹn đã được hoàn tất.')
+    } catch (error) {
+      toastError(getRequestMessage(error, 'Không thể hoàn tất lịch hẹn.'))
+    }
+  }, [dashboard.appointmentPagination.page, fetchAppointmentsPage, toastError, toastSuccess])
+
+  const handleCancelAppointment = useCallback(async (appointment: Appointment) => {
+    const patientName = appointment.patient?.user?.full_name || `#${appointment.id}`
+    if (!window.confirm(`Hủy lịch hẹn của ${patientName}?`)) return
+
+    try {
+      await cancelAppointment(appointment.id, { cancel_reason: 'Admin cancelled appointment' })
+      await fetchAppointmentsPage(dashboard.appointmentPagination.page)
+      toastSuccess('Lịch hẹn đã được hủy.')
+    } catch (error) {
+      toastError(getRequestMessage(error, 'Không thể hủy lịch hẹn.'))
+    }
+  }, [dashboard.appointmentPagination.page, fetchAppointmentsPage, toastError, toastSuccess])
 
   const handleUserSearchQueryChange = useCallback((query: string) => {
     setUserSearchQuery(query)
@@ -853,6 +936,11 @@ export const useAdminDashboard = () => {
     handleEditUser,
     handlePatientPageChange,
     handlePatientSearchQueryChange,
+    handleAppointmentPageChange,
+    handleAppointmentStatusFilterChange,
+    handleCancelAppointment,
+    handleCompleteAppointment,
+    handleConfirmAppointment,
     handleSymptomRulePageChange,
     handleSymptomRuleSubmit,
     handleUserSubmit,
@@ -868,6 +956,7 @@ export const useAdminDashboard = () => {
     isUserModalOpen,
     patientFields,
     patientSearchQuery,
+    appointmentStatusFilter,
     selectedDoctor,
     selectedPatient,
     selectedUser,
@@ -881,6 +970,7 @@ export const useAdminDashboard = () => {
     visibleDepartments: dashboard.departments,
     visibleDoctors: dashboard.doctors,
     visiblePatients: dashboard.patients,
+    visibleAppointments: dashboard.appointments,
     visibleSymptomRules: dashboard.symptomRules,
     visibleUsers: dashboard.users,
   }

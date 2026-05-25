@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import Input from '../../Atoms/Input'
 import { useTranslation } from '../../../contexts/LanguageContext'
@@ -20,14 +19,14 @@ const SearchPanel = ({ onSearch }: SearchPanelProps) => {
 
   return (
     <form
-      className="flex max-w-2xl flex-col gap-sm rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-sm shadow-xl md:flex-row"
+      className="flex max-w-2xl flex-col gap-sm rounded border border-outline-variant bg-surface p-sm md:flex-row"
       onSubmit={handleSubmit}
     >
-      <div className="flex flex-grow items-center gap-sm border-b border-outline-variant/30 px-md py-sm md:border-b-0 md:border-r">
+      <div className="flex flex-grow items-center gap-sm border-b border-outline-variant px-md py-sm md:border-b-0 md:border-r">
         <Icon name="search" className="text-outline" />
         <Input
           aria-label={t('home.hero.searchAria')}
-          className="border-none bg-transparent p-0 focus:border-transparent focus:ring-0"
+          className="border-none bg-transparent p-0 text-on-surface placeholder:text-outline focus:border-transparent focus:ring-0"
           onChange={(event) => setQuery(event.target.value)}
           placeholder=""
           type="text"
@@ -35,10 +34,13 @@ const SearchPanel = ({ onSearch }: SearchPanelProps) => {
           wrapperClassName="w-full"
         />
       </div>
-      <Button className="inline-flex items-center justify-center gap-sm px-lg py-md" fullWidth={false} type="submit">
+      <button
+        className="inline-flex min-h-11 w-full items-center justify-center gap-sm rounded bg-primary px-xl py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-primary transition-colors hover:bg-primary-container md:w-auto"
+        type="submit"
+      >
         <span>{t('home.hero.searchButton')}</span>
         <Icon name="arrow_forward" />
-      </Button>
+      </button>
     </form>
   )
 }

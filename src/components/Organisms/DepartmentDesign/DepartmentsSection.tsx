@@ -83,21 +83,21 @@ const DepartmentsSection = () => {
   if (status === 'ready' && departments.length === 0) return null
 
   return (
-    <section className="bg-surface-container-low px-lg py-xxxl md:px-xxl" id="departments">
-      <div className="mx-auto max-w-7xl">
+    <section className="bg-surface-container-low px-lg py-[56px] md:px-xxl md:py-[80px]" id="departments">
+      <div className="mx-auto max-w-[1366px]">
         <div className="mb-xxl text-center">
-          <h2 className="mb-sm font-headline-lg text-headline-lg text-on-background">{t('home.departments.title')}</h2>
+          <h2 className="mb-sm font-headline-lg text-[32px] font-medium leading-none tracking-normal text-on-background sm:text-[40px] md:text-[44px]">{t('home.departments.title')}</h2>
           <p className="mx-auto max-w-2xl font-body-md text-body-md text-on-surface-variant">
             {t('home.departments.description')}
           </p>
         </div>
         {status === 'loading' && (
-          <p className="rounded-lg border border-outline-variant/30 bg-surface px-md py-sm font-body-sm text-body-sm text-on-surface-variant">
+          <p className="rounded-lg border border-outline-variant bg-surface px-md py-sm font-body-sm text-body-sm text-on-surface-variant">
             {t('home.departments.loading')}
           </p>
         )}
         {status === 'error' && (
-          <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
+          <p className="rounded-[8px] bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
             {t('home.departments.backendError')}
           </p>
         )}
@@ -112,7 +112,7 @@ const DepartmentsSection = () => {
             onMouseEnter={() => setIsCarouselPaused(true)}
             onMouseLeave={() => setIsCarouselPaused(false)}
           >
-            <div className="overflow-hidden rounded-3xl">
+            <div className="overflow-hidden">
               <div
                 className="department-carousel-track flex transition-transform duration-700 ease-out"
                 style={{ transform: `translateX(-${activeSlide * 100}%)` }}
@@ -140,7 +140,7 @@ const DepartmentsSection = () => {
               <>
                 <button
                   aria-label={t('home.departments.previousSlide')}
-                  className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-outline-variant/40 bg-surface/95 text-on-surface shadow-md transition-all hover:border-primary/50 hover:text-primary hover:shadow-lg md:-left-5"
+                  className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded border border-outline-variant bg-surface text-on-surface shadow-[0_2px_8px_rgba(26,26,26,0.08)] transition-colors hover:border-primary hover:text-primary md:-left-5"
                   onClick={goToPreviousSlide}
                   type="button"
                 >
@@ -148,7 +148,7 @@ const DepartmentsSection = () => {
                 </button>
                 <button
                   aria-label={t('home.departments.nextSlide')}
-                  className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-outline-variant/40 bg-surface/95 text-on-surface shadow-md transition-all hover:border-primary/50 hover:text-primary hover:shadow-lg md:-right-5"
+                  className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded border border-outline-variant bg-surface text-on-surface shadow-[0_2px_8px_rgba(26,26,26,0.08)] transition-colors hover:border-primary hover:text-primary md:-right-5"
                   onClick={goToNextSlide}
                   type="button"
                 >
@@ -167,7 +167,7 @@ const DepartmentsSection = () => {
                 className={`h-2.5 rounded-full transition-all ${
                   slideIndex === activeSlide
                     ? 'w-8 bg-primary'
-                    : 'w-2.5 border border-outline-variant bg-surface-variant hover:bg-primary/30'
+                    : 'w-2.5 border border-outline-variant bg-surface hover:bg-primary-fixed'
                 }`}
                 key={`department-dot-${slideIndex}`}
                 onClick={() => setCurrentSlide(slideIndex)}

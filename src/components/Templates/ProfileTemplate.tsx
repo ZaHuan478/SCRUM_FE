@@ -33,7 +33,7 @@ const ProfileTemplate = ({
   onLogout,
 }: ProfileTemplateProps) => {
   const profileContent = (
-    <main className="mx-auto flex w-full max-w-7xl flex-col gap-xl px-lg py-xl md:px-xxl md:py-xxl">
+    <main className="mx-auto flex w-full max-w-[1366px] flex-col gap-xl px-lg py-xl md:px-xxl md:py-xxl">
       <ProfileHero avatarUrl={form.avatarUrl} user={user} />
 
       <div className="grid grid-cols-1 items-start gap-xl lg:grid-cols-3">

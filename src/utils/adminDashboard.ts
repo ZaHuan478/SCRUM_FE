@@ -4,7 +4,7 @@ import type { DoctorDepartmentOption } from '../components/Organisms/DoctorManag
 import type { DashboardStat } from '../components/Molecules/Dashboard/DashboardStatCard'
 import type { DoctorManagementRowData } from '../components/Molecules/Management/DoctorManagementRow'
 import type { PatientManagementRowData } from '../components/Molecules/Management/PatientManagementRow'
-import type { AppointmentsResult } from '../services/appointment.service'
+import type { Appointment, AppointmentsResult } from '../services/appointment.service'
 import type { AppointmentSlotsResult } from '../services/appointmentSlot.service'
 import type { User } from '../services/auth.service'
 import type { Department, DepartmentsResult } from '../services/department.service'
@@ -40,6 +40,9 @@ export type DashboardState = {
   patients: PatientManagementRowData[]
   patientPagination: DashboardPagination
   patientStatus: LoadStatus
+  appointments: Appointment[]
+  appointmentPagination: DashboardPagination
+  appointmentStatus: LoadStatus
   users: User[]
   userPagination: DashboardPagination
   userStatus: LoadStatus
@@ -50,6 +53,7 @@ export type DashboardState = {
   totalSymptomRules: number
   totalDoctors: number
   totalPatients: number
+  totalAppointments: number
   totalUsers: number
 }
 
@@ -61,7 +65,7 @@ export const emptyDashboardPagination: DashboardPagination = {
 }
 
 export const toDashboardPagination = (
-  pagination?: DepartmentsResult['pagination'] | DepartmentSymptomRulesResult['pagination'] | DoctorsResult['pagination'] | PatientsResult['pagination'] | UsersResult['pagination']
+  pagination?: AppointmentsResult['pagination'] | DepartmentsResult['pagination'] | DepartmentSymptomRulesResult['pagination'] | DoctorsResult['pagination'] | PatientsResult['pagination'] | UsersResult['pagination']
 ): DashboardPagination => ({
   page: pagination?.page || emptyDashboardPagination.page,
   limit: pagination?.limit || emptyDashboardPagination.limit,
@@ -85,6 +89,9 @@ export const emptyDashboardState: DashboardState = {
   patients: [],
   patientPagination: emptyDashboardPagination,
   patientStatus: 'loading',
+  appointments: [],
+  appointmentPagination: emptyDashboardPagination,
+  appointmentStatus: 'loading',
   users: [],
   userPagination: emptyDashboardPagination,
   userStatus: 'loading',
@@ -95,6 +102,7 @@ export const emptyDashboardState: DashboardState = {
   totalSymptomRules: 0,
   totalDoctors: 0,
   totalPatients: 0,
+  totalAppointments: 0,
   totalUsers: 0,
 }
 
@@ -105,6 +113,7 @@ export const dashboardErrorState: DashboardState = {
   symptomRuleStatus: 'error',
   doctorStatus: 'error',
   patientStatus: 'error',
+  appointmentStatus: 'error',
   userStatus: 'error',
   statsStatus: 'error',
 }

@@ -58,14 +58,14 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label={t('account.menu')}
-        className="flex max-w-[13rem] items-center gap-sm rounded-full border border-outline-variant/40 bg-surface-container-lowest py-xs pl-xs pr-sm text-left shadow-sm transition-colors hover:bg-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/40"
+        className="flex max-w-[11rem] items-center gap-sm rounded border border-outline-variant bg-surface py-xs pl-xs pr-sm text-left transition-colors hover:border-primary focus:outline-none focus:border-on-surface sm:max-w-[13rem]"
         onClick={() => setOpen((current) => !current)}
         type="button"
       >
         {user.avatar_url ? (
-          <img alt="" className="h-9 w-9 shrink-0 rounded-full border border-outline-variant/30 object-cover" src={user.avatar_url} />
+          <img alt="" className="h-9 w-9 shrink-0 rounded border border-outline-variant object-cover" src={user.avatar_url} />
         ) : (
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-label-md font-label-md text-on-primary">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-primary text-label-md font-label-md text-on-primary">
             {getInitials(user)}
           </span>
         )}
@@ -78,10 +78,10 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
 
       {open && (
         <div
-          className="absolute right-0 top-[calc(100%+0.5rem)] z-[80] w-72 overflow-hidden rounded-lg border border-outline-variant/30 bg-surface-container-lowest shadow-[0px_16px_40px_rgba(15,23,42,0.16)]"
+          className="absolute right-0 top-[calc(100%+0.5rem)] z-[80] w-[min(18rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-outline-variant bg-surface shadow-[0_8px_24px_rgba(26,26,26,0.12)]"
           role="menu"
         >
-          <div className="border-b border-outline-variant/30 px-lg py-md">
+          <div className="border-b border-outline-variant px-lg py-md">
             <p className="truncate font-label-md text-label-md text-on-surface">{displayName}</p>
             <p className="truncate font-body-sm text-body-sm text-on-surface-variant">{user.email}</p>
           </div>

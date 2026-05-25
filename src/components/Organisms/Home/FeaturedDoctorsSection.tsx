@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import Button from '../../Atoms/Button'
 import DoctorCard from '../../Molecules/Home/DoctorCard'
 import type { DoctorCardData } from '../../Molecules/Home/DoctorCard'
 import Icon from '../../Atoms/Icon'
 import { useTranslation } from '../../../contexts/LanguageContext'
 import { getDoctors } from '../../../services/doctor.service'
 import type { Doctor } from '../../../services/doctor.service'
+import { translateDoctorDescription } from '../../../utils/contentTranslation'
+import type { Language } from '../../../contexts/LanguageContext'
 
-const specialtyFromDescription = (doctor: Doctor) => {
-  const description = doctor.description?.trim()
+const specialtyFromDescription = (doctor: Doctor, language: Language) => {
+  const description = translateDoctorDescription(doctor.description, language).trim()
 
   return description ? description.split(/[,.]/)[0].slice(0, 42) : ''
 }
@@ -27,10 +28,11 @@ const formatFee = (fee?: string | number | null) => {
   }).format(amount)
 }
 
-const mapDoctor = (doctor: Doctor): DoctorCardData => ({
+const mapDoctor = (doctor: Doctor, language: Language): DoctorCardData => ({
+  description: translateDoctorDescription(doctor.description, language),
   id: doctor.id,
   name: doctor.user?.full_name || '',
-  specialty: specialtyFromDescription(doctor),
+  specialty: specialtyFromDescription(doctor, language),
   experienceYears: doctor.experience_years,
   image: doctor.image_url || '',
   fee: formatFee(doctor.consultation_fee),
@@ -41,7 +43,7 @@ type FeaturedDoctorsSectionProps = {
 }
 
 const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
-  const { t } = useTranslation()
+  const { language, t } = useTranslation()
   const [doctors, setDoctors] = useState<DoctorCardData[]>([])
   const [apiStatus, setApiStatus] = useState<'loading' | 'ready' | 'error'>('loading')
 
@@ -59,7 +61,7 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
       .then((result) => {
         if (!active) return
 
-        setDoctors(result.doctors.map(mapDoctor))
+        setDoctors(result.doctors.map((doctor) => mapDoctor(doctor, language)))
         setApiStatus('ready')
       })
       .catch(() => {
@@ -72,23 +74,24 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
     return () => {
       active = false
     }
-  }, [query])
+  }, [language, query])
 
   return (
-    <section className="mx-auto max-w-7xl px-lg py-xxxl md:px-xxl" id="featured-doctors">
+    <section className="mx-auto max-w-[1366px] bg-background px-lg py-[56px] md:px-xxl md:py-[80px]" id="featured-doctors">
       <div className="mb-xxl flex flex-col justify-between gap-md md:flex-row md:items-end">
         <div>
-          <h2 className="mb-sm font-headline-lg text-headline-lg text-on-background">{t('home.featuredDoctors.title')}</h2>
+          <h2 className="mb-sm font-headline-lg text-[32px] font-medium leading-none tracking-normal text-on-background sm:text-[40px] md:text-[44px]">{t('home.featuredDoctors.title')}</h2>
           <p className="font-body-md text-body-md text-on-surface-variant"></p>
         </div>
-        <Link to="/doctors">
-          <Button className="flex items-center gap-xs self-start border-none p-0 text-primary shadow-none transition-all hover:gap-sm hover:bg-transparent" fullWidth={false} type="button" variant="ghost">
-            {t('common.viewAll')} <Icon name="arrow_forward" />
-          </Button>
+        <Link
+          className="inline-flex min-h-11 items-center justify-center gap-xs self-start rounded border border-primary bg-surface px-xl py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-primary transition-colors hover:bg-surface-container-low"
+          to="/doctors"
+        >
+          {t('common.viewAll')} <Icon name="arrow_forward" />
         </Link>
       </div>
       {apiStatus === 'error' && (
-        <p className="mb-md rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
+        <p className="mb-md rounded-[8px] bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
           {t('home.featuredDoctors.backendError')}
         </p>
       )}
@@ -98,12 +101,12 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
       {doctors.length > 0 ? (
         <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-4">
           {doctors.map((doctor, index) => (
-            <DoctorCard doctor={doctor} key={doctor.id ? String(doctor.id) : `${doctor.name || 'doctor'}-${index}`} />
+            <DoctorCard doctor={doctor} key={doctor.id ? String(doctor.id) : `${doctor.name || 'doctor'}-${index}`} variant="hp" />
           ))}
         </div>
       ) : (
         apiStatus !== 'loading' && (
-          <p className="rounded-lg border border-outline-variant/30 bg-surface p-lg text-center font-body-md text-body-md text-on-surface-variant">
+          <p className="rounded-lg border border-outline-variant bg-surface p-lg text-center font-body-md text-body-md text-on-surface-variant">
             {t('home.featuredDoctors.empty')}
           </p>
         )

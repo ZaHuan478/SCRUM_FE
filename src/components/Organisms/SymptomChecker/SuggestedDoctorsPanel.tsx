@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from '../../../contexts/LanguageContext'
 import Icon from '../../Atoms/Icon'
 import Button from '../../Atoms/Button'
 import SuggestedDoctorCard from '../../Molecules/SymptomChecker/SuggestedDoctorCard'
@@ -10,27 +11,29 @@ type SuggestedDoctorsPanelProps = {
 }
 
 const SuggestedDoctorsPanel = ({ doctors, status }: SuggestedDoctorsPanelProps) => {
+  const { t } = useTranslation()
+
   return (
     <section className="space-y-xl lg:col-span-8">
       <div className="flex items-center justify-between gap-md">
         <div className="flex items-center gap-md">
           <Icon name="groups" className="text-primary" />
-          <h2 className="font-headline-sm text-headline-sm text-on-background">Bác sĩ đề xuất</h2>
+          <h2 className="font-headline-sm text-headline-sm text-on-background">{t('symptomChecker.suggestedDoctors')}</h2>
         </div>
         <Link to="/doctors">
-          <Button className="flex items-center gap-xs border-none p-0 text-primary shadow-none transition-all hover:gap-sm hover:bg-transparent" fullWidth={false} type="button" variant="ghost">
-            Xem tất cả <Icon name="arrow_forward" />
+          <Button className="flex items-center gap-xs border-primary px-md text-primary transition-all hover:gap-sm" fullWidth={false} type="button" variant="ghost">
+            {t('common.viewAll')} <Icon name="arrow_forward" />
           </Button>
         </Link>
       </div>
       {status === 'loading' && (
-        <p className="rounded-lg border border-outline-variant/30 bg-surface p-md font-body-sm text-body-sm text-on-surface-variant">
-          Đang tải dữ liệu bác sĩ từ backend...
+        <p className="rounded-lg border border-outline-variant bg-surface p-md font-body-sm text-body-sm text-on-surface-variant">
+          {t('symptomChecker.loadingDoctors')}
         </p>
       )}
       {status === 'error' && (
         <p className="rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
-          Chưa kết nối được backend nên chưa có dữ liệu bác sĩ để hiển thị.
+          {t('symptomChecker.doctorsBackendError')}
         </p>
       )}
       {doctors.length > 0 ? (
@@ -41,8 +44,8 @@ const SuggestedDoctorsPanel = ({ doctors, status }: SuggestedDoctorsPanelProps) 
         </div>
       ) : (
         status !== 'loading' && (
-          <p className="rounded-lg border border-outline-variant/30 bg-surface p-lg text-center font-body-md text-body-md text-on-surface-variant">
-            Chưa có dữ liệu bác sĩ.
+          <p className="rounded-lg border border-outline-variant bg-surface p-lg text-center font-body-md text-body-md text-on-surface-variant">
+            {t('symptomChecker.noDoctorData')}
           </p>
         )
       )}

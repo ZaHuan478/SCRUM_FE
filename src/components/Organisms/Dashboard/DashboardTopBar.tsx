@@ -8,12 +8,23 @@ type DashboardTopBarProps = {
   onLogout: () => void
 }
 
+const adminMobileLinks = [
+  { label: 'Tổng quan', to: '/admin' },
+  { label: 'Khoa', to: '/admin/departments' },
+  { label: 'Bác sĩ', to: '/admin/doctors' },
+  { label: 'Lịch hẹn', to: '/admin/appointments' },
+  { label: 'Triệu chứng', to: '/admin/symptom-rules' },
+  { label: 'Bệnh nhân', to: '/admin/patients' },
+  { label: 'Tài liệu AI', to: '/admin/hospital-documents' },
+  { label: 'Người dùng', to: '/admin/users' },
+]
+
 const DashboardTopBar = ({ onLogout }: DashboardTopBarProps) => {
   const user = getStoredUser()
 
   return (
-    <header className="sticky top-0 z-50 bg-surface/90 shadow-sm backdrop-blur-md">
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-md px-lg py-md md:px-xxl">
+    <header className="sticky top-0 z-50 border-b border-outline-variant bg-surface">
+      <div className="mx-auto flex h-16 w-full max-w-[1366px] items-center justify-between gap-md px-lg md:px-xxl">
         <div className="flex min-w-0 items-center gap-xl">
           <Link aria-label="MedPrecision" className="shrink-0" to="/">
             <Logo />
@@ -29,7 +40,7 @@ const DashboardTopBar = ({ onLogout }: DashboardTopBarProps) => {
         </div>
         <div className="flex items-center gap-md">
           {user?.role === 'PATIENT' && (
-            <Link className="hidden rounded-lg bg-primary px-lg py-sm font-label-md text-label-md text-on-primary shadow-sm transition-all hover:bg-primary-container sm:inline-flex" to="/appointments">
+            <Link className="hidden rounded bg-primary px-lg py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-primary transition-colors hover:bg-primary-container sm:inline-flex" to="/appointments">
               Đặt lịch hẹn
             </Link>
           )}
@@ -42,6 +53,13 @@ const DashboardTopBar = ({ onLogout }: DashboardTopBarProps) => {
           )}
         </div>
       </div>
+      <nav className="mx-auto flex max-w-[1366px] gap-sm overflow-x-auto border-t border-outline-variant px-lg py-sm md:hidden">
+        {adminMobileLinks.map((item) => (
+          <Link className="shrink-0 rounded border border-outline-variant bg-surface px-md py-sm font-label-sm text-label-sm text-on-surface-variant" key={item.to} to={item.to}>
+            {item.label}
+          </Link>
+        ))}
+      </nav>
     </header>
   )
 }
