@@ -6,9 +6,11 @@ import Icon from '../../Atoms/Icon'
 import { useTranslation } from '../../../contexts/LanguageContext'
 import { getDoctors } from '../../../services/doctor.service'
 import type { Doctor } from '../../../services/doctor.service'
+import { translateDoctorDescription } from '../../../utils/contentTranslation'
+import type { Language } from '../../../contexts/LanguageContext'
 
-const specialtyFromDescription = (doctor: Doctor) => {
-  const description = doctor.description?.trim()
+const specialtyFromDescription = (doctor: Doctor, language: Language) => {
+  const description = translateDoctorDescription(doctor.description, language).trim()
 
   return description ? description.split(/[,.]/)[0].slice(0, 42) : ''
 }
@@ -26,10 +28,11 @@ const formatFee = (fee?: string | number | null) => {
   }).format(amount)
 }
 
-const mapDoctor = (doctor: Doctor): DoctorCardData => ({
+const mapDoctor = (doctor: Doctor, language: Language): DoctorCardData => ({
+  description: translateDoctorDescription(doctor.description, language),
   id: doctor.id,
   name: doctor.user?.full_name || '',
-  specialty: specialtyFromDescription(doctor),
+  specialty: specialtyFromDescription(doctor, language),
   experienceYears: doctor.experience_years,
   image: doctor.image_url || '',
   fee: formatFee(doctor.consultation_fee),
@@ -40,7 +43,7 @@ type FeaturedDoctorsSectionProps = {
 }
 
 const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
-  const { t } = useTranslation()
+  const { language, t } = useTranslation()
   const [doctors, setDoctors] = useState<DoctorCardData[]>([])
   const [apiStatus, setApiStatus] = useState<'loading' | 'ready' | 'error'>('loading')
 
@@ -58,7 +61,7 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
       .then((result) => {
         if (!active) return
 
-        setDoctors(result.doctors.map(mapDoctor))
+        setDoctors(result.doctors.map((doctor) => mapDoctor(doctor, language)))
         setApiStatus('ready')
       })
       .catch(() => {
@@ -71,7 +74,7 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
     return () => {
       active = false
     }
-  }, [query])
+  }, [language, query])
 
   return (
     <section className="mx-auto max-w-[1366px] bg-background px-lg py-[56px] md:px-xxl md:py-[80px]" id="featured-doctors">

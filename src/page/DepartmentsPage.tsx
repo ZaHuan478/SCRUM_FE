@@ -8,6 +8,7 @@ import PaginationControls from '../components/Molecules/Common/PaginationControl
 import { useTranslation } from '../contexts/LanguageContext'
 import { getDepartments } from '../services/department.service'
 import type { Department, DepartmentsResult } from '../services/department.service'
+import { translateDepartmentDescription, translateDepartmentName } from '../utils/contentTranslation'
 
 const DEPARTMENTS_PAGE_SIZE = 9
 
@@ -26,7 +27,7 @@ const emptyPagination: DepartmentsResult['pagination'] = {
 }
 
 const DepartmentsPage = () => {
-  const { t } = useTranslation()
+  const { language, t } = useTranslation()
   const [query, setQuery] = useState('')
   const [page, setPage] = useState(1)
   const [departments, setDepartments] = useState<Department[]>([])
@@ -149,11 +150,13 @@ const DepartmentsPage = () => {
                   </div>
 
                   <h2 className="font-headline-sm text-headline-sm text-on-surface">
-                    {department.name}
+                    {translateDepartmentName(department.name, language)}
                   </h2>
 
                   <p className="mt-sm min-h-20 font-body-sm text-body-sm text-on-surface-variant">
-                    {department.description || t('departmentsPage.fallbackDescription')}
+                    {department.description
+                      ? translateDepartmentDescription(department.description, language)
+                      : t('departmentsPage.fallbackDescription')}
                   </p>
 
                   <span className="mt-lg inline-flex items-center gap-xs font-label-md text-label-md text-primary transition-all group-hover:gap-sm group-hover:underline">

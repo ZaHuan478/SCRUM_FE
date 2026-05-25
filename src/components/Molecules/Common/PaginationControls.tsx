@@ -1,4 +1,5 @@
 import Icon from '../../Atoms/Icon'
+import { useTranslation } from '../../../contexts/LanguageContext'
 
 type PaginationControlsProps = {
     page: number
@@ -27,6 +28,8 @@ const PaginationControls = ({
     isLoading = false,
     onPageChange,
 }: PaginationControlsProps) => {
+    const { t } = useTranslation()
+
     if (totalItems === 0) return null
 
     const safeTotalPages = Math.max(totalPages, 1)
@@ -40,7 +43,7 @@ const PaginationControls = ({
     return (
         <div className="flex flex-col gap-md bg-transparent py-md md:flex-row md:items-center md:justify-between">
             <p className="font-body-sm text-body-sm text-on-surface-variant">
-                Hiển thị {firstItem}-{lastItem} trong {totalItems} {itemLabel}
+                {t('common.showingRange', { first: firstItem, last: lastItem, total: totalItems, itemLabel })}
             </p>
 
             <div className="flex flex-wrap items-center gap-xs">
@@ -51,7 +54,7 @@ const PaginationControls = ({
                     type="button"
                 >
                     <Icon className="text-lg" name="chevron_left" />
-                    Trước
+                    {t('common.previous')}
                 </button>
 
                 {pageNumbers.map((pageNumber) => {
@@ -81,7 +84,7 @@ const PaginationControls = ({
                     onClick={() => onPageChange(safePage + 1)}
                     type="button"
                 >
-                    Sau
+                    {t('common.next')}
                     <Icon className="text-lg" name="chevron_right" />
                 </button>
             </div>

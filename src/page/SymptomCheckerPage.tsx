@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from '../contexts/LanguageContext'
 import SymptomCheckerTemplate from '../components/Templates/SymptomCheckerTemplate'
 import type { SuggestedDepartment } from '../components/Molecules/SymptomChecker/SuggestedDepartmentCard'
 import type { SuggestedDoctor } from '../components/Molecules/SymptomChecker/SuggestedDoctorCard'
@@ -11,24 +12,32 @@ import { recommendDepartmentsBySymptoms } from '../services/departmentSymptomRul
 import type { RecommendedDepartment } from '../services/departmentSymptomRule.service'
 import { getSymptoms } from '../services/symptom.service'
 import type { Symptom } from '../services/symptom.service'
+import {
+  translateDepartmentDescription,
+  translateDepartmentName,
+  translateDoctorDescription,
+} from '../utils/contentTranslation'
 import { findMatchingSymptoms } from '../utils/patientAppointments'
+import type { Language } from '../contexts/LanguageContext'
 
-const getTitleFromDoctor = (doctor: Doctor) => {
-  const description = doctor.description?.trim()
+type Translate = (key: string, values?: Record<string, string | number>) => string
+
+const getTitleFromDoctor = (doctor: Doctor, language: Language) => {
+  const description = translateDoctorDescription(doctor.description, language).trim()
 
   return description ? description.split(/[,.]/)[0].slice(0, 56) : ''
 }
 
-const mapDoctor = (doctor: Doctor, departmentName?: string): SuggestedDoctor => {
+const mapDoctor = (doctor: Doctor, departmentName: string | undefined, t: Translate, language: Language): SuggestedDoctor => {
   const experience = Number(doctor.experience_years || 0)
 
   return {
     id: doctor.id,
     name: doctor.user?.full_name || '',
-    title: getTitleFromDoctor(doctor),
+    title: getTitleFromDoctor(doctor, language),
     tags: [
-      ...(departmentName ? [departmentName] : []),
-      ...(experience > 0 ? [`${experience} năm kinh nghiệm`] : []),
+      ...(departmentName ? [translateDepartmentName(departmentName, language)] : []),
+      ...(experience > 0 ? [t('common.yearsExperience', { years: experience })] : []),
     ],
     image: doctor.image_url || '',
   }
@@ -52,7 +61,9 @@ const loadActiveSymptoms = async () => {
 
 const mapRecommendedDepartment = (
   recommendation: RecommendedDepartment,
-  departments: Department[]
+  departments: Department[],
+  t: Translate,
+  language: Language
 ): SuggestedDepartment => {
   const department = departments.find((item) => String(item.id) === String(recommendation.department_id))
   const matchedSymptoms = recommendation.matched_symptoms.join(', ')
@@ -64,10 +75,12 @@ const mapRecommendedDepartment = (
     .filter((note) => note.note)
 
   return {
-    title: recommendation.department_name,
+    title: translateDepartmentName(recommendation.department_name, language),
     description: matchedSymptoms
-      ? `Phù hợp với: ${matchedSymptoms}`
-      : department?.description || 'Khoa phù hợp với triệu chứng bạn đã nhập.',
+      ? t('symptomChecker.matchingSymptoms', { symptoms: matchedSymptoms })
+      : department?.description
+        ? translateDepartmentDescription(department.description, language)
+        : t('symptomChecker.fallbackDepartmentDescription'),
     preVisitNote: recommendation.pre_visit_note || preVisitNotes[0]?.note || null,
     preVisitNotes,
   }
@@ -86,6 +99,7 @@ const uniqueDoctorAssignments = (assignments: DoctorAssignment[]) => {
 }
 
 const SymptomCheckerPage = () => {
+  const { language, t } = useTranslation()
   const [query, setQuery] = useState('')
   const [allDepartments, setAllDepartments] = useState<Department[]>([])
   const [symptoms, setSymptoms] = useState<Symptom[]>([])
@@ -109,13 +123,15 @@ const SymptomCheckerPage = () => {
         setSymptoms(nextSymptoms)
         setAllDepartments(departmentResult.departments)
         setDepartments(departmentResult.departments.slice(0, 3).map((department) => ({
-          title: department.name,
-          description: department.description || 'Khoa đang tiếp nhận lịch khám.',
+          title: translateDepartmentName(department.name, language),
+          description: department.description
+            ? translateDepartmentDescription(department.description, language)
+            : t('symptomChecker.activeDepartmentFallback'),
         })))
         setDoctors(uniqueDoctorAssignments(assignmentResult.doctor_assignments)
           .filter((assignment) => assignment.doctor)
           .slice(0, 4)
-          .map((assignment) => mapDoctor(assignment.doctor as Doctor, assignment.department?.name)))
+          .map((assignment) => mapDoctor(assignment.doctor as Doctor, assignment.department?.name, t, language)))
         setDoctorStatus('ready')
       })
       .catch(() => {
@@ -130,7 +146,7 @@ const SymptomCheckerPage = () => {
     return () => {
       active = false
     }
-  }, [])
+  }, [language, t])
 
   const searchSuggestions = useMemo(() => (
     findMatchingSymptoms(query, symptoms).slice(0, 6).map((symptom) => symptom.name)
@@ -166,12 +182,12 @@ const SymptomCheckerPage = () => {
       )).flatMap((result) => result.doctor_assignments)
 
       setDepartments(recommendations.map((recommendation) => (
-        mapRecommendedDepartment(recommendation, allDepartments)
+        mapRecommendedDepartment(recommendation, allDepartments, t, language)
       )))
       setDoctors(uniqueDoctorAssignments(assignments)
         .filter((assignment) => assignment.doctor)
         .slice(0, 4)
-        .map((assignment) => mapDoctor(assignment.doctor as Doctor, assignment.department?.name)))
+        .map((assignment) => mapDoctor(assignment.doctor as Doctor, assignment.department?.name, t, language)))
       setDoctorStatus('ready')
     } catch {
       setDepartments([])

@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from '../../contexts/LanguageContext'
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'ghost'
@@ -7,6 +8,7 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 const Button: React.FC<ButtonProps> = ({ children, variant = 'primary', isLoading = false, fullWidth = true, className = '', disabled, ...rest }) => {
+  const { t } = useTranslation()
   const widthClass = fullWidth ? 'w-full' : 'w-auto'
   const classes =
     variant === 'primary'
@@ -15,7 +17,7 @@ const Button: React.FC<ButtonProps> = ({ children, variant = 'primary', isLoadin
 
   return (
     <button className={`${classes} ${className}`} disabled={disabled || isLoading} {...rest}>
-      {isLoading ? 'Đang xử lý...' : children}
+      {isLoading ? t('common.processing') : children}
     </button>
   )
 }

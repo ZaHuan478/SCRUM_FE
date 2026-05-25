@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { downloadInvoicePdf } from '../../../api/payment.api'
+import { useTranslation } from '../../../contexts/LanguageContext'
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 
@@ -10,6 +11,7 @@ type InvoiceButtonProps = {
 }
 
 const InvoiceButton = ({ appointmentId, invoiceCode, pdfUrl }: InvoiceButtonProps) => {
+  const { t } = useTranslation()
   const [isDownloading, setIsDownloading] = useState(false)
 
   const handleDownload = async () => {
@@ -43,7 +45,7 @@ const InvoiceButton = ({ appointmentId, invoiceCode, pdfUrl }: InvoiceButtonProp
       type="button"
     >
       <Icon className="text-lg" name="download" />
-      {isDownloading ? 'Đang tải...' : 'Tải hóa đơn PDF'}
+      {isDownloading ? t('payment.downloading') : t('payment.downloadInvoice')}
     </Button>
   )
 }

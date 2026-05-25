@@ -12,6 +12,8 @@ import { getDateKey, longDateFormatter } from '../../../utils/patientAppointment
 import type { LoadStatus } from '../../../utils/patientAppointments'
 import { moneyFormatter, paymentRuleNote } from '../../../utils/paymentPolicy'
 import type { PaymentPolicy } from '../../../utils/paymentPolicy'
+import { useTranslation } from '../../../contexts/LanguageContext'
+import { translateDepartmentName } from '../../../utils/contentTranslation'
 
 type PatientAppointmentBookingPanelProps = {
   bookingError: string
@@ -68,6 +70,7 @@ const PatientAppointmentBookingPanel = ({
   onSelectSlot,
   onSubmit,
 }: PatientAppointmentBookingPanelProps) => {
+  const { language } = useTranslation()
   const [slotPage, setSlotPage] = useState(1)
   const slotTotalPages = Math.max(Math.ceil(slots.length / SLOT_PAGE_SIZE), 1)
   const slotFirstItem = slots.length === 0 ? 0 : (slotPage - 1) * SLOT_PAGE_SIZE + 1
@@ -147,7 +150,7 @@ const PatientAppointmentBookingPanel = ({
             >
               <option value="">Tất cả khoa</option>
               {departments.map((department) => (
-                <option key={department.id} value={department.id}>{department.name}</option>
+                <option key={department.id} value={department.id}>{translateDepartmentName(department.name, language)}</option>
               ))}
             </select>
           </label>
@@ -217,7 +220,7 @@ const PatientAppointmentBookingPanel = ({
                     onClick={() => onDepartmentChange(String(department.department_id))}
                     type="button"
                   >
-                    {department.department_name}
+                    {translateDepartmentName(department.department_name, language)}
                   </button>
                 ))}
               </div>
@@ -232,7 +235,7 @@ const PatientAppointmentBookingPanel = ({
                 <div className="mt-sm space-y-sm">
                   {preVisitNotes.map((item) => (
                     <p className="font-body-sm text-body-sm text-on-surface-variant" key={`${item.departmentName}-${item.symptomName || 'note'}-${item.note}`}>
-                      <span className="font-label-sm text-label-sm text-secondary">{item.departmentName}</span>
+                      <span className="font-label-sm text-label-sm text-secondary">{translateDepartmentName(item.departmentName, language)}</span>
                       {item.symptomName && <span> - {item.symptomName}</span>}
                       <span>: {item.note}</span>
                     </p>

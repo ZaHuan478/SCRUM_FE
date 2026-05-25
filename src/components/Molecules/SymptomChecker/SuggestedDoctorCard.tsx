@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from '../../../contexts/LanguageContext'
 import Icon from '../../Atoms/Icon'
 import Image from '../../Atoms/Image'
+import { translateDepartmentName, translateDoctorDescription } from '../../../utils/contentTranslation'
 
 export type SuggestedDoctor = {
   id?: number | string
@@ -18,7 +20,9 @@ type SuggestedDoctorCardProps = {
 }
 
 const SuggestedDoctorCard = ({ doctor }: SuggestedDoctorCardProps) => {
+  const { language, t } = useTranslation()
   const tags = doctor.tags || []
+  const title = doctor.title?.includes('Bác sĩ') ? translateDoctorDescription(doctor.title, language) : doctor.title || ''
   const bookingSearch = new URLSearchParams()
 
   if (doctor.id) bookingSearch.set('doctor_id', String(doctor.id))
@@ -41,7 +45,7 @@ const SuggestedDoctorCard = ({ doctor }: SuggestedDoctorCardProps) => {
       <div className="space-y-md p-lg">
         <div>
           <h4 className="min-h-7 font-headline-sm text-headline-sm text-on-surface">{doctor.name}</h4>
-          {doctor.title && <p className="font-label-md text-label-md uppercase tracking-wide text-primary">{doctor.title}</p>}
+          {title && <p className="font-label-md text-label-md uppercase tracking-wide text-primary">{title}</p>}
         </div>
         {(doctor.rating || doctor.reviews) && (
           <div className="flex items-center gap-sm">
@@ -58,7 +62,7 @@ const SuggestedDoctorCard = ({ doctor }: SuggestedDoctorCardProps) => {
           <div className="flex flex-wrap gap-sm">
             {tags.map((tag) => (
               <span className="rounded-lg border border-outline-variant bg-surface-container-low px-sm py-xs font-label-sm text-label-sm text-on-surface-variant" key={tag}>
-                {tag}
+                {translateDepartmentName(tag, language)}
               </span>
             ))}
           </div>
@@ -67,7 +71,7 @@ const SuggestedDoctorCard = ({ doctor }: SuggestedDoctorCardProps) => {
           className="inline-flex min-h-11 w-full items-center justify-center rounded bg-primary px-md py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-primary transition-colors hover:bg-primary-container active:scale-[0.98]"
           to={bookingPath}
         >
-          Đặt lịch ngay
+          {t('common.bookNow')}
         </Link>
       </div>
     </article>

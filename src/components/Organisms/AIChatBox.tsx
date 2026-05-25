@@ -8,20 +8,19 @@ import { AUTH_USER_CHANGED_EVENT, getStoredUser } from '../../services/auth.serv
 import type { User } from '../../services/auth.service'
 import type { AIChatHistoryItem, AIChatMessage } from '../../types/aiChat.types'
 import type { AIChatStreamError } from '../../services/aiChatService'
+import { useTranslation } from '../../contexts/LanguageContext'
 
 const CHATBOT_ALLOWED_ROLES: Array<User['role']> = ['PATIENT', 'DOCTOR', 'ADMIN']
-
-const DEFAULT_MESSAGE = 'Xin chào, tôi là trợ lý AI. Bạn đang gặp triệu chứng gì? Tôi có thể gợi ý khoa phù hợp để bạn đặt lịch khám.'
 
 const buildMessage = (message: Omit<AIChatMessage, 'id'>): AIChatMessage => ({
   ...message,
   id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
 })
 
-const buildDefaultMessages = (): AIChatMessage[] => [
+const buildDefaultMessages = (content: string): AIChatMessage[] => [
   buildMessage({
     role: 'assistant',
-    content: DEFAULT_MESSAGE,
+    content,
     warningLevel: 'NORMAL',
   }),
 ]
@@ -46,17 +45,17 @@ const TypingIndicator = () => (
   </div>
 )
 
-const loadStoredMessages = (userKey: string) => {
-  if (userKey === 'guest') return buildDefaultMessages()
+const loadStoredMessages = (userKey: string, defaultMessage: string) => {
+  if (userKey === 'guest') return buildDefaultMessages(defaultMessage)
 
   const rawMessages = localStorage.getItem(getStorageKey(userKey))
-  if (!rawMessages) return buildDefaultMessages()
+  if (!rawMessages) return buildDefaultMessages(defaultMessage)
 
   try {
     const parsedMessages = JSON.parse(rawMessages) as AIChatMessage[]
 
     if (!Array.isArray(parsedMessages) || parsedMessages.length === 0) {
-      return buildDefaultMessages()
+      return buildDefaultMessages(defaultMessage)
     }
 
     return parsedMessages
@@ -70,11 +69,12 @@ const loadStoredMessages = (userKey: string) => {
         documentMatches: message.documentMatches?.slice(0, 1),
       }))
   } catch {
-    return buildDefaultMessages()
+    return buildDefaultMessages(defaultMessage)
   }
 }
 
 const AIChatBox = () => {
+  const { t } = useTranslation()
   const [currentUser, setCurrentUser] = useState<User | null>(() => getStoredUser())
   const [isOpen, setIsOpen] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
@@ -82,7 +82,7 @@ const AIChatBox = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isWaitingForChunk, setIsWaitingForChunk] = useState(false)
   const [error, setError] = useState('')
-  const [messages, setMessages] = useState<AIChatMessage[]>(buildDefaultMessages)
+  const [messages, setMessages] = useState<AIChatMessage[]>(() => buildDefaultMessages(t('aiChat.defaultMessage')))
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const canUseChatbot = currentUser ? CHATBOT_ALLOWED_ROLES.includes(currentUser.role) : false
   const userKey = currentUser ? `${currentUser.role}:${currentUser.id}` : 'guest'
@@ -100,14 +100,14 @@ const AIChatBox = () => {
   }, [])
 
   useEffect(() => {
-    setMessages(loadStoredMessages(userKey))
+    setMessages(loadStoredMessages(userKey, t('aiChat.defaultMessage')))
     setInput('')
     setError('')
     setIsLoading(false)
     setIsWaitingForChunk(false)
     setIsOpen(false)
     setIsExpanded(false)
-  }, [userKey])
+  }, [t, userKey])
 
   useEffect(() => {
     if (userKey === 'guest') return
@@ -232,12 +232,12 @@ const AIChatBox = () => {
           // Fall through to the user-facing error below.
         }
       }
-      setError(status === 401 ? 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' : 'Không thể gọi trợ lý AI lúc này.')
+      setError(status === 401 ? t('aiChat.sessionExpired') : t('aiChat.unavailable'))
     } finally {
       setIsLoading(false)
       setIsWaitingForChunk(false)
     }
-  }, [conversationHistory, input, isLoading])
+  }, [conversationHistory, input, isLoading, t])
 
   if (!canUseChatbot) return null
 
@@ -257,8 +257,8 @@ const AIChatBox = () => {
                 <Icon name="smart_toy" />
               </span>
               <div className="min-w-0">
-                <h2 className="truncate font-label-md text-label-md">Trợ lý AI</h2>
-                <p className="truncate font-body-sm text-body-sm text-on-primary/80">Gợi ý khoa khám tham khảo</p>
+                <h2 className="truncate font-label-md text-label-md">{t('aiChat.title')}</h2>
+                <p className="truncate font-body-sm text-body-sm text-on-primary/80">{t('aiChat.subtitle')}</p>
               </div>
             </div>
             <div className="ml-auto flex shrink-0 items-center gap-xs">

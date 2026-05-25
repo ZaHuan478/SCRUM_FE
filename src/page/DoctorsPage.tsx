@@ -13,6 +13,7 @@ import type { Doctor } from '../services/doctor.service'
 import { recommendDepartmentsBySymptoms } from '../services/departmentSymptomRule.service'
 import { getSymptoms } from '../services/symptom.service'
 import type { Symptom } from '../services/symptom.service'
+import { translateDepartmentName, translateDoctorDescription } from '../utils/contentTranslation'
 import { findMatchingSymptoms } from '../utils/patientAppointments'
 
 type DoctorDirectoryItem = DoctorCardData & {
@@ -75,7 +76,7 @@ const matchesFeeFilter = (doctor: DoctorDirectoryItem, feeFilter: string) => {
 }
 
 const DoctorsPage = () => {
-  const { t } = useTranslation()
+  const { language, t } = useTranslation()
   const [searchParams] = useSearchParams()
   const [query, setQuery] = useState('')
   const [symptoms, setSymptoms] = useState<Symptom[]>([])
@@ -107,8 +108,10 @@ const DoctorsPage = () => {
 
     return {
       departmentId: assignment.department_id,
-      departmentName: assignment.department?.name || t('doctorsPage.unassignedDepartment'),
-      description: doctor.description,
+      departmentName: assignment.department?.name
+        ? translateDepartmentName(assignment.department.name, language)
+        : t('doctorsPage.unassignedDepartment'),
+      description: translateDoctorDescription(doctor.description, language),
       email: doctor.user?.email,
       experienceYears: doctor.experience_years,
       fee: formatFee(doctor.consultation_fee),
@@ -120,7 +123,7 @@ const DoctorsPage = () => {
       licenseNumber: doctor.license_number,
       name: doctor.user?.full_name || doctor.license_number,
       phone: doctor.user?.phone,
-      specialty: assignment.department?.name || '',
+      specialty: assignment.department?.name ? translateDepartmentName(assignment.department.name, language) : '',
     }
   }
 
@@ -151,7 +154,7 @@ const DoctorsPage = () => {
     return () => {
       active = false
     }
-  }, [t])
+  }, [language, t])
 
   const matchedSymptoms = useMemo(() => (
     findMatchingSymptoms(query, symptoms).slice(0, 8)

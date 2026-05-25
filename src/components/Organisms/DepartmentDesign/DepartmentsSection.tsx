@@ -4,6 +4,7 @@ import Icon from '../../Atoms/Icon'
 import { useTranslation } from '../../../contexts/LanguageContext'
 import { getDepartments } from '../../../services/department.service'
 import type { Department } from '../../../services/department.service'
+import { translateDepartmentDescription, translateDepartmentName } from '../../../utils/contentTranslation'
 
 const DEPARTMENTS_PER_SLIDE = 4
 const AUTO_SLIDE_INTERVAL = 4500
@@ -11,7 +12,7 @@ const AUTO_SLIDE_INTERVAL = 4500
 const tones: Array<'primary' | 'secondary' | 'tertiary' | 'neutral'> = ['primary', 'secondary', 'tertiary', 'neutral']
 
 const DepartmentsSection = () => {
-  const { t } = useTranslation()
+  const { language, t } = useTranslation()
   const [departments, setDepartments] = useState<Department[]>([])
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isCarouselPaused, setIsCarouselPaused] = useState(false)
@@ -124,10 +125,10 @@ const DepartmentsSection = () => {
                     <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-4">
                       {slideDepartments.map((department, departmentIndex) => (
                         <DepartmentCard
-                          description={department.description}
+                          description={translateDepartmentDescription(department.description, language)}
                           icon="clinical_notes"
                           key={department.id}
-                          label={department.name}
+                          label={translateDepartmentName(department.name, language)}
                           className="department-card-motion"
                           style={{ animationDelay: `${departmentIndex * 90}ms` }}
                           to={`/departments/${department.id}`}

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getPaymentStatus, type Payment } from '../../../api/payment.api'
 import { connectPaymentSocket, onPaymentSuccess } from '../../../api/payment.socket'
+import { useTranslation } from '../../../contexts/LanguageContext'
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import PaymentQR from '../../Molecules/Payment/PaymentQR'
@@ -14,6 +15,7 @@ type PaymentModalProps = {
 }
 
 const PaymentModal = ({ initialPayment, onClose }: PaymentModalProps) => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [payment, setPayment] = useState(initialPayment)
   const [error, setError] = useState('')
@@ -34,13 +36,13 @@ const PaymentModal = ({ initialPayment, onClose }: PaymentModalProps) => {
         if (nextPayment.status === 'PAID') {
           if (!reportedPaidRef.current) {
             reportedPaidRef.current = true
-            toastSuccess('Thanh toán thành công. Lịch khám đã được xác nhận.')
+            toastSuccess(t('payment.successToast'))
           }
           navigate(`/payment-success/${nextPayment.appointment_id}`, { replace: true })
         }
       } catch (requestError) {
         if (!active) return
-        const message = requestError instanceof Error ? requestError.message : 'Không thể tải trạng thái thanh toán.'
+        const message = requestError instanceof Error ? requestError.message : t('payment.statusError')
         setError(message)
         if (reportedErrorRef.current !== message) {
           reportedErrorRef.current = message
@@ -56,7 +58,7 @@ const PaymentModal = ({ initialPayment, onClose }: PaymentModalProps) => {
       if (String(payload.payment_id) === String(initialPayment.id)) {
         if (!reportedPaidRef.current) {
           reportedPaidRef.current = true
-          toastSuccess('Thanh toán thành công. Lịch khám đã được xác nhận.')
+          toastSuccess(t('payment.successToast'))
         }
         navigate(`/payment-success/${payload.appointment_id}`, { replace: true, state: payload })
       }
@@ -68,7 +70,7 @@ const PaymentModal = ({ initialPayment, onClose }: PaymentModalProps) => {
       offPaymentSuccess?.()
       socket?.disconnect()
     }
-  }, [initialPayment.id, navigate, toastError, toastSuccess])
+  }, [initialPayment.id, navigate, t, toastError, toastSuccess])
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-inverse-surface/50 px-md py-lg backdrop-blur-sm" role="presentation">
@@ -82,13 +84,13 @@ const PaymentModal = ({ initialPayment, onClose }: PaymentModalProps) => {
           <div className="flex items-center gap-sm">
             <Icon className="text-primary" name="payments" />
             <h2 className="font-headline-sm text-headline-sm text-on-background" id="payment-modal-title">
-              Thanh toán lịch khám
+              {t('payment.title')}
             </h2>
           </div>
           <div className="flex items-center gap-sm">
             <PaymentStatus status={payment.status} />
             <Button
-              aria-label="Đóng"
+              aria-label={t('auth.close')}
               className="inline-flex h-10 w-10 items-center justify-center border-none p-0"
               fullWidth={false}
               onClick={onClose}

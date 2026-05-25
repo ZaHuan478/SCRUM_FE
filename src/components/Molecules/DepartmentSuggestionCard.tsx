@@ -1,12 +1,15 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from '../../contexts/LanguageContext'
 import Icon from '../Atoms/Icon'
 import type { AIChatRecommendation } from '../../types/aiChat.types'
+import { translateDepartmentName } from '../../utils/contentTranslation'
 
 type DepartmentSuggestionCardProps = {
   recommendation: AIChatRecommendation
 }
 
 const DepartmentSuggestionCard = ({ recommendation }: DepartmentSuggestionCardProps) => {
+  const { language, t } = useTranslation()
   const params = new URLSearchParams()
   params.set('department_id', String(recommendation.departmentId))
 
@@ -14,7 +17,7 @@ const DepartmentSuggestionCard = ({ recommendation }: DepartmentSuggestionCardPr
     <article className="rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-md">
       <div className="flex items-start justify-between gap-md">
         <div className="min-w-0">
-          <h4 className="font-label-md text-label-md text-on-surface">{recommendation.departmentName}</h4>
+          <h4 className="font-label-md text-label-md text-on-surface">{translateDepartmentName(recommendation.departmentName, language)}</h4>
           <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">{recommendation.reason}</p>
         </div>
         <span className="shrink-0 rounded-full bg-primary-fixed px-sm py-xs font-label-sm text-label-sm text-on-primary-fixed">
@@ -37,7 +40,7 @@ const DepartmentSuggestionCard = ({ recommendation }: DepartmentSuggestionCardPr
         to={`/appointments?${params.toString()}`}
       >
         <Icon className="text-lg" name="event_available" />
-        Đặt lịch khoa này
+        {t('common.bookThisDepartment')}
       </Link>
     </article>
   )
