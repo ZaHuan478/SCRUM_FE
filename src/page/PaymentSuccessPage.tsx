@@ -21,13 +21,39 @@ const PaymentSuccessPage = () => {
   useEffect(() => {
     if (!appointmentId) return
 
-    getInvoiceByAppointment(appointmentId)
-      .then(setInvoice)
-      .catch((requestError: unknown) => {
+    let active = true
+    let timeoutId: number | undefined
+    let attempt = 0
+    const maxAttempts = 12
+
+    const loadInvoice = async () => {
+      try {
+        const nextInvoice = await getInvoiceByAppointment(appointmentId)
+        if (!active) return
+
+        setInvoice(nextInvoice)
+        setError('')
+      } catch (requestError: unknown) {
+        if (!active) return
+
+        attempt += 1
+        if (attempt < maxAttempts) {
+          timeoutId = window.setTimeout(loadInvoice, 2500)
+          return
+        }
+
         const message = requestError instanceof Error ? requestError.message : t('payment.invoiceError')
         setError(message)
         toastError(message)
-      })
+      }
+    }
+
+    void loadInvoice()
+
+    return () => {
+      active = false
+      if (timeoutId) window.clearTimeout(timeoutId)
+    }
   }, [appointmentId, t, toastError])
 
   const payment = invoice?.payment
@@ -61,6 +87,11 @@ const PaymentSuccessPage = () => {
           {error && (
             <p className="mt-lg rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
               {error}
+            </p>
+          )}
+          {!invoice && !error && (
+            <p className="mt-lg rounded-lg bg-surface-container px-md py-sm font-body-sm text-body-sm text-on-surface-variant">
+              Dang dong bo hoa don thanh toan...
             </p>
           )}
 

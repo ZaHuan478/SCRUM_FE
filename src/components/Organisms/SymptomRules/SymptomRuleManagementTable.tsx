@@ -1,5 +1,6 @@
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
+import ActionMenu from '../../Molecules/Common/ActionMenu'
 import type { DepartmentSymptomRule } from '../../../services/departmentSymptomRule.service'
 import type { DashboardPagination } from '../../../utils/adminDashboard'
 
@@ -82,26 +83,22 @@ const SymptomRuleManagementTable = ({
                     <p className="line-clamp-3 min-w-80">{rule.pre_visit_note || 'Chưa có lưu ý'}</p>
                   </td>
                   <td className="px-xl py-lg text-right">
-                    <Button
-                      aria-label={`Sửa ghi chú ${rule.id}`}
-                      className="mr-xs rounded-full border-none p-sm text-primary shadow-none hover:bg-primary/5"
-                      fullWidth={false}
-                      onClick={() => onEditRule(rule)}
-                      type="button"
-                      variant="ghost"
-                    >
-                      <Icon name="edit" />
-                    </Button>
-                    <Button
-                      aria-label={`Xóa ghi chú ${rule.id}`}
-                      className="rounded-full border-none p-sm text-error shadow-none hover:bg-error-container"
-                      fullWidth={false}
-                      onClick={() => onDeleteRule(rule)}
-                      type="button"
-                      variant="ghost"
-                    >
-                      <Icon name="delete" />
-                    </Button>
+                    <ActionMenu
+                      ariaLabel={`Hành động cho ghi chú ${rule.id}`}
+                      items={[
+                        {
+                          icon: 'edit',
+                          label: 'Sửa',
+                          onClick: () => onEditRule(rule),
+                        },
+                        {
+                          icon: 'delete',
+                          label: 'Xóa',
+                          tone: 'danger',
+                          onClick: () => onDeleteRule(rule),
+                        },
+                      ]}
+                    />
                   </td>
                 </tr>
               ))}

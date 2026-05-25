@@ -1,6 +1,5 @@
-import Button from '../../Atoms/Button'
-import Icon from '../../Atoms/Icon'
 import Image from '../../Atoms/Image'
+import ActionMenu from '../Common/ActionMenu'
 
 export type DoctorManagementRowData = {
   id: number | string
@@ -66,26 +65,21 @@ const DoctorManagementRow = ({ doctor, onView, onEdit }: DoctorManagementRowProp
       </td>
       <td className="px-xl py-lg font-body-sm text-body-sm text-on-surface">{doctor.appointmentsThisWeek} tuần này</td>
       <td className="px-xl py-lg text-right">
-        <Button
-          aria-label={`Sửa ${doctor.name}`}
-          className="mr-xs rounded-full border-none p-sm text-primary shadow-none hover:bg-primary/5"
-          fullWidth={false}
-          onClick={() => onEdit(doctor)}
-          type="button"
-          variant="ghost"
-        >
-          <Icon name="edit" />
-        </Button>
-        <Button
-          aria-label={`Xem chi tiết ${doctor.name}`}
-          className="rounded-full border-none p-sm text-primary shadow-none hover:bg-primary/5"
-          fullWidth={false}
-          onClick={() => onView(doctor)}
-          type="button"
-          variant="ghost"
-        >
-          <Icon name="visibility" />
-        </Button>
+        <ActionMenu
+          ariaLabel={`Hành động cho ${doctor.name}`}
+          items={[
+            {
+              icon: 'visibility',
+              label: 'Xem chi tiết',
+              onClick: () => onView(doctor),
+            },
+            {
+              icon: 'edit',
+              label: 'Sửa',
+              onClick: () => onEdit(doctor),
+            },
+          ]}
+        />
       </td>
     </tr>
   )
