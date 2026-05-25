@@ -3,12 +3,14 @@ import DepartmentSuggestionCard from './DepartmentSuggestionCard'
 import DoctorSuggestionCard from './DoctorSuggestionCard'
 import MarkdownContent from './MarkdownContent'
 import type { AIChatMessage } from '../../types/aiChat.types'
+import { useTranslation } from '../../contexts/LanguageContext'
 
 type ChatMessageProps = {
   message: AIChatMessage
 }
 
 const ChatMessage = ({ message }: ChatMessageProps) => {
+  const { t } = useTranslation()
   const isUser = message.role === 'user'
 
   return (
@@ -21,7 +23,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
         {!isUser && message.warningLevel === 'EMERGENCY' && (
           <div className="mb-sm flex items-start gap-xs rounded-lg bg-error-container px-sm py-xs text-on-error-container">
             <Icon className="text-lg" name="emergency_home" />
-            <span className="font-body-sm text-body-sm">Dấu hiệu nguy hiểm, hãy cân nhắc đi cấp cứu ngay.</span>
+            <span className="font-body-sm text-body-sm">{t('aiChat.emergency')}</span>
           </div>
         )}
         {isUser ? (
@@ -31,7 +33,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
         )}
         {!isUser && message.documentMatches && message.documentMatches.length > 0 && (
           <div className="mt-md space-y-sm">
-            <p className="font-label-sm text-label-sm text-on-surface-variant">Tai lieu lien quan</p>
+            <p className="font-label-sm text-label-sm text-on-surface-variant">{t('aiChat.relatedDocuments')}</p>
             {message.documentMatches.map((documentMatch) => (
               <div
                 className="rounded-lg border border-outline-variant/30 bg-surface-container-lowest px-sm py-xs"
@@ -52,7 +54,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
         )}
         {!isUser && message.doctorRecommendations && message.doctorRecommendations.length > 0 && (
           <div className="mt-md space-y-sm">
-            <p className="font-label-sm text-label-sm text-on-surface-variant">Bác sĩ phù hợp</p>
+            <p className="font-label-sm text-label-sm text-on-surface-variant">{t('aiChat.matchingDoctors')}</p>
             {message.doctorRecommendations.map((doctor) => (
               <DoctorSuggestionCard
                 doctor={doctor}
@@ -63,7 +65,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
         )}
         {!isUser && message.recommendations && message.recommendations.length > 0 && (
           <div className="mt-md space-y-sm">
-            <p className="font-label-sm text-label-sm text-on-surface-variant">Khoa đề xuất</p>
+            <p className="font-label-sm text-label-sm text-on-surface-variant">{t('aiChat.suggestedDepartments')}</p>
             {message.recommendations.map((recommendation) => (
               <DepartmentSuggestionCard
                 key={recommendation.departmentId}

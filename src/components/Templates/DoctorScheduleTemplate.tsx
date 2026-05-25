@@ -55,7 +55,7 @@ const DoctorScheduleTemplate = ({
     <div className="flex min-w-0 flex-grow flex-col">
       <DoctorScheduleTopBar doctor={doctor} onLogout={onLogout} user={storedUser} />
 
-      <main className="mx-auto flex w-full max-w-7xl flex-grow flex-col gap-xl px-lg py-lg md:px-xxl md:py-xxl">
+      <main className="mx-auto flex w-full max-w-[1366px] flex-grow flex-col gap-xl px-lg py-lg md:px-xxl md:py-xxl">
         {(error || success) && (
           <p className={`rounded-lg px-md py-sm font-body-sm text-body-sm ${error ? 'bg-error-container text-on-error-container' : 'bg-secondary-fixed text-on-secondary-fixed'}`}>
             {error || success}

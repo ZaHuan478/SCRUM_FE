@@ -39,7 +39,7 @@ const PatientAppointmentHistoryPanel = ({
             <h2 className="font-headline-sm text-headline-sm text-on-surface">Lịch hẹn đang theo dõi</h2>
           </div>
           <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
-            Chỉ hiển thị lịch chờ thanh toán, đang chờ và đã xác nhận.
+            Lịch chờ thanh toán, đang chờ và đã xác nhận.
           </p>
         </div>
         <Button

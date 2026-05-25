@@ -19,10 +19,10 @@ const SymptomHeroSection = ({
   onSuggestionSelect,
 }: SymptomHeroSectionProps) => {
   return (
-    <section className="bg-gradient-to-b from-surface to-surface-container-low px-lg py-xxxl">
+    <section className="bg-surface px-lg py-[80px]">
       <div className="mx-auto max-w-4xl space-y-xl text-center">
         <div className="space-y-md">
-          <h1 className="font-display-lg text-4xl font-bold text-on-background md:text-display-lg">Kiểm tra triệu chứng</h1>
+          <h1 className="font-display-lg text-[44px] font-medium leading-none text-on-background md:text-[56px]">Kiểm tra triệu chứng</h1>
           <p className="mx-auto max-w-2xl font-body-lg text-body-lg text-on-surface-variant">
             Xác định các nguyên nhân tiềm tàng cho triệu chứng của bạn và tìm chuyên gia phù hợp để điều trị.
           </p>

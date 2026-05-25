@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import TopNavBar from '../components/Organisms/TopNavBar'
 import DoctorCard from '../components/Molecules/Home/DoctorCard'
@@ -6,7 +6,6 @@ import type { DoctorCardData } from '../components/Molecules/Home/DoctorCard'
 import Icon from '../components/Atoms/Icon'
 import Input from '../components/Atoms/Input'
 import PaginationControls from '../components/Molecules/Common/PaginationControls'
-import Select from '../components/Molecules/Common/Select'
 import { useTranslation } from '../contexts/LanguageContext'
 import { getDoctorAssignments } from '../services/doctorAssignment.service'
 import type { DoctorAssignment } from '../services/doctorAssignment.service'
@@ -14,6 +13,7 @@ import type { Doctor } from '../services/doctor.service'
 import { recommendDepartmentsBySymptoms } from '../services/departmentSymptomRule.service'
 import { getSymptoms } from '../services/symptom.service'
 import type { Symptom } from '../services/symptom.service'
+import { translateDepartmentName, translateDoctorDescription } from '../utils/contentTranslation'
 import { findMatchingSymptoms } from '../utils/patientAppointments'
 
 type DoctorDirectoryItem = DoctorCardData & {
@@ -76,7 +76,7 @@ const matchesFeeFilter = (doctor: DoctorDirectoryItem, feeFilter: string) => {
 }
 
 const DoctorsPage = () => {
-  const { t } = useTranslation()
+  const { language, t } = useTranslation()
   const [searchParams] = useSearchParams()
   const [query, setQuery] = useState('')
   const [symptoms, setSymptoms] = useState<Symptom[]>([])
@@ -102,14 +102,16 @@ const DoctorsPage = () => {
     { label: t('doctorsPage.fee.over350'), value: 'over-350000' },
   ], [t])
 
-  const mapAssignment = (assignment: DoctorAssignment): DoctorDirectoryItem | null => {
+  const mapAssignment = useCallback((assignment: DoctorAssignment): DoctorDirectoryItem | null => {
     const doctor = assignment.doctor as Doctor | undefined
     if (!doctor) return null
 
     return {
       departmentId: assignment.department_id,
-      departmentName: assignment.department?.name || t('doctorsPage.unassignedDepartment'),
-      description: doctor.description,
+      departmentName: assignment.department?.name
+        ? translateDepartmentName(assignment.department.name, language)
+        : t('doctorsPage.unassignedDepartment'),
+      description: translateDoctorDescription(doctor.description, language),
       email: doctor.user?.email,
       experienceYears: doctor.experience_years,
       fee: formatFee(doctor.consultation_fee),
@@ -121,9 +123,9 @@ const DoctorsPage = () => {
       licenseNumber: doctor.license_number,
       name: doctor.user?.full_name || doctor.license_number,
       phone: doctor.user?.phone,
-      specialty: assignment.department?.name || '',
+      specialty: assignment.department?.name ? translateDepartmentName(assignment.department.name, language) : '',
     }
-  }
+  }, [language, t])
 
   useEffect(() => {
     let active = true
@@ -152,7 +154,7 @@ const DoctorsPage = () => {
     return () => {
       active = false
     }
-  }, [t])
+  }, [mapAssignment])
 
   const matchedSymptoms = useMemo(() => (
     findMatchingSymptoms(query, symptoms).slice(0, 8)
@@ -271,18 +273,18 @@ const DoctorsPage = () => {
   }
 
   return (
-    <div className="min-h-screen text-on-background">
+    <div className="min-h-screen bg-background text-on-background">
       <TopNavBar active="doctors" />
-      <main className="mx-auto flex max-w-7xl flex-col gap-xxl px-lg py-xxl md:px-xxl">
-        <section className="flex flex-col gap-lg border-b border-outline-variant/30 pb-xl">
+      <main className="mx-auto flex max-w-[1366px] flex-col gap-xxl px-lg py-[48px] md:px-xxl md:py-[64px]">
+        <section className="rounded-xl border border-outline-variant bg-surface p-xl shadow-[0_2px_8px_rgba(26,26,26,0.08)]">
           <div className="max-w-3xl">
             <p className="font-label-md text-label-md text-primary">{t('doctorsPage.eyebrow')}</p>
-            <h1 className="mt-sm font-headline-lg text-headline-lg text-on-background">{t('doctorsPage.title')}</h1>
+            <h1 className="mt-sm font-headline-lg text-[32px] font-medium leading-none text-on-background sm:text-[40px] md:text-[44px]">{t('doctorsPage.title')}</h1>
             <p className="mt-sm font-body-md text-body-md text-on-surface-variant">
               {t('doctorsPage.description')}
             </p>
           </div>
-          <div className="grid gap-md lg:grid-cols-[minmax(260px,420px)_minmax(0,1fr)_auto] lg:items-end">
+          <div className="mt-lg grid gap-md lg:grid-cols-[minmax(260px,420px)_minmax(0,1fr)_auto] lg:items-end">
             <Input
               icon="search"
               label={t('doctorsPage.searchLabel')}
@@ -292,32 +294,45 @@ const DoctorsPage = () => {
               value={query}
             />
             <div className="grid gap-md md:grid-cols-3">
-              <Select
-                label={t('doctorsPage.departmentLabel')}
-                onChange={setSelectedDepartmentId}
-                options={[
-                  { label: t('doctorsPage.allDepartments'), value: 'all' },
-                  ...departmentOptions.map(([departmentId, departmentName]) => ({
-                    label: departmentName,
-                    value: departmentId,
-                  })),
-                ]}
-                value={selectedDepartmentId}
-              />
-              <Select
-                label={t('doctorsPage.feeLabel')}
-                onChange={setSelectedFee}
-                options={feeOptions}
-                value={selectedFee}
-              />
-              <Select
-                label={t('doctorsPage.experienceLabel')}
-                onChange={setSelectedExperience}
-                options={experienceOptions}
-                value={selectedExperience}
-              />
+              <label className="space-y-xs">
+                <span className="font-label-md text-label-md text-on-surface">{t('doctorsPage.departmentLabel')}</span>
+                <select
+                  className="min-h-11 w-full rounded border border-outline-variant bg-surface px-md py-sm font-body-md text-body-md outline-none transition-colors focus:border-on-surface"
+                  onChange={(event) => setSelectedDepartmentId(event.target.value)}
+                  value={selectedDepartmentId}
+                >
+                  <option value="all">{t('doctorsPage.allDepartments')}</option>
+                  {departmentOptions.map(([departmentId, departmentName]) => (
+                    <option key={departmentId} value={departmentId}>{departmentName}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="space-y-xs">
+                <span className="font-label-md text-label-md text-on-surface">{t('doctorsPage.feeLabel')}</span>
+                <select
+                  className="min-h-11 w-full rounded border border-outline-variant bg-surface px-md py-sm font-body-md text-body-md outline-none transition-colors focus:border-on-surface"
+                  onChange={(event) => setSelectedFee(event.target.value)}
+                  value={selectedFee}
+                >
+                  {feeOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="space-y-xs">
+                <span className="font-label-md text-label-md text-on-surface">{t('doctorsPage.experienceLabel')}</span>
+                <select
+                  className="min-h-11 w-full rounded border border-outline-variant bg-surface px-md py-sm font-body-md text-body-md outline-none transition-colors focus:border-on-surface"
+                  onChange={(event) => setSelectedExperience(event.target.value)}
+                  value={selectedExperience}
+                >
+                  {experienceOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </label>
             </div>
-            <div className="w-fit whitespace-nowrap rounded-lg bg-surface-container-low px-md py-sm font-label-md text-label-md text-on-surface-variant">
+            <div className="w-full rounded-lg border border-outline-variant bg-surface-container-low px-md py-sm font-label-md text-label-md text-on-surface-variant lg:w-fit">
               {t('doctorsPage.resultCount', { visible: visibleDoctors.length, total: doctors.length })}
             </div>
           </div>
@@ -337,7 +352,7 @@ const DoctorsPage = () => {
 
         <section className="space-y-xl">
           {status === 'loading' && (
-            <p className="rounded-lg border border-outline-variant/30 bg-surface p-md font-body-md text-body-md text-on-surface-variant">
+            <p className="rounded-lg border border-outline-variant bg-surface p-md font-body-md text-body-md text-on-surface-variant">
               {t('doctorsPage.loading')}
             </p>
           )}
@@ -349,7 +364,7 @@ const DoctorsPage = () => {
           )}
 
           {status !== 'loading' && visibleDoctors.length === 0 && (
-            <div className="rounded-lg border border-dashed border-outline-variant p-xl text-center">
+            <div className="rounded-lg border border-dashed border-outline-variant bg-surface p-xl text-center">
               <Icon className="text-4xl text-outline" name="person_off" />
               <p className="mt-sm font-label-md text-label-md text-on-surface">{t('doctorsPage.emptyTitle')}</p>
               <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">{t('doctorsPage.emptyDescription')}</p>

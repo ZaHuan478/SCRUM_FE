@@ -3,6 +3,7 @@ import AppointmentAnalyticsSection from '../Organisms/Dashboard/AppointmentAnaly
 import DepartmentManagementTable from '../Organisms/DepartmentDesign/DepartmentManagementTable'
 import DashboardSideNav from '../Organisms/Dashboard/DashboardSideNav'
 import DashboardStatsGrid from '../Organisms/Dashboard/DashboardStatsGrid'
+import DashboardTopBar from '../Organisms/Dashboard/DashboardTopBar'
 import DoctorManagementTable from '../Organisms/DoctorManage/DoctorManagementTable'
 import HospitalDocumentManager from '../Organisms/HospitalDocuments/HospitalDocumentManager'
 import PatientManagementTable from '../Organisms/PatientManage/PatientManagementTable'
@@ -144,7 +145,8 @@ const DashboardTemplate = ({
     <div className="flex min-h-screen bg-background text-on-background">
       <DashboardSideNav onLogout={onLogout} />
       <div className="flex min-w-0 flex-grow flex-col">
-        <main className="mx-auto flex w-full max-w-7xl flex-grow flex-col gap-xxl px-lg py-lg md:px-xxl md:py-xxl">
+        <DashboardTopBar onLogout={onLogout} />
+        <main className="mx-auto flex w-full max-w-[1366px] flex-grow flex-col gap-xxl px-lg py-lg md:px-xxl md:py-xxl">
           {activeSection === 'overview' && (
             <>
               <DashboardStatsGrid stats={stats} status={statsStatus} />

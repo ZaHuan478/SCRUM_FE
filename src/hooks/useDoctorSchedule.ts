@@ -233,7 +233,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
 
   const scheduleStats = useMemo(() => (
     buildScheduleStats({ activeAssignment, slots })
-  ), [activeAssignment, currentTime, slots])
+  ), [activeAssignment, slots])
 
   const selectedDateLabel = useMemo(() => (
     longDateFormatter.format(dateFromKey(selectedDate))
