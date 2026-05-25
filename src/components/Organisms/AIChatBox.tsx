@@ -247,21 +247,21 @@ const AIChatBox = () => {
         <section
           className={`fixed z-40 flex flex-col overflow-hidden border border-outline-variant/30 bg-surface-container-lowest shadow-2xl transition-all ${
             isExpanded
-              ? 'bottom-6 right-4 top-20 w-[calc(100vw-2rem)] rounded-2xl sm:right-5 sm:top-24 sm:w-[50vw] sm:min-w-[520px] sm:max-w-[860px]'
-              : 'bottom-24 right-4 h-[min(640px,calc(100vh-7rem))] w-[calc(100vw-2rem)] max-w-md rounded-2xl sm:right-5'
+              ? 'bottom-4 left-4 right-4 top-20 rounded-xl sm:left-auto sm:right-5 sm:top-24 sm:w-[min(860px,calc(100vw-2.5rem))]'
+              : 'bottom-24 left-4 right-4 h-[min(640px,calc(100dvh-7rem))] rounded-xl sm:left-auto sm:right-5 sm:w-[min(28rem,calc(100vw-2.5rem))]'
           }`}
         >
-          <header className="flex items-center justify-between border-b border-outline-variant/30 bg-primary px-md py-sm text-on-primary">
-            <div className="flex items-center gap-sm">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-on-primary/10">
+          <header className="flex items-center justify-between gap-sm border-b border-outline-variant/30 bg-primary px-md py-sm text-on-primary">
+            <div className="flex min-w-0 items-center gap-sm">
+              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded bg-on-primary/10">
                 <Icon name="smart_toy" />
               </span>
-              <div>
-                <h2 className="font-label-md text-label-md">Trợ lý AI</h2>
-                <p className="font-body-sm text-body-sm text-on-primary/80">Gợi ý khoa khám tham khảo</p>
+              <div className="min-w-0">
+                <h2 className="truncate font-label-md text-label-md">Trợ lý AI</h2>
+                <p className="truncate font-body-sm text-body-sm text-on-primary/80">Gợi ý khoa khám tham khảo</p>
               </div>
             </div>
-            <div className="ml-auto flex items-center gap-xs">
+            <div className="ml-auto flex shrink-0 items-center gap-xs">
               <button
                 aria-label={isExpanded ? 'Thu nho chat' : 'Phong to chat'}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-on-primary/10"
@@ -281,14 +281,6 @@ const AIChatBox = () => {
                 <Icon name="remove" />
               </button>
             </div>
-            <button
-              aria-label="Đóng chat"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-on-primary/10"
-              onClick={() => setIsOpen(false)}
-              type="button"
-            >
-              <Icon name="close" />
-            </button>
           </header>
 
           <div

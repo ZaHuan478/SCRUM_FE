@@ -103,6 +103,16 @@ const TopNavBar = ({ active = 'homepage', variant = 'hp' }: TopNavBarProps) => {
       </nav>
       <div className="border-t border-outline-variant bg-surface md:hidden">
         <nav className="mx-auto flex max-w-[1366px] gap-sm overflow-x-auto px-lg py-sm">
+          {user?.role === 'ADMIN' && (
+            <Link className="shrink-0 rounded border border-outline-variant bg-surface px-md py-sm font-label-sm text-label-sm text-on-surface-variant" to="/admin">
+              Admin
+            </Link>
+          )}
+          {user?.role === 'PATIENT' && (
+            <Link className="shrink-0 rounded border border-outline-variant bg-surface px-md py-sm font-label-sm text-label-sm text-on-surface-variant" to="/appointments">
+              {t('common.appointments')}
+            </Link>
+          )}
           {navItems.map((item) => (
             <Link
               className={
