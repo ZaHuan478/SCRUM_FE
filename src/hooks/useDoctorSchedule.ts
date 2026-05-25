@@ -51,6 +51,24 @@ type DoctorScheduleData = {
   slots: AppointmentSlot[]
 }
 
+const loadDoctorSlots = async (doctorId: number | string) => {
+  const firstPage = await getAppointmentSlots({ doctor_id: doctorId, limit: 100, page: 1 })
+  const totalPages = Math.max(firstPage.pagination.total_pages || 1, 1)
+
+  if (totalPages <= 1) return firstPage.appointment_slots
+
+  const remainingPages = await Promise.all(
+    Array.from({ length: totalPages - 1 }, (_, index) => (
+      getAppointmentSlots({ doctor_id: doctorId, limit: 100, page: index + 2 })
+    )),
+  )
+
+  return [
+    ...firstPage.appointment_slots,
+    ...remainingPages.flatMap((result) => result.appointment_slots),
+  ]
+}
+
 export type DoctorScheduleState = {
   activeAssignment: DoctorAssignment | null
   appointmentActionId: number | string | null
@@ -142,7 +160,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
     const assignment = assignmentsResult.doctor_assignments[0] || null
     const [slotsResult, appointmentsResult] = assignment
       ? await Promise.all([
-        getAppointmentSlots({ doctor_id: doctorProfile.id, limit: 100 }),
+        loadDoctorSlots(doctorProfile.id),
         getAppointments({ doctor_id: doctorProfile.id, limit: 100 }),
       ])
       : [null, null]
@@ -151,7 +169,7 @@ export const useDoctorSchedule = ({ storedUser, onAuthFailure }: UseDoctorSchedu
       activeAssignment: assignment,
       appointments: appointmentsResult?.appointments || [],
       doctor: doctorProfile,
-      slots: sortSlots(slotsResult?.appointment_slots || []),
+      slots: sortSlots(slotsResult || []),
     }
   }, [storedUser.id])
 

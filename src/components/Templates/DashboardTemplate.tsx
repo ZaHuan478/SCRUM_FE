@@ -1,4 +1,5 @@
 import { useLocation } from 'react-router-dom'
+import AppointmentManagementTable from '../Organisms/AppointmentManage/AppointmentManagementTable'
 import AppointmentAnalyticsSection from '../Organisms/Dashboard/AppointmentAnalyticsSection'
 import DepartmentManagementTable from '../Organisms/DepartmentDesign/DepartmentManagementTable'
 import DashboardSideNav from '../Organisms/Dashboard/DashboardSideNav'
@@ -14,15 +15,17 @@ import type { DashboardStat } from '../Molecules/Dashboard/DashboardStatCard'
 import type { DoctorManagementRowData } from '../Molecules/Management/DoctorManagementRow'
 import type { PatientManagementRowData } from '../Molecules/Management/PatientManagementRow'
 import type { User } from '../../services/auth.service'
+import type { Appointment, AppointmentStatus } from '../../services/appointment.service'
 import type { Department } from '../../services/department.service'
 import type { DepartmentSymptomRule } from '../../services/departmentSymptomRule.service'
 import type { DashboardPagination } from '../../utils/adminDashboard'
 
-type DashboardSection = 'overview' | 'departments' | 'doctors' | 'patients' | 'symptom-rules' | 'users' | 'hospital-documents'
+type DashboardSection = 'overview' | 'departments' | 'doctors' | 'appointments' | 'patients' | 'symptom-rules' | 'users' | 'hospital-documents'
 
 const getDashboardSection = (pathname: string): DashboardSection => {
   if (pathname.endsWith('/departments')) return 'departments'
   if (pathname.endsWith('/doctors')) return 'doctors'
+  if (pathname.endsWith('/appointments')) return 'appointments'
   if (pathname.endsWith('/patients')) return 'patients'
   if (pathname.endsWith('/symptom-rules')) return 'symptom-rules'
   if (pathname.endsWith('/users')) return 'users'
@@ -46,6 +49,10 @@ type DashboardTemplateProps = {
   patients: PatientManagementRowData[]
   patientPagination: DashboardPagination
   patientStatus: 'loading' | 'ready' | 'error'
+  appointments: Appointment[]
+  appointmentPagination: DashboardPagination
+  appointmentStatus: 'loading' | 'ready' | 'error'
+  appointmentStatusFilter: AppointmentStatus | 'all'
   users: User[]
   userPagination: DashboardPagination
   userStatus: 'loading' | 'ready' | 'error'
@@ -59,6 +66,7 @@ type DashboardTemplateProps = {
   totalSymptomRules: number
   totalDoctors: number
   totalPatients: number
+  totalAppointments: number
   totalUsers: number
   onCreateDoctor: () => void
   onCreateDepartment: () => void
@@ -72,6 +80,8 @@ type DashboardTemplateProps = {
   onDoctorSearchQueryChange: (query: string) => void
   onPatientPageChange: (page: number) => void
   onPatientSearchQueryChange: (query: string) => void
+  onAppointmentPageChange: (page: number) => void
+  onAppointmentStatusFilterChange: (status: AppointmentStatus | 'all') => void
   onSymptomRulePageChange: (page: number) => void
   onUserPageChange: (page: number) => void
   onUserSearchQueryChange: (query: string) => void
@@ -80,6 +90,9 @@ type DashboardTemplateProps = {
   onCreateUser: () => void
   onDeleteUser: (user: User) => void
   onEditUser: (user: User) => void
+  onCancelAppointment: (appointment: Appointment) => void
+  onCompleteAppointment: (appointment: Appointment) => void
+  onConfirmAppointment: (appointment: Appointment) => void
   onViewDoctor: (doctor: DoctorManagementRowData) => void
   onViewPatient: (patient: PatientManagementRowData) => void
   onViewUser: (user: User) => void
@@ -100,6 +113,10 @@ const DashboardTemplate = ({
   patients,
   patientPagination,
   patientStatus,
+  appointments,
+  appointmentPagination,
+  appointmentStatus,
+  appointmentStatusFilter,
   users,
   userPagination,
   userStatus,
@@ -113,6 +130,7 @@ const DashboardTemplate = ({
   totalSymptomRules,
   totalDoctors,
   totalPatients,
+  totalAppointments,
   totalUsers,
   onCreateDoctor,
   onCreateDepartment,
@@ -126,6 +144,8 @@ const DashboardTemplate = ({
   onDoctorSearchQueryChange,
   onPatientPageChange,
   onPatientSearchQueryChange,
+  onAppointmentPageChange,
+  onAppointmentStatusFilterChange,
   onSymptomRulePageChange,
   onUserPageChange,
   onUserSearchQueryChange,
@@ -134,6 +154,9 @@ const DashboardTemplate = ({
   onCreateUser,
   onDeleteUser,
   onEditUser,
+  onCancelAppointment,
+  onCompleteAppointment,
+  onConfirmAppointment,
   onViewDoctor,
   onViewPatient,
   onViewUser,
@@ -195,6 +218,20 @@ const DashboardTemplate = ({
               rules={symptomRules}
               status={symptomRuleStatus}
               totalRules={totalSymptomRules}
+            />
+          )}
+          {activeSection === 'appointments' && (
+            <AppointmentManagementTable
+              appointments={appointments}
+              onCancelAppointment={onCancelAppointment}
+              onCompleteAppointment={onCompleteAppointment}
+              onConfirmAppointment={onConfirmAppointment}
+              onPageChange={onAppointmentPageChange}
+              onStatusFilterChange={onAppointmentStatusFilterChange}
+              pagination={appointmentPagination}
+              status={appointmentStatus}
+              statusFilter={appointmentStatusFilter}
+              totalAppointments={totalAppointments}
             />
           )}
           {activeSection === 'patients' && (

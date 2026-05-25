@@ -5,6 +5,7 @@ const primaryNavItems = [
   { icon: 'dashboard', label: 'Tổng quan', to: '/admin', end: true },
   { icon: 'clinical_notes', label: 'Khoa', to: '/admin/departments' },
   { icon: 'medical_services', label: 'Bác sĩ', to: '/admin/doctors' },
+  { icon: 'event_note', label: 'Lịch hẹn', to: '/admin/appointments' },
   { icon: 'diagnosis', label: 'Ghi chú triệu chứng', to: '/admin/symptom-rules' },
   { icon: 'groups', label: 'Bệnh nhân', to: '/admin/patients' },
   { icon: 'description', label: 'Tài liệu AI', to: '/admin/hospital-documents' },

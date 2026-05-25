@@ -12,6 +12,7 @@ const adminMobileLinks = [
   { label: 'Tổng quan', to: '/admin' },
   { label: 'Khoa', to: '/admin/departments' },
   { label: 'Bác sĩ', to: '/admin/doctors' },
+  { label: 'Lịch hẹn', to: '/admin/appointments' },
   { label: 'Triệu chứng', to: '/admin/symptom-rules' },
   { label: 'Bệnh nhân', to: '/admin/patients' },
   { label: 'Tài liệu AI', to: '/admin/hospital-documents' },

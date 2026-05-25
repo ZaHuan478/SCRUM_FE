@@ -47,6 +47,11 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
     handleEditDoctor,
     handleEditSymptomRule,
     handleEditUser,
+    handleAppointmentPageChange,
+    handleAppointmentStatusFilterChange,
+    handleCancelAppointment,
+    handleCompleteAppointment,
+    handleConfirmAppointment,
     handlePatientPageChange,
     handlePatientSearchQueryChange,
     handleSymptomRulePageChange,
@@ -64,6 +69,7 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
     isUserModalOpen,
     patientFields,
     patientSearchQuery,
+    appointmentStatusFilter,
     selectedDoctor,
     selectedPatient,
     selectedUser,
@@ -77,6 +83,7 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
     visibleDepartments,
     visibleDoctors,
     visiblePatients,
+    visibleAppointments,
     visibleSymptomRules,
     visibleUsers,
   } = adminDashboard
@@ -112,6 +119,11 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         onDepartmentSearchQueryChange={handleDepartmentSearchQueryChange}
         onDoctorPageChange={handleDoctorPageChange}
         onDoctorSearchQueryChange={handleDoctorSearchQueryChange}
+        onAppointmentPageChange={handleAppointmentPageChange}
+        onAppointmentStatusFilterChange={handleAppointmentStatusFilterChange}
+        onCancelAppointment={handleCancelAppointment}
+        onCompleteAppointment={handleCompleteAppointment}
+        onConfirmAppointment={handleConfirmAppointment}
         onPatientPageChange={handlePatientPageChange}
         onPatientSearchQueryChange={handlePatientSearchQueryChange}
         onSymptomRulePageChange={handleSymptomRulePageChange}
@@ -124,12 +136,17 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         patientStatus={dashboard.patientStatus}
         patientSearchQuery={patientSearchQuery}
         patients={visiblePatients}
+        appointments={visibleAppointments}
+        appointmentPagination={dashboard.appointmentPagination}
+        appointmentStatus={dashboard.appointmentStatus}
+        appointmentStatusFilter={appointmentStatusFilter}
         stats={dashboard.stats}
         statsStatus={dashboard.statsStatus}
         totalDepartments={dashboard.totalDepartments}
         totalSymptomRules={dashboard.totalSymptomRules}
         totalDoctors={dashboard.totalDoctors}
         totalPatients={dashboard.totalPatients}
+        totalAppointments={dashboard.totalAppointments}
         totalUsers={dashboard.totalUsers}
         userPagination={dashboard.userPagination}
         userStatus={dashboard.userStatus}
