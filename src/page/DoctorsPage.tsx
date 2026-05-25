@@ -270,18 +270,18 @@ const DoctorsPage = () => {
   }
 
   return (
-    <div className="min-h-screen text-on-background">
+    <div className="min-h-screen bg-background text-on-background">
       <TopNavBar active="doctors" />
-      <main className="mx-auto flex max-w-7xl flex-col gap-xxl px-lg py-xxl md:px-xxl">
-        <section className="flex flex-col gap-lg border-b border-outline-variant/30 pb-xl">
+      <main className="mx-auto flex max-w-[1366px] flex-col gap-xxl px-lg py-[48px] md:px-xxl md:py-[64px]">
+        <section className="rounded-xl border border-outline-variant bg-surface p-xl shadow-[0_2px_8px_rgba(26,26,26,0.08)]">
           <div className="max-w-3xl">
             <p className="font-label-md text-label-md text-primary">{t('doctorsPage.eyebrow')}</p>
-            <h1 className="mt-sm font-headline-lg text-headline-lg text-on-background">{t('doctorsPage.title')}</h1>
+            <h1 className="mt-sm font-headline-lg text-[32px] font-medium leading-none text-on-background sm:text-[40px] md:text-[44px]">{t('doctorsPage.title')}</h1>
             <p className="mt-sm font-body-md text-body-md text-on-surface-variant">
               {t('doctorsPage.description')}
             </p>
           </div>
-          <div className="grid gap-md lg:grid-cols-[minmax(260px,420px)_minmax(0,1fr)_auto] lg:items-end">
+          <div className="mt-lg grid gap-md lg:grid-cols-[minmax(260px,420px)_minmax(0,1fr)_auto] lg:items-end">
             <Input
               icon="search"
               label={t('doctorsPage.searchLabel')}
@@ -294,7 +294,7 @@ const DoctorsPage = () => {
               <label className="space-y-xs">
                 <span className="font-label-md text-label-md text-on-surface">{t('doctorsPage.departmentLabel')}</span>
                 <select
-                  className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
+                  className="min-h-11 w-full rounded border border-outline-variant bg-surface px-md py-sm font-body-md text-body-md outline-none transition-colors focus:border-on-surface"
                   onChange={(event) => setSelectedDepartmentId(event.target.value)}
                   value={selectedDepartmentId}
                 >
@@ -307,7 +307,7 @@ const DoctorsPage = () => {
               <label className="space-y-xs">
                 <span className="font-label-md text-label-md text-on-surface">{t('doctorsPage.feeLabel')}</span>
                 <select
-                  className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
+                  className="min-h-11 w-full rounded border border-outline-variant bg-surface px-md py-sm font-body-md text-body-md outline-none transition-colors focus:border-on-surface"
                   onChange={(event) => setSelectedFee(event.target.value)}
                   value={selectedFee}
                 >
@@ -319,7 +319,7 @@ const DoctorsPage = () => {
               <label className="space-y-xs">
                 <span className="font-label-md text-label-md text-on-surface">{t('doctorsPage.experienceLabel')}</span>
                 <select
-                  className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
+                  className="min-h-11 w-full rounded border border-outline-variant bg-surface px-md py-sm font-body-md text-body-md outline-none transition-colors focus:border-on-surface"
                   onChange={(event) => setSelectedExperience(event.target.value)}
                   value={selectedExperience}
                 >
@@ -329,7 +329,7 @@ const DoctorsPage = () => {
                 </select>
               </label>
             </div>
-            <div className="w-fit whitespace-nowrap rounded-lg bg-surface-container-low px-md py-sm font-label-md text-label-md text-on-surface-variant">
+            <div className="w-full rounded-lg border border-outline-variant bg-surface-container-low px-md py-sm font-label-md text-label-md text-on-surface-variant lg:w-fit">
               {t('doctorsPage.resultCount', { visible: visibleDoctors.length, total: doctors.length })}
             </div>
           </div>
@@ -349,7 +349,7 @@ const DoctorsPage = () => {
 
         <section className="space-y-xl">
           {status === 'loading' && (
-            <p className="rounded-lg border border-outline-variant/30 bg-surface p-md font-body-md text-body-md text-on-surface-variant">
+            <p className="rounded-lg border border-outline-variant bg-surface p-md font-body-md text-body-md text-on-surface-variant">
               {t('doctorsPage.loading')}
             </p>
           )}
@@ -361,7 +361,7 @@ const DoctorsPage = () => {
           )}
 
           {status !== 'loading' && visibleDoctors.length === 0 && (
-            <div className="rounded-lg border border-dashed border-outline-variant p-xl text-center">
+            <div className="rounded-lg border border-dashed border-outline-variant bg-surface p-xl text-center">
               <Icon className="text-4xl text-outline" name="person_off" />
               <p className="mt-sm font-label-md text-label-md text-on-surface">{t('doctorsPage.emptyTitle')}</p>
               <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">{t('doctorsPage.emptyDescription')}</p>

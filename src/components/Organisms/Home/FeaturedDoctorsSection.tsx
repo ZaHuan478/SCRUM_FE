@@ -74,14 +74,14 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
   }, [query])
 
   return (
-    <section className="mx-auto max-w-[1366px] bg-white px-lg py-[80px] md:px-xxl" id="featured-doctors">
+    <section className="mx-auto max-w-[1366px] bg-background px-lg py-[56px] md:px-xxl md:py-[80px]" id="featured-doctors">
       <div className="mb-xxl flex flex-col justify-between gap-md md:flex-row md:items-end">
         <div>
-          <h2 className="mb-sm font-headline-lg text-[44px] font-medium leading-none tracking-normal text-[#1a1a1a]">{t('home.featuredDoctors.title')}</h2>
-          <p className="font-body-md text-body-md text-[#3d3d3d]"></p>
+          <h2 className="mb-sm font-headline-lg text-[32px] font-medium leading-none tracking-normal text-on-background sm:text-[40px] md:text-[44px]">{t('home.featuredDoctors.title')}</h2>
+          <p className="font-body-md text-body-md text-on-surface-variant"></p>
         </div>
         <Link
-          className="inline-flex min-h-11 items-center justify-center gap-xs self-start rounded-[4px] border border-[#024ad8] bg-white px-xl py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-[#024ad8] transition-colors hover:bg-[#f7f7f7]"
+          className="inline-flex min-h-11 items-center justify-center gap-xs self-start rounded border border-primary bg-surface px-xl py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-primary transition-colors hover:bg-surface-container-low"
           to="/doctors"
         >
           {t('common.viewAll')} <Icon name="arrow_forward" />
@@ -93,7 +93,7 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
         </p>
       )}
       {apiStatus === 'loading' && (
-        <p className="mb-md font-body-sm text-body-sm text-[#636363]">{t('home.featuredDoctors.loading')}</p>
+        <p className="mb-md font-body-sm text-body-sm text-on-surface-variant">{t('home.featuredDoctors.loading')}</p>
       )}
       {doctors.length > 0 ? (
         <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-4">
@@ -103,7 +103,7 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
         </div>
       ) : (
         apiStatus !== 'loading' && (
-          <p className="rounded-[8px] border border-[#e8e8e8] bg-white p-lg text-center font-body-md text-body-md text-[#3d3d3d]">
+          <p className="rounded-lg border border-outline-variant bg-surface p-lg text-center font-body-md text-body-md text-on-surface-variant">
             {t('home.featuredDoctors.empty')}
           </p>
         )

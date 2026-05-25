@@ -41,14 +41,14 @@ const DoctorDetailPage = () => {
   return (
     <div className="min-h-screen bg-background text-on-background">
       <TopNavBar active="doctors" />
-      <main className="mx-auto flex max-w-7xl flex-col gap-xl px-lg py-xxl md:px-xxl">
+      <main className="mx-auto flex max-w-[1366px] flex-col gap-xl px-lg py-[48px] md:px-xxl md:py-[64px]">
         <Link className="inline-flex items-center gap-xs self-start font-label-md text-label-md text-primary hover:underline" to="/doctors">
           <Icon name="arrow_back" className="text-[20px]" />
           Quay lại danh sách bác sĩ
         </Link>
 
         {status === 'loading' && (
-          <section className="rounded-xl border border-outline-variant/30 bg-surface p-xl font-body-md text-body-md text-on-surface-variant">
+          <section className="rounded-xl border border-outline-variant bg-surface p-xl font-body-md text-body-md text-on-surface-variant">
             Đang tải thông tin bác sĩ...
           </section>
         )}
@@ -62,7 +62,7 @@ const DoctorDetailPage = () => {
 
         {status === 'ready' && doctor && (
           <>
-            <section className="grid gap-xl rounded-xl border border-outline-variant/30 bg-surface p-lg shadow-sm lg:grid-cols-[280px_minmax(0,1fr)] lg:p-xl">
+            <section className="grid gap-xl rounded-xl border border-outline-variant bg-surface p-lg shadow-[0_2px_8px_rgba(26,26,26,0.08)] lg:grid-cols-[280px_minmax(0,1fr)] lg:p-xl">
               <div className="overflow-hidden rounded-xl bg-surface-variant">
                 <Image
                   alt={doctor.user?.full_name || doctor.license_number}
@@ -74,7 +74,7 @@ const DoctorDetailPage = () => {
               <div className="flex flex-col gap-lg">
                 <div>
                   <p className="font-label-md text-label-md text-primary">{primarySpecialty}</p>
-                  <h1 className="mt-sm font-headline-lg text-headline-lg text-on-background">
+                  <h1 className="mt-sm font-headline-lg text-[32px] font-medium leading-none text-on-background sm:text-[40px] md:text-[44px]">
                     {doctor.user?.full_name || doctor.license_number}
                   </h1>
                   <p className="mt-sm max-w-3xl font-body-md text-body-md text-on-surface-variant">
@@ -82,23 +82,23 @@ const DoctorDetailPage = () => {
                   </p>
                 </div>
                 <div className="grid gap-md sm:grid-cols-4">
-                  <div className="rounded-lg bg-surface-container-low p-md">
+                  <div className="rounded-lg border border-outline-variant bg-surface-container-low p-md">
                     <p className="font-label-sm text-label-sm text-on-surface-variant">Kinh nghiệm</p>
                     <p className="mt-xs font-label-md text-label-md text-on-surface">
                       {doctor.experience_years ? `${doctor.experience_years} năm` : 'Đang cập nhật'}
                     </p>
                   </div>
-                  <div className="rounded-lg bg-surface-container-low p-md">
+                  <div className="rounded-lg border border-outline-variant bg-surface-container-low p-md">
                     <p className="font-label-sm text-label-sm text-on-surface-variant">Phí tư vấn</p>
                     <p className="mt-xs font-label-md text-label-md text-on-surface">{formatFee(doctor.consultation_fee)}</p>
                   </div>
-                  <div className="rounded-lg bg-surface-container-low p-md">
+                  <div className="rounded-lg border border-outline-variant bg-surface-container-low p-md">
                     <p className="font-label-sm text-label-sm text-on-surface-variant">Trạng thái</p>
                     <p className="mt-xs font-label-md text-label-md text-primary">
                       {doctor.status === 'ACTIVE' ? 'Đang nhận lịch' : 'Tạm ngưng'}
                     </p>
                   </div>
-                  <div className="rounded-lg bg-surface-container-low p-md">
+                  <div className="rounded-lg border border-outline-variant bg-surface-container-low p-md">
                     <p className="font-label-sm text-label-sm text-on-surface-variant">Đánh giá</p>
                     <p className="mt-xs font-label-md text-label-md text-on-surface">
                       {ratingSummary?.totalRatings
@@ -114,13 +114,13 @@ const DoctorDetailPage = () => {
                 </div>
                 <div className="flex flex-wrap gap-sm">
                   <Link
-                    className="inline-flex items-center justify-center rounded-lg bg-primary px-lg py-md font-label-md text-label-md text-on-primary shadow-sm transition-all hover:bg-primary-container"
+                    className="inline-flex min-h-11 items-center justify-center rounded bg-primary px-lg py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-primary transition-colors hover:bg-primary-container"
                     to={bookingPath}
                   >
                     Đặt lịch khám
                   </Link>
                   {doctor.user?.phone && (
-                    <a className="inline-flex items-center justify-center rounded-lg border border-outline-variant px-lg py-md font-label-md text-label-md text-on-surface hover:border-primary hover:text-primary" href={`tel:${doctor.user.phone}`}>
+                    <a className="inline-flex min-h-11 items-center justify-center rounded border border-outline-variant bg-surface px-lg py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-surface hover:border-primary hover:text-primary" href={`tel:${doctor.user.phone}`}>
                       {doctor.user.phone}
                     </a>
                   )}
@@ -128,8 +128,8 @@ const DoctorDetailPage = () => {
               </div>
             </section>
 
-            <section className="rounded-xl border border-outline-variant/30 bg-surface p-lg shadow-sm lg:p-xl">
-              <div className="mb-lg flex flex-wrap gap-sm border-b border-outline-variant/30 pb-md">
+            <section className="rounded-xl border border-outline-variant bg-surface p-lg shadow-[0_2px_8px_rgba(26,26,26,0.08)] lg:p-xl">
+              <div className="mb-lg flex flex-wrap gap-sm border-b border-outline-variant pb-md">
                 {[
                   { id: 'biography', label: 'Tiểu sử' },
                   { id: 'education', label: 'Đào tạo' },
@@ -165,7 +165,7 @@ const DoctorDetailPage = () => {
                   <h2 className="font-headline-md text-headline-md text-on-surface">Đào tạo</h2>
                   <div className="mt-lg grid gap-md">
                     {educationItems.map((item) => (
-                      <div className="rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-md" key={item.title}>
+                      <div className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md" key={item.title}>
                         <h3 className="font-headline-sm text-headline-sm text-on-surface">{item.title}</h3>
                         <p className="mt-sm font-body-md text-body-md text-on-surface-variant">{item.description}</p>
                       </div>
@@ -175,7 +175,7 @@ const DoctorDetailPage = () => {
               )}
             </section>
 
-            <section className="rounded-xl border border-outline-variant/30 bg-surface p-lg shadow-sm lg:p-xl">
+            <section className="rounded-xl border border-outline-variant bg-surface p-lg shadow-[0_2px_8px_rgba(26,26,26,0.08)] lg:p-xl">
               <div className="mb-lg flex items-center justify-between gap-md">
                 <h2 className="font-headline-md text-headline-md text-on-surface">Đánh giá từ bệnh nhân</h2>
                 <span className="font-body-sm text-body-sm text-on-surface-variant">
@@ -196,7 +196,7 @@ const DoctorDetailPage = () => {
 
             <section>
               {!currentUser && (
-                <div className="rounded-xl border border-outline-variant/30 bg-surface p-lg shadow-sm">
+                <div className="rounded-xl border border-outline-variant bg-surface p-lg shadow-[0_2px_8px_rgba(26,26,26,0.08)]">
                   <p className="font-body-md text-body-md text-on-surface-variant">
                     Đăng nhập để đánh giá bác sĩ.
                   </p>

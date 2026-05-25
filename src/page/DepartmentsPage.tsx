@@ -12,10 +12,10 @@ import type { Department, DepartmentsResult } from '../services/department.servi
 const DEPARTMENTS_PAGE_SIZE = 9
 
 const tones = [
-  'bg-primary-fixed/30 text-primary',
-  'bg-secondary-fixed/30 text-secondary',
-  'bg-tertiary-fixed/30 text-tertiary',
-  'bg-surface-variant text-outline',
+  'bg-primary-fixed text-primary',
+  'bg-surface-container-low text-on-surface',
+  'bg-surface-variant text-on-surface',
+  'bg-surface text-outline ring-1 ring-outline-variant',
 ]
 
 const emptyPagination: DepartmentsResult['pagination'] = {
@@ -90,18 +90,18 @@ const DepartmentsPage = () => {
   }
 
   return (
-    <div className="min-h-screen text-on-background">
+    <div className="min-h-screen bg-background text-on-background">
       <TopNavBar active="departments" />
-      <main className="mx-auto flex max-w-7xl flex-col gap-xxl px-lg py-xxl md:px-xxl">
-        <section className="flex flex-col gap-lg border-b border-outline-variant/30 pb-xl">
+      <main className="mx-auto flex max-w-[1366px] flex-col gap-xxl px-lg py-[48px] md:px-xxl md:py-[64px]">
+        <section className="rounded-xl border border-outline-variant bg-surface p-xl shadow-[0_2px_8px_rgba(26,26,26,0.08)]">
           <div className="max-w-3xl">
             <p className="font-label-md text-label-md text-primary">{t('departmentsPage.eyebrow')}</p>
-            <h1 className="mt-sm font-headline-lg text-headline-lg text-on-background">{t('departmentsPage.title')}</h1>
+            <h1 className="mt-sm font-headline-lg text-[32px] font-medium leading-none text-on-background sm:text-[40px] md:text-[44px]">{t('departmentsPage.title')}</h1>
             <p className="mt-sm font-body-md text-body-md text-on-surface-variant">
               {t('departmentsPage.description')}
             </p>
           </div>
-          <div className="grid gap-md md:grid-cols-[minmax(240px,420px)_auto] md:items-end">
+          <div className="mt-lg grid gap-md md:grid-cols-[minmax(240px,420px)_auto] md:items-end">
             <Input
               icon="search"
               label={t('departmentsPage.searchLabel')}
@@ -114,7 +114,7 @@ const DepartmentsPage = () => {
         </section>
 
         {status === 'loading' && (
-          <p className="rounded-lg border border-outline-variant/30 bg-surface p-md font-body-md text-body-md text-on-surface-variant">
+          <p className="rounded-lg border border-outline-variant bg-surface p-md font-body-md text-body-md text-on-surface-variant">
             {t('departmentsPage.loading')}
           </p>
         )}
@@ -126,7 +126,7 @@ const DepartmentsPage = () => {
         )}
 
         {status !== 'loading' && departments.length === 0 && (
-          <div className="rounded-lg border border-dashed border-outline-variant p-xl text-center">
+          <div className="rounded-lg border border-dashed border-outline-variant bg-surface p-xl text-center">
             <Icon className="text-4xl text-outline" name="clinical_notes" />
             <p className="mt-sm font-label-md text-label-md text-on-surface">{t('departmentsPage.emptyTitle')}</p>
             <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
@@ -140,11 +140,11 @@ const DepartmentsPage = () => {
             <section className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-3">
               {departments.map((department, index) => (
                 <Link
-                  className="group rounded-lg border border-outline-variant/30 bg-surface p-lg shadow-sm transition-all hover:border-primary/40 hover:shadow-md"
+                  className="group rounded-xl bg-surface p-xl shadow-[0_2px_8px_rgba(26,26,26,0.08)] ring-1 ring-outline-variant transition-transform hover:-translate-y-1"
                   key={department.id}
                   to={`/departments/${department.id}`}
                 >
-                  <div className={`mb-md flex h-14 w-14 items-center justify-center rounded-full ${tones[index % tones.length]}`}>
+                  <div className={`mb-md flex h-14 w-14 items-center justify-center rounded-lg ${tones[index % tones.length]}`}>
                     <Icon className="text-3xl" name="clinical_notes" />
                   </div>
 

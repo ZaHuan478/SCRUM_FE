@@ -66,7 +66,7 @@ const DoctorRatingForm: React.FC<DoctorRatingFormProps> = ({
 
       <div className="mt-md">
         <textarea
-          className="min-h-[120px] w-full rounded-lg border border-outline-variant/40 bg-white px-md py-sm font-body-md text-body-md text-on-surface outline-none transition focus:border-primary"
+          className="min-h-[120px] w-full rounded-lg border border-outline-variant bg-surface px-md py-sm font-body-md text-body-md text-on-surface outline-none transition focus:border-primary"
           maxLength={2000}
           onChange={(event) => setComment(event.target.value)}
           placeholder="Chia sẻ trải nghiệm của bạn (không bắt buộc)"

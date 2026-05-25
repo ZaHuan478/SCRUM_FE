@@ -27,12 +27,12 @@ const SuggestedDoctorCard = ({ doctor }: SuggestedDoctorCardProps) => {
   const bookingPath = `/appointments${bookingSearch.toString() ? `?${bookingSearch.toString()}` : ''}`
 
   return (
-    <article className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm transition-shadow hover:shadow-md">
+    <article className="overflow-hidden rounded-xl bg-surface shadow-[0_2px_8px_rgba(26,26,26,0.08)] ring-1 ring-outline-variant transition-transform hover:-translate-y-1">
       <div className="relative h-48 w-full overflow-hidden bg-surface-variant">
         <Image alt={doctor.name || ''} className="h-full w-full object-cover" fallbackClassName="h-full w-full" src={doctor.image} />
         {doctor.badge && (
           <div className="absolute right-md top-md">
-            <span className="rounded-full bg-secondary-container px-md py-xs font-label-sm text-label-sm text-on-secondary-container shadow-sm">
+            <span className="rounded-lg bg-primary-fixed px-md py-xs font-label-sm text-label-sm text-on-primary-fixed">
               {doctor.badge}
             </span>
           </div>
@@ -41,13 +41,13 @@ const SuggestedDoctorCard = ({ doctor }: SuggestedDoctorCardProps) => {
       <div className="space-y-md p-lg">
         <div>
           <h4 className="min-h-7 font-headline-sm text-headline-sm text-on-surface">{doctor.name}</h4>
-          {doctor.title && <p className="font-label-md text-label-md uppercase tracking-wide text-secondary">{doctor.title}</p>}
+          {doctor.title && <p className="font-label-md text-label-md uppercase tracking-wide text-primary">{doctor.title}</p>}
         </div>
         {(doctor.rating || doctor.reviews) && (
           <div className="flex items-center gap-sm">
             {doctor.rating && (
               <>
-                <Icon name="star" className="text-tertiary" />
+                <Icon name="star" className="text-primary" />
                 <span className="font-label-md text-label-md font-bold text-on-surface">{doctor.rating}</span>
               </>
             )}
@@ -57,14 +57,14 @@ const SuggestedDoctorCard = ({ doctor }: SuggestedDoctorCardProps) => {
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-sm">
             {tags.map((tag) => (
-              <span className="rounded border border-primary/10 bg-primary/5 px-sm py-xs font-label-sm text-label-sm text-primary" key={tag}>
+              <span className="rounded-lg border border-outline-variant bg-surface-container-low px-sm py-xs font-label-sm text-label-sm text-on-surface-variant" key={tag}>
                 {tag}
               </span>
             ))}
           </div>
         )}
         <Link
-          className="inline-flex w-full items-center justify-center rounded-lg bg-primary px-md py-md font-label-md text-label-md text-on-primary shadow-sm transition-all hover:bg-primary-container hover:shadow-lg active:scale-[0.98]"
+          className="inline-flex min-h-11 w-full items-center justify-center rounded bg-primary px-md py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-primary transition-colors hover:bg-primary-container active:scale-[0.98]"
           to={bookingPath}
         >
           Đặt lịch ngay

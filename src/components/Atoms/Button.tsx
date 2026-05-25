@@ -10,8 +10,8 @@ const Button: React.FC<ButtonProps> = ({ children, variant = 'primary', isLoadin
   const widthClass = fullWidth ? 'w-full' : 'w-auto'
   const classes =
     variant === 'primary'
-      ? `${widthClass} bg-primary text-on-primary py-md rounded-lg font-label-md text-label-md shadow-sm hover:shadow-lg hover:bg-primary-container active:scale-[0.98] transition-all disabled:cursor-not-allowed disabled:opacity-60`
-      : `${widthClass} border border-outline-variant rounded-lg py-sm px-md text-label-md disabled:cursor-not-allowed disabled:opacity-60`
+      ? `${widthClass} min-h-11 rounded bg-primary px-lg py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-primary transition-colors hover:bg-primary-container active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60`
+      : `${widthClass} min-h-11 rounded border border-outline-variant bg-surface px-md py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-surface transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60`
 
   return (
     <button className={`${classes} ${className}`} disabled={disabled || isLoading} {...rest}>

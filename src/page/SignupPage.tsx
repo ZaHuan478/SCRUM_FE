@@ -10,25 +10,27 @@ const SignupPage = () => {
 
   return (
     <main className="flex min-h-screen">
-      <section className="hidden lg:flex lg:w-1/2 relative bg-surface-container-low overflow-hidden items-center justify-center p-xxxl">
+      <section className="relative hidden overflow-hidden bg-surface-container-low p-xxxl lg:flex lg:w-1/2 lg:items-center lg:justify-center">
         <div className="relative z-10 max-w-xl text-center">
           <div className="mb-xxl inline-flex items-center gap-sm">
             <Logo />
           </div>
-          <div className="space-y-lg mb-xxxl">
-            <h2 className="font-display-lg text-display-lg text-on-surface">{t('auth.signupHeroTitle')}</h2>
+          <div className="mb-xxxl space-y-lg">
+            <h2 className="font-display-lg text-[44px] font-medium leading-none text-on-surface xl:text-[56px]">{t('auth.signupHeroTitle')}</h2>
             <p className="font-body-lg text-body-lg text-on-surface-variant max-w-md mx-auto">{t('auth.signupHeroDescription')}</p>
           </div>
           {signupImage && (
-            <div className="relative rounded-xl overflow-hidden shadow-md bg-white p-sm group transition-all duration-500 hover:shadow-xl">
+            <div className="group relative overflow-hidden rounded-xl bg-surface p-sm shadow-[0_2px_8px_rgba(26,26,26,0.08)] transition-all duration-500 hover:shadow-[0_8px_24px_rgba(26,26,26,0.12)]">
               <Image alt="" className="rounded-lg w-full aspect-video object-cover" src={signupImage} />
             </div>
           )}
         </div>
       </section>
 
-      <section className="w-full lg:w-1/2 flex items-center justify-center p-lg md:p-xxxl bg-surface-container-lowest">
-        <SignupForm />
+      <section className="flex w-full items-center justify-center bg-surface-container-lowest p-lg md:p-xxxl lg:w-1/2">
+        <div className="w-full max-w-lg rounded-xl border border-outline-variant bg-surface p-xl shadow-[0_2px_8px_rgba(26,26,26,0.08)]">
+          <SignupForm />
+        </div>
       </section>
     </main>
   )

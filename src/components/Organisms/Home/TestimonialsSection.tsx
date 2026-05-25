@@ -76,21 +76,21 @@ const TestimonialsSection = () => {
   }, [t])
 
   return (
-    <section className="bg-[#1a1a1a] px-lg py-[80px] md:px-xxl">
+    <section className="bg-on-background px-lg py-[56px] md:px-xxl md:py-[80px]">
       <div className="mx-auto max-w-[1366px]">
         <div className="mb-xxl max-w-3xl">
-          <Icon name="format_quote" className="mb-lg text-[44px] text-[#296ef9]" />
-          <h2 className="mb-md font-headline-lg text-[44px] font-medium leading-none tracking-normal text-white">
+          <Icon name="format_quote" className="mb-lg text-[40px] text-inverse-primary md:text-[44px]" />
+          <h2 className="mb-md font-headline-lg text-[32px] font-medium leading-none tracking-normal text-inverse-on-surface sm:text-[40px] md:text-[44px]">
             {t('home.testimonials.title')}
           </h2>
-          <p className="font-body-md text-body-md text-[#c2c2c2]">
+          <p className="font-body-md text-body-md text-surface-variant">
             {t('home.testimonials.description')}
           </p>
         </div>
         {status === 'loading' && (
           <div className="grid grid-cols-1 gap-lg md:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
-              <div className="h-64 animate-pulse rounded-[16px] bg-white/10" key={index} />
+              <div className="h-64 animate-pulse rounded-xl bg-surface/10" key={index} />
             ))}
           </div>
         )}
@@ -100,30 +100,30 @@ const TestimonialsSection = () => {
           </p>
         )}
         {status === 'ready' && testimonials.length === 0 && (
-          <p className="rounded-[8px] border border-white/20 bg-white p-lg text-center font-body-md text-body-md text-[#3d3d3d]">
+          <p className="rounded-lg border border-outline-variant bg-surface p-lg text-center font-body-md text-body-md text-on-surface-variant">
             {t('home.testimonials.empty')}
           </p>
         )}
         <div className="grid grid-cols-1 gap-lg md:grid-cols-3">
           {testimonials.map((testimonial, index) => (
             <article
-              className="testimonial-card-motion relative overflow-hidden rounded-[16px] bg-white p-xl shadow-[0_2px_8px_rgba(26,26,26,0.08)]"
+              className="testimonial-card-motion relative overflow-hidden rounded-xl bg-surface p-xl shadow-[0_2px_8px_rgba(26,26,26,0.08)]"
               key={testimonial.id}
               style={{ animationDelay: `${index * 120}ms` }}
             >
               <div className="mb-lg flex items-center gap-md">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[4px] bg-[#1a1a1a] font-label-md text-label-md text-white">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded bg-on-background font-label-md text-label-md text-inverse-on-surface">
                   {getInitials(testimonial.name)}
                 </div>
                 <div>
-                  <h4 className="font-label-md text-label-md text-[#1a1a1a]">{testimonial.name}</h4>
-                  <p className="font-body-sm text-body-sm text-[#636363]">{testimonial.meta}</p>
+                  <h4 className="font-label-md text-label-md text-on-surface">{testimonial.name}</h4>
+                  <p className="font-body-sm text-body-sm text-on-surface-variant">{testimonial.meta}</p>
                 </div>
               </div>
-              <p className="font-body-md text-body-md leading-relaxed text-[#3d3d3d]">{testimonial.quote}</p>
+              <p className="font-body-md text-body-md leading-relaxed text-on-surface-variant">{testimonial.quote}</p>
               <div className="mt-lg flex gap-xs">
                 {Array.from({ length: testimonial.rating }).map((_, index) => (
-                  <Icon className="text-[#024ad8]" key={index} name="star" />
+                  <Icon className="text-primary" key={index} name="star" />
                 ))}
               </div>
             </article>

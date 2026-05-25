@@ -40,16 +40,16 @@ const PaymentSuccessPage = () => {
     <div className="min-h-screen bg-background text-on-background">
       <TopNavBar active="doctors" />
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-lg px-lg py-xl md:px-xxl">
-        <section className="rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-xl shadow-sm">
+        <section className="rounded-xl border border-outline-variant bg-surface p-xl shadow-[0_2px_8px_rgba(26,26,26,0.08)]">
           <p className="font-label-md text-label-md text-primary">{t('payment.successEyebrow')}</p>
-          <h1 className="mt-xs font-headline-lg text-headline-lg text-on-surface">{t('payment.successTitle')}</h1>
+          <h1 className="mt-xs font-headline-lg text-[32px] font-medium leading-none text-on-surface sm:text-[40px] md:text-[44px]">{t('payment.successTitle')}</h1>
 
           <div className="mt-lg grid gap-md sm:grid-cols-2">
-            <div className="rounded-lg bg-surface-container p-md">
+            <div className="rounded-lg border border-outline-variant bg-surface-container p-md">
               <p className="font-label-sm text-label-sm text-on-surface-variant">{t('payment.doctorLabel')}</p>
               <p className="mt-xs font-label-lg text-label-lg text-on-surface">{doctorName}</p>
             </div>
-            <div className="rounded-lg bg-surface-container p-md">
+            <div className="rounded-lg border border-outline-variant bg-surface-container p-md">
               <p className="font-label-sm text-label-sm text-on-surface-variant">{t('payment.timeLabel')}</p>
               <p className="mt-xs font-label-lg text-label-lg text-on-surface">
                 {startTime ? dateFormatter.format(new Date(startTime)) : t('payment.updating')}

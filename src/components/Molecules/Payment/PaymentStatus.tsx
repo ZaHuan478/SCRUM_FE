@@ -32,7 +32,7 @@ const PaymentStatus = ({ status }: PaymentStatusProps) => {
   const config = statusConfig[status]
 
   return (
-    <div className={`inline-flex items-center gap-xs rounded-full px-md py-sm font-label-md text-label-md ${config.className}`}>
+    <div className={`inline-flex items-center gap-xs rounded-lg px-md py-sm font-label-md text-label-md ${config.className}`}>
       <Icon className="text-lg" name={config.icon} />
       {config.label}
     </div>

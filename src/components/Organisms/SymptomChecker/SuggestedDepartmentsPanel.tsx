@@ -19,7 +19,7 @@ const SuggestedDepartmentsPanel = ({ departments }: SuggestedDepartmentsPanelPro
             <SuggestedDepartmentCard department={department} key={department.title} />
           ))
         ) : (
-          <p className="rounded-lg border border-outline-variant/30 bg-surface p-lg font-body-md text-body-md text-on-surface-variant">
+          <p className="rounded-lg border border-outline-variant bg-surface p-lg font-body-md text-body-md text-on-surface-variant">
             Chưa có dữ liệu khoa gợi ý.
           </p>
         )}

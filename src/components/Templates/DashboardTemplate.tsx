@@ -146,7 +146,7 @@ const DashboardTemplate = ({
       <DashboardSideNav onLogout={onLogout} />
       <div className="flex min-w-0 flex-grow flex-col">
         <DashboardTopBar onLogout={onLogout} />
-        <main className="mx-auto flex w-full max-w-7xl flex-grow flex-col gap-xxl px-lg py-lg md:px-xxl md:py-xxl">
+        <main className="mx-auto flex w-full max-w-[1366px] flex-grow flex-col gap-xxl px-lg py-lg md:px-xxl md:py-xxl">
           {activeSection === 'overview' && (
             <>
               <DashboardStatsGrid stats={stats} status={statsStatus} />

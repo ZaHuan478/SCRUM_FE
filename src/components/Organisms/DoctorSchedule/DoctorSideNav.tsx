@@ -12,7 +12,7 @@ const doctorNavItems: Array<{ end?: boolean; icon: string; label: string; to: st
 ]
 
 const DoctorSideNav = ({ onLogout }: DoctorSideNavProps) => (
-  <aside className="sticky top-0 hidden h-screen w-64 flex-col gap-lg bg-surface-container-low px-md py-xl shadow-md md:flex">
+  <aside className="sticky top-0 hidden h-screen w-64 flex-col gap-lg border-r border-outline-variant bg-surface px-md py-xl md:flex">
     <div className="px-md">
       <Logo compact />
     </div>

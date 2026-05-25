@@ -26,14 +26,14 @@ const PaymentQR = ({ payment }: PaymentQRProps) => {
   const transferContent = getTransferContent(payment)
 
   return (
-    <section className="rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-lg shadow-sm">
+    <section className="rounded-xl border border-outline-variant bg-surface p-lg shadow-[0_2px_8px_rgba(26,26,26,0.08)]">
       <div className="flex items-center gap-sm">
         <Icon className="text-primary" name="qr_code_2" />
         <h1 className="font-headline-md text-headline-md text-on-surface">Thanh toán lịch khám</h1>
       </div>
 
       <div className="mt-lg grid gap-lg md:grid-cols-[320px_1fr] md:items-center">
-        <div className="flex aspect-square items-center justify-center rounded-lg border border-outline-variant bg-white p-md">
+        <div className="flex aspect-square items-center justify-center rounded-xl border border-outline-variant bg-surface p-md">
           {payment.qr_code_url ? (
             <img alt="Payment QR" className="h-full w-full object-contain" src={payment.qr_code_url} />
           ) : (
@@ -49,17 +49,17 @@ const PaymentQR = ({ payment }: PaymentQRProps) => {
             </p>
           </div>
           <div className="grid gap-sm sm:grid-cols-2">
-            <div className="rounded-lg bg-surface-container p-md">
+            <div className="rounded-lg border border-outline-variant bg-surface-container p-md">
               <p className="font-label-sm text-label-sm text-on-surface-variant">Mã payment</p>
               <p className="mt-xs font-label-lg text-label-lg text-on-surface">#{payment.id}</p>
             </div>
-            <div className="rounded-lg bg-surface-container p-md">
+            <div className="rounded-lg border border-outline-variant bg-surface-container p-md">
               <p className="font-label-sm text-label-sm text-on-surface-variant">Mã lịch hẹn</p>
               <p className="mt-xs font-label-lg text-label-lg text-on-surface">#{payment.appointment_id}</p>
             </div>
           </div>
           {transferContent && (
-            <div className="rounded-lg bg-surface-container p-md">
+            <div className="rounded-lg border border-outline-variant bg-surface-container p-md">
               <p className="font-label-sm text-label-sm text-on-surface-variant">Nội dung chuyển khoản</p>
               <p className="mt-xs break-words font-label-lg text-label-lg text-on-surface">{transferContent}</p>
             </div>
@@ -67,7 +67,7 @@ const PaymentQR = ({ payment }: PaymentQRProps) => {
         </div>
       </div>
 
-      <div className="mt-lg rounded-lg border border-outline-variant/30 bg-surface-container px-md py-sm">
+      <div className="mt-lg rounded-lg border border-outline-variant bg-surface-container px-md py-sm">
         <div className="flex items-start gap-sm">
           <Icon className="mt-0.5 text-lg text-primary" name="info" />
           <p className="font-body-sm text-body-sm text-on-surface-variant">{paymentRuleNote}</p>

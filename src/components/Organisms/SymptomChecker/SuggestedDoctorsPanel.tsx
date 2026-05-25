@@ -18,13 +18,13 @@ const SuggestedDoctorsPanel = ({ doctors, status }: SuggestedDoctorsPanelProps) 
           <h2 className="font-headline-sm text-headline-sm text-on-background">Bác sĩ đề xuất</h2>
         </div>
         <Link to="/doctors">
-          <Button className="flex items-center gap-xs border-none p-0 text-primary shadow-none transition-all hover:gap-sm hover:bg-transparent" fullWidth={false} type="button" variant="ghost">
+          <Button className="flex items-center gap-xs border-primary px-md text-primary transition-all hover:gap-sm" fullWidth={false} type="button" variant="ghost">
             Xem tất cả <Icon name="arrow_forward" />
           </Button>
         </Link>
       </div>
       {status === 'loading' && (
-        <p className="rounded-lg border border-outline-variant/30 bg-surface p-md font-body-sm text-body-sm text-on-surface-variant">
+        <p className="rounded-lg border border-outline-variant bg-surface p-md font-body-sm text-body-sm text-on-surface-variant">
           Đang tải dữ liệu bác sĩ từ backend...
         </p>
       )}
@@ -41,7 +41,7 @@ const SuggestedDoctorsPanel = ({ doctors, status }: SuggestedDoctorsPanelProps) 
         </div>
       ) : (
         status !== 'loading' && (
-          <p className="rounded-lg border border-outline-variant/30 bg-surface p-lg text-center font-body-md text-body-md text-on-surface-variant">
+          <p className="rounded-lg border border-outline-variant bg-surface p-lg text-center font-body-md text-body-md text-on-surface-variant">
             Chưa có dữ liệu bác sĩ.
           </p>
         )
