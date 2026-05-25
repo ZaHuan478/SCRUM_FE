@@ -1,0 +1,31 @@
+name: Deploy FE
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portainer-fe-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Trigger Portainer webhook
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger FE stack redeploy
+        env:
+          PORTAINER_WEBHOOK_URL: ${{ secrets.PORTAINER_WEBHOOK_URL }}
+        run: |
+          if [ -z "$PORTAINER_WEBHOOK_URL" ]; then
+            echo "PORTAINER_WEBHOOK_URL secret is not configured." >&2
+            exit 1
+          fi
+
+          curl --fail --show-error --silent --location --request POST --insecure "$PORTAINER_WEBHOOK_URL"
