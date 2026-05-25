@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from '../../contexts/LanguageContext'
 import Icon from '../Atoms/Icon'
 import Image from '../Atoms/Image'
 import type { AIChatDoctorRecommendation } from '../../types/aiChat.types'
+import { translateDepartmentName } from '../../utils/contentTranslation'
 
 type DoctorSuggestionCardProps = {
   doctor: AIChatDoctorRecommendation
@@ -20,6 +22,7 @@ const formatSlotTime = (value?: string) => {
 }
 
 const DoctorSuggestionCard = ({ doctor }: DoctorSuggestionCardProps) => {
+  const { language, t } = useTranslation()
   const params = new URLSearchParams()
   params.set('doctor_id', String(doctor.doctorId))
   params.set('doctor_name', doctor.doctorName)
@@ -39,8 +42,8 @@ const DoctorSuggestionCard = ({ doctor }: DoctorSuggestionCardProps) => {
           <div className="min-w-0">
             <h4 className="font-label-md text-label-md text-on-surface">{doctor.doctorName}</h4>
             <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
-              {doctor.departmentName}
-              {doctor.experienceYears ? ` - ${doctor.experienceYears} năm kinh nghiệm` : ''}
+              {translateDepartmentName(doctor.departmentName, language)}
+              {doctor.experienceYears ? ` - ${t('common.yearsExperience', { years: doctor.experienceYears })}` : ''}
             </p>
           </div>
         </div>
@@ -54,7 +57,7 @@ const DoctorSuggestionCard = ({ doctor }: DoctorSuggestionCardProps) => {
       {doctor.nextAvailableSlot && (
         <p className="mt-sm inline-flex items-center gap-xs rounded-full bg-secondary-fixed/60 px-sm py-xs font-body-sm text-body-sm text-on-secondary-fixed">
           <Icon className="text-lg" name="schedule" />
-          Gần nhất: {formatSlotTime(doctor.nextAvailableSlot.startTime)}
+          {t('common.nearest', { time: formatSlotTime(doctor.nextAvailableSlot.startTime) })}
         </p>
       )}
 
@@ -63,7 +66,7 @@ const DoctorSuggestionCard = ({ doctor }: DoctorSuggestionCardProps) => {
         to={`/appointments?${params.toString()}`}
       >
         <Icon className="text-lg" name="event_available" />
-        Đặt lịch bác sĩ này
+        {t('common.bookThisDoctor')}
       </Link>
     </article>
   )

@@ -9,6 +9,8 @@ import {
   getSlotRemaining,
   longDateFormatter,
 } from '../../../utils/patientAppointments'
+import { useTranslation } from '../../../contexts/LanguageContext'
+import { translateDepartmentName } from '../../../utils/contentTranslation'
 
 type PatientAppointmentSlotCardProps = {
   active: boolean
@@ -17,6 +19,7 @@ type PatientAppointmentSlotCardProps = {
 }
 
 const PatientAppointmentSlotCard = ({ active, slot, onSelect }: PatientAppointmentSlotCardProps) => {
+  const { language } = useTranslation()
   const doctor = slot.doctor_assignment?.doctor
   const remaining = getSlotRemaining(slot)
 
@@ -39,7 +42,7 @@ const PatientAppointmentSlotCard = ({ active, slot, onSelect }: PatientAppointme
         </div>
         <div className="min-w-0">
           <h3 className="truncate font-label-md text-label-md text-on-surface">{getSlotDoctorName(slot)}</h3>
-          <p className="truncate font-body-sm text-body-sm text-on-surface-variant">{getSlotDepartmentName(slot)}</p>
+          <p className="truncate font-body-sm text-body-sm text-on-surface-variant">{translateDepartmentName(getSlotDepartmentName(slot), language)}</p>
         </div>
       </div>
 

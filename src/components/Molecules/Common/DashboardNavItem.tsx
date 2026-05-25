@@ -12,8 +12,8 @@ type DashboardNavItemProps = {
 
 const getClassName = (active: boolean) => (
   active
-    ? 'flex items-center gap-md rounded-lg bg-primary-container px-md py-sm text-on-primary-container shadow-sm'
-    : 'flex items-center gap-md rounded-lg px-md py-sm text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface'
+    ? 'flex items-center gap-md rounded bg-primary px-md py-sm text-on-primary'
+    : 'flex items-center gap-md rounded px-md py-sm text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface'
 )
 
 const DashboardNavItem = ({ icon, label, active = false, end, onClick, to }: DashboardNavItemProps) => {

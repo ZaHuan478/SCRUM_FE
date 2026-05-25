@@ -45,7 +45,7 @@ const SymptomCheckerTemplate = ({
           searchSuggestions={searchSuggestions}
         />
         <SymptomAnalysisPanel analyzed={analyzed} symptoms={analyzedSymptoms} />
-        <section className="mx-auto grid max-w-7xl grid-cols-1 gap-xxl px-lg py-xxl md:px-xxl lg:grid-cols-12" id="symptom-results">
+        <section className="mx-auto grid max-w-[1366px] grid-cols-1 gap-xxl px-lg py-xxl md:px-xxl lg:grid-cols-12" id="symptom-results">
           <SuggestedDepartmentsPanel departments={departments} />
           <SuggestedDoctorsPanel doctors={doctors} status={doctorStatus} />
         </section>

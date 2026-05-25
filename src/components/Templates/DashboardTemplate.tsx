@@ -1,8 +1,10 @@
 import { useLocation } from 'react-router-dom'
+import AppointmentManagementTable from '../Organisms/AppointmentManage/AppointmentManagementTable'
 import AppointmentAnalyticsSection from '../Organisms/Dashboard/AppointmentAnalyticsSection'
 import DepartmentManagementTable from '../Organisms/DepartmentDesign/DepartmentManagementTable'
 import DashboardSideNav from '../Organisms/Dashboard/DashboardSideNav'
 import DashboardStatsGrid from '../Organisms/Dashboard/DashboardStatsGrid'
+import DashboardTopBar from '../Organisms/Dashboard/DashboardTopBar'
 import DoctorManagementTable from '../Organisms/DoctorManage/DoctorManagementTable'
 import HospitalDocumentManager from '../Organisms/HospitalDocuments/HospitalDocumentManager'
 import PatientManagementTable from '../Organisms/PatientManage/PatientManagementTable'
@@ -13,15 +15,17 @@ import type { DashboardStat } from '../Molecules/Dashboard/DashboardStatCard'
 import type { DoctorManagementRowData } from '../Molecules/Management/DoctorManagementRow'
 import type { PatientManagementRowData } from '../Molecules/Management/PatientManagementRow'
 import type { User } from '../../services/auth.service'
+import type { Appointment, AppointmentStatus } from '../../services/appointment.service'
 import type { Department } from '../../services/department.service'
 import type { DepartmentSymptomRule } from '../../services/departmentSymptomRule.service'
 import type { DashboardPagination } from '../../utils/adminDashboard'
 
-type DashboardSection = 'overview' | 'departments' | 'doctors' | 'patients' | 'symptom-rules' | 'users' | 'hospital-documents'
+type DashboardSection = 'overview' | 'departments' | 'doctors' | 'appointments' | 'patients' | 'symptom-rules' | 'users' | 'hospital-documents'
 
 const getDashboardSection = (pathname: string): DashboardSection => {
   if (pathname.endsWith('/departments')) return 'departments'
   if (pathname.endsWith('/doctors')) return 'doctors'
+  if (pathname.endsWith('/appointments')) return 'appointments'
   if (pathname.endsWith('/patients')) return 'patients'
   if (pathname.endsWith('/symptom-rules')) return 'symptom-rules'
   if (pathname.endsWith('/users')) return 'users'
@@ -45,6 +49,10 @@ type DashboardTemplateProps = {
   patients: PatientManagementRowData[]
   patientPagination: DashboardPagination
   patientStatus: 'loading' | 'ready' | 'error'
+  appointments: Appointment[]
+  appointmentPagination: DashboardPagination
+  appointmentStatus: 'loading' | 'ready' | 'error'
+  appointmentStatusFilter: AppointmentStatus | 'all'
   users: User[]
   userPagination: DashboardPagination
   userStatus: 'loading' | 'ready' | 'error'
@@ -58,6 +66,7 @@ type DashboardTemplateProps = {
   totalSymptomRules: number
   totalDoctors: number
   totalPatients: number
+  totalAppointments: number
   totalUsers: number
   onCreateDoctor: () => void
   onCreateDepartment: () => void
@@ -71,6 +80,8 @@ type DashboardTemplateProps = {
   onDoctorSearchQueryChange: (query: string) => void
   onPatientPageChange: (page: number) => void
   onPatientSearchQueryChange: (query: string) => void
+  onAppointmentPageChange: (page: number) => void
+  onAppointmentStatusFilterChange: (status: AppointmentStatus | 'all') => void
   onSymptomRulePageChange: (page: number) => void
   onUserPageChange: (page: number) => void
   onUserSearchQueryChange: (query: string) => void
@@ -79,6 +90,9 @@ type DashboardTemplateProps = {
   onCreateUser: () => void
   onDeleteUser: (user: User) => void
   onEditUser: (user: User) => void
+  onCancelAppointment: (appointment: Appointment) => void
+  onCompleteAppointment: (appointment: Appointment) => void
+  onConfirmAppointment: (appointment: Appointment) => void
   onViewDoctor: (doctor: DoctorManagementRowData) => void
   onViewPatient: (patient: PatientManagementRowData) => void
   onViewUser: (user: User) => void
@@ -99,6 +113,10 @@ const DashboardTemplate = ({
   patients,
   patientPagination,
   patientStatus,
+  appointments,
+  appointmentPagination,
+  appointmentStatus,
+  appointmentStatusFilter,
   users,
   userPagination,
   userStatus,
@@ -112,6 +130,7 @@ const DashboardTemplate = ({
   totalSymptomRules,
   totalDoctors,
   totalPatients,
+  totalAppointments,
   totalUsers,
   onCreateDoctor,
   onCreateDepartment,
@@ -125,6 +144,8 @@ const DashboardTemplate = ({
   onDoctorSearchQueryChange,
   onPatientPageChange,
   onPatientSearchQueryChange,
+  onAppointmentPageChange,
+  onAppointmentStatusFilterChange,
   onSymptomRulePageChange,
   onUserPageChange,
   onUserSearchQueryChange,
@@ -133,6 +154,9 @@ const DashboardTemplate = ({
   onCreateUser,
   onDeleteUser,
   onEditUser,
+  onCancelAppointment,
+  onCompleteAppointment,
+  onConfirmAppointment,
   onViewDoctor,
   onViewPatient,
   onViewUser,
@@ -144,7 +168,8 @@ const DashboardTemplate = ({
     <div className="flex min-h-screen bg-background text-on-background">
       <DashboardSideNav onLogout={onLogout} />
       <div className="flex min-w-0 flex-grow flex-col">
-        <main className="mx-auto flex w-full max-w-7xl flex-grow flex-col gap-xxl px-lg py-lg md:px-xxl md:py-xxl">
+        <DashboardTopBar onLogout={onLogout} />
+        <main className="mx-auto flex w-full max-w-[1366px] flex-grow flex-col gap-xxl px-lg py-lg md:px-xxl md:py-xxl">
           {activeSection === 'overview' && (
             <>
               <DashboardStatsGrid stats={stats} status={statsStatus} />
@@ -193,6 +218,20 @@ const DashboardTemplate = ({
               rules={symptomRules}
               status={symptomRuleStatus}
               totalRules={totalSymptomRules}
+            />
+          )}
+          {activeSection === 'appointments' && (
+            <AppointmentManagementTable
+              appointments={appointments}
+              onCancelAppointment={onCancelAppointment}
+              onCompleteAppointment={onCompleteAppointment}
+              onConfirmAppointment={onConfirmAppointment}
+              onPageChange={onAppointmentPageChange}
+              onStatusFilterChange={onAppointmentStatusFilterChange}
+              pagination={appointmentPagination}
+              status={appointmentStatus}
+              statusFilter={appointmentStatusFilter}
+              totalAppointments={totalAppointments}
             />
           )}
           {activeSection === 'patients' && (

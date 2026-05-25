@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from '../../contexts/LanguageContext'
 import Button from '../Atoms/Button'
 import DoctorRatingStars from './DoctorRatingStars'
 
@@ -21,12 +22,13 @@ const DoctorRatingForm: React.FC<DoctorRatingFormProps> = ({
   isSubmitting = false,
   error,
   success,
-  submitLabel = 'Gửi đánh giá',
-  updateLabel = 'Cập nhật đánh giá',
+  submitLabel,
+  updateLabel,
   onSubmit,
   onDelete,
   canDelete = false,
 }) => {
+  const { t } = useTranslation()
   const [rating, setRating] = useState(initialRating)
   const [comment, setComment] = useState(initialComment || '')
   const [hoverRating, setHoverRating] = useState<number | null>(null)
@@ -48,7 +50,7 @@ const DoctorRatingForm: React.FC<DoctorRatingFormProps> = ({
 
   return (
     <form className="rounded-xl border border-outline-variant/30 bg-surface p-lg shadow-sm" onSubmit={handleSubmit}>
-      <h3 className="font-headline-md text-headline-md text-on-surface">Đánh giá của bạn</h3>
+      <h3 className="font-headline-md text-headline-md text-on-surface">{t('doctorDetail.yourReview')}</h3>
 
       <div className="mt-md">
         <DoctorRatingStars
@@ -60,16 +62,16 @@ const DoctorRatingForm: React.FC<DoctorRatingFormProps> = ({
           sizeClassName="text-2xl"
         />
         <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
-          {rating ? `${rating} / 5` : 'Chọn số sao'}
+          {rating ? `${rating} / 5` : t('doctorDetail.selectStars')}
         </p>
       </div>
 
       <div className="mt-md">
         <textarea
-          className="min-h-[120px] w-full rounded-lg border border-outline-variant/40 bg-white px-md py-sm font-body-md text-body-md text-on-surface outline-none transition focus:border-primary"
+          className="min-h-[120px] w-full rounded-lg border border-outline-variant bg-surface px-md py-sm font-body-md text-body-md text-on-surface outline-none transition focus:border-primary"
           maxLength={2000}
           onChange={(event) => setComment(event.target.value)}
-          placeholder="Chia sẻ trải nghiệm của bạn (không bắt buộc)"
+          placeholder={t('doctorDetail.commentPlaceholder')}
           value={comment}
         />
       </div>
@@ -87,7 +89,7 @@ const DoctorRatingForm: React.FC<DoctorRatingFormProps> = ({
 
       <div className="mt-lg flex flex-wrap gap-sm">
         <Button isLoading={isSubmitting} type="submit">
-          {initialRating ? updateLabel : submitLabel}
+          {initialRating ? updateLabel || t('doctorDetail.updateReview') : submitLabel || t('doctorDetail.submitReview')}
         </Button>
         {canDelete && onDelete && (
           <Button
@@ -97,7 +99,7 @@ const DoctorRatingForm: React.FC<DoctorRatingFormProps> = ({
             type="button"
             variant="ghost"
           >
-            Xóa
+            {t('doctorDetail.deleteReview')}
           </Button>
         )}
       </div>

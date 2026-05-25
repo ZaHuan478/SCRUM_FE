@@ -1,6 +1,7 @@
 import Icon from '../../Atoms/Icon'
 import Select from './Select'
 import { languages, useTranslation } from '../../../contexts/LanguageContext'
+import type { Language } from '../../../contexts/LanguageContext'
 import { useTheme } from '../../../contexts/ThemeContext'
 
 const AppPreferences = () => {
@@ -9,19 +10,22 @@ const AppPreferences = () => {
 
   return (
     <div className="flex items-center gap-sm">
+      <label className="sr-only" htmlFor="language-select">
+        {t('preferences.language')}
+      </label>
       <Select
-        className="h-10 px-sm py-0 font-label-md text-label-md focus:ring-2 focus:ring-primary/40"
+        className="h-10 rounded border border-outline-variant bg-surface px-sm font-label-md text-label-md text-on-surface outline-none transition-colors hover:border-primary focus:border-on-surface"
         id="language-select"
         label=""
         menuClassName="min-w-28"
-        onChange={(value) => setLanguage(value as typeof language)}
+        onChange={(value) => setLanguage(value as Language)}
         options={languages.map((item) => ({ label: item.shortLabel, value: item.code }))}
         title={t('preferences.language')}
         value={language}
       />
       <button
         aria-label={theme === 'dark' ? t('preferences.light') : t('preferences.dark')}
-        className="flex h-10 w-10 items-center justify-center rounded-xl border border-outline-variant/50 bg-surface-container-lowest text-on-surface shadow-sm transition-colors hover:bg-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/40"
+        className="flex h-10 w-10 items-center justify-center rounded border border-outline-variant bg-surface text-on-surface transition-colors hover:border-primary hover:text-primary focus:outline-none focus:border-on-surface"
         onClick={toggleTheme}
         title={theme === 'dark' ? t('preferences.light') : t('preferences.dark')}
         type="button"

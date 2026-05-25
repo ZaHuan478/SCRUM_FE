@@ -4,7 +4,6 @@ import Icon from '../../Atoms/Icon'
 import Input from '../../Atoms/Input'
 import PatientAppointmentDayButton from '../../Molecules/PatientAppointments/PatientAppointmentDayButton'
 import PatientAppointmentSlotCard from '../../Molecules/PatientAppointments/PatientAppointmentSlotCard'
-import Select from '../../Molecules/Common/Select'
 import type { AppointmentSlot } from '../../../services/appointmentSlot.service'
 import type { RecommendedDepartment } from '../../../services/departmentSymptomRule.service'
 import type { Department } from '../../../services/department.service'
@@ -13,6 +12,8 @@ import { getDateKey, longDateFormatter } from '../../../utils/patientAppointment
 import type { LoadStatus } from '../../../utils/patientAppointments'
 import { moneyFormatter, paymentRuleNote } from '../../../utils/paymentPolicy'
 import type { PaymentPolicy } from '../../../utils/paymentPolicy'
+import { useTranslation } from '../../../contexts/LanguageContext'
+import { translateDepartmentName } from '../../../utils/contentTranslation'
 
 type PatientAppointmentBookingPanelProps = {
   bookingError: string
@@ -69,6 +70,7 @@ const PatientAppointmentBookingPanel = ({
   onSelectSlot,
   onSubmit,
 }: PatientAppointmentBookingPanelProps) => {
+  const { language } = useTranslation()
   const [slotPage, setSlotPage] = useState(1)
   const slotTotalPages = Math.max(Math.ceil(slots.length / SLOT_PAGE_SIZE), 1)
   const slotFirstItem = slots.length === 0 ? 0 : (slotPage - 1) * SLOT_PAGE_SIZE + 1
@@ -138,20 +140,20 @@ const PatientAppointmentBookingPanel = ({
             value={selectedDate}
             wrapperClassName="md:w-48"
           />
-          <Select
-            disabled={departmentStatus === 'loading' || Boolean(selectedDoctorId)}
-            label="Khoa"
-            onChange={onDepartmentChange}
-            options={[
-              { label: 'Tất cả khoa', value: '' },
-              ...departments.map((department) => ({
-                label: department.name,
-                value: String(department.id),
-              })),
-            ]}
-            value={selectedDepartmentId}
-            wrapperClassName="md:w-56"
-          />
+          <label className="space-y-xs md:w-56">
+            <span className="font-label-md text-label-md text-on-surface">Khoa</span>
+            <select
+              className="w-full rounded-lg border border-outline-variant px-md py-md font-body-md text-body-md outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
+              disabled={departmentStatus === 'loading' || Boolean(selectedDoctorId)}
+              onChange={(event) => onDepartmentChange(event.target.value)}
+              value={selectedDepartmentId}
+            >
+              <option value="">Tất cả khoa</option>
+              {departments.map((department) => (
+                <option key={department.id} value={department.id}>{translateDepartmentName(department.name, language)}</option>
+              ))}
+            </select>
+          </label>
         </div>
       </div>
 
@@ -218,7 +220,7 @@ const PatientAppointmentBookingPanel = ({
                     onClick={() => onDepartmentChange(String(department.department_id))}
                     type="button"
                   >
-                    {department.department_name}
+                    {translateDepartmentName(department.department_name, language)}
                   </button>
                 ))}
               </div>
@@ -233,7 +235,7 @@ const PatientAppointmentBookingPanel = ({
                 <div className="mt-sm space-y-sm">
                   {preVisitNotes.map((item) => (
                     <p className="font-body-sm text-body-sm text-on-surface-variant" key={`${item.departmentName}-${item.symptomName || 'note'}-${item.note}`}>
-                      <span className="font-label-sm text-label-sm text-secondary">{item.departmentName}</span>
+                      <span className="font-label-sm text-label-sm text-secondary">{translateDepartmentName(item.departmentName, language)}</span>
                       {item.symptomName && <span> - {item.symptomName}</span>}
                       <span>: {item.note}</span>
                     </p>

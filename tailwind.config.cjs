@@ -58,7 +58,7 @@ module.exports = {
       borderRadius: {
         DEFAULT: '0.25rem',
         lg: '0.5rem',
-        xl: '0.75rem',
+        xl: '1rem',
         full: '9999px'
       },
       spacing: {
@@ -83,15 +83,15 @@ module.exports = {
         'label-md': ['Inter']
       },
       fontSize: {
-        'label-sm': ['12px', { lineHeight: '1', fontWeight: '500' }],
-        'body-md': ['16px', { lineHeight: '1.6', fontWeight: '400' }],
-        'display-lg': ['48px', { lineHeight: '1.2', letterSpacing: '0', fontWeight: '700' }],
+        'label-sm': ['12px', { lineHeight: '1.3', fontWeight: '600' }],
+        'body-md': ['16px', { lineHeight: '1.38', fontWeight: '400' }],
+        'display-lg': ['48px', { lineHeight: '1', letterSpacing: '0', fontWeight: '500' }],
         'body-sm': ['14px', { lineHeight: '1.5', fontWeight: '400' }],
-        'headline-lg': ['32px', { lineHeight: '1.25', letterSpacing: '0', fontWeight: '700' }],
+        'headline-lg': ['32px', { lineHeight: '1', letterSpacing: '0', fontWeight: '500' }],
         'body-lg': ['18px', { lineHeight: '1.6', fontWeight: '400' }],
-        'headline-md': ['24px', { lineHeight: '1.3', fontWeight: '600' }],
-        'headline-sm': ['20px', { lineHeight: '1.4', fontWeight: '600' }],
-        'label-md': ['14px', { lineHeight: '1', letterSpacing: '0', fontWeight: '600' }]
+        'headline-md': ['24px', { lineHeight: '1.17', fontWeight: '500' }],
+        'headline-sm': ['20px', { lineHeight: '1.2', fontWeight: '500' }],
+        'label-md': ['14px', { lineHeight: '1.3', letterSpacing: '0.7px', fontWeight: '600' }]
       }
     },
   },

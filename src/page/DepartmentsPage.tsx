@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ChangeEvent } from 'react'
+import { Link } from 'react-router-dom'
 import TopNavBar from '../components/Organisms/TopNavBar'
 import Icon from '../components/Atoms/Icon'
 import Input from '../components/Atoms/Input'
-import DepartmentCard from '../components/Molecules/Home/DepartmentCard'
 import PaginationControls from '../components/Molecules/Common/PaginationControls'
 import { useTranslation } from '../contexts/LanguageContext'
+import { getDepartmentIconMeta } from '../constants/departmentIcons'
 import { getDepartments } from '../services/department.service'
 import type { Department, DepartmentsResult } from '../services/department.service'
+import { translateDepartmentDescription, translateDepartmentName } from '../utils/contentTranslation'
 
 const DEPARTMENTS_PAGE_SIZE = 9
 
@@ -19,7 +21,7 @@ const emptyPagination: DepartmentsResult['pagination'] = {
 }
 
 const DepartmentsPage = () => {
-  const { t } = useTranslation()
+  const { language, t } = useTranslation()
   const [query, setQuery] = useState('')
   const [page, setPage] = useState(1)
   const [departments, setDepartments] = useState<Department[]>([])
@@ -83,18 +85,18 @@ const DepartmentsPage = () => {
   }
 
   return (
-    <div className="min-h-screen text-on-background">
+    <div className="min-h-screen bg-background text-on-background">
       <TopNavBar active="departments" />
-      <main className="mx-auto flex max-w-7xl flex-col gap-xxl px-lg py-xxl md:px-xxl">
-        <section className="flex flex-col gap-lg border-b border-outline-variant/30 pb-xl">
+      <main className="mx-auto flex max-w-[1366px] flex-col gap-xxl px-lg py-[48px] md:px-xxl md:py-[64px]">
+        <section className="rounded-xl border border-outline-variant bg-surface p-xl shadow-[0_2px_8px_rgba(26,26,26,0.08)]">
           <div className="max-w-3xl">
             <p className="font-label-md text-label-md text-primary">{t('departmentsPage.eyebrow')}</p>
-            <h1 className="mt-sm font-headline-lg text-headline-lg text-on-background">{t('departmentsPage.title')}</h1>
+            <h1 className="mt-sm font-headline-lg text-[32px] font-medium leading-none text-on-background sm:text-[40px] md:text-[44px]">{t('departmentsPage.title')}</h1>
             <p className="mt-sm font-body-md text-body-md text-on-surface-variant">
               {t('departmentsPage.description')}
             </p>
           </div>
-          <div className="grid gap-md md:grid-cols-[minmax(240px,420px)_auto] md:items-end">
+          <div className="mt-lg grid gap-md md:grid-cols-[minmax(240px,420px)_auto] md:items-end">
             <Input
               icon="search"
               label={t('departmentsPage.searchLabel')}
@@ -107,7 +109,7 @@ const DepartmentsPage = () => {
         </section>
 
         {status === 'loading' && (
-          <p className="rounded-lg border border-outline-variant/30 bg-surface p-md font-body-md text-body-md text-on-surface-variant">
+          <p className="rounded-lg border border-outline-variant bg-surface p-md font-body-md text-body-md text-on-surface-variant">
             {t('departmentsPage.loading')}
           </p>
         )}
@@ -119,7 +121,7 @@ const DepartmentsPage = () => {
         )}
 
         {status !== 'loading' && departments.length === 0 && (
-          <div className="rounded-lg border border-dashed border-outline-variant p-xl text-center">
+          <div className="rounded-lg border border-dashed border-outline-variant bg-surface p-xl text-center">
             <Icon className="text-4xl text-outline" name="clinical_notes" />
             <p className="mt-sm font-label-md text-label-md text-on-surface">{t('departmentsPage.emptyTitle')}</p>
             <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">
@@ -131,15 +133,36 @@ const DepartmentsPage = () => {
         {status === 'ready' && departments.length > 0 && (
           <>
             <section className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-3">
-              {departments.map((department, index) => (
-                <DepartmentCard
-                  description={department.description || t('departmentsPage.fallbackDescription')}
-                  key={department.id}
-                  label={department.name}
-                  style={{ animationDelay: `${index * 60}ms` }}
-                  to={`/departments/${department.id}`}
-                />
-              ))}
+              {departments.map((department, index) => {
+                const { Icon: DepartmentIcon, backgroundClassName, colorClassName, hoverClassName } = getDepartmentIconMeta(department.name)
+
+                return (
+                  <Link
+                    className="group rounded-xl bg-surface p-xl shadow-[0_2px_8px_rgba(26,26,26,0.08)] ring-1 ring-outline-variant transition-transform hover:-translate-y-1"
+                    key={department.id}
+                    style={{ animationDelay: `${index * 60}ms` }}
+                    to={`/departments/${department.id}`}
+                  >
+                    <div className={`mb-md flex h-14 w-14 items-center justify-center rounded-lg transition-colors ${backgroundClassName} ${colorClassName} ${hoverClassName}`}>
+                      <DepartmentIcon className="h-7 w-7" />
+                    </div>
+
+                    <h2 className="font-headline-sm text-headline-sm text-on-surface">
+                      {translateDepartmentName(department.name, language)}
+                    </h2>
+
+                    <p className="mt-sm min-h-20 font-body-sm text-body-sm text-on-surface-variant">
+                      {department.description
+                        ? translateDepartmentDescription(department.description, language)
+                        : t('departmentsPage.fallbackDescription')}
+                    </p>
+
+                    <span className="mt-lg inline-flex items-center gap-xs font-label-md text-label-md text-primary transition-all group-hover:gap-sm group-hover:underline">
+                      {t('departmentsPage.viewDetails')} <Icon name="arrow_forward" />
+                    </span>
+                  </Link>
+                )
+              })}
             </section>
             <PaginationControls
               itemLabel={t('departmentsPage.itemLabel')}

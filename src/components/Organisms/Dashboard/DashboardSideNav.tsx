@@ -5,6 +5,7 @@ const primaryNavItems = [
   { icon: 'dashboard', label: 'Tổng quan', to: '/admin', end: true },
   { icon: 'clinical_notes', label: 'Khoa', to: '/admin/departments' },
   { icon: 'medical_services', label: 'Bác sĩ', to: '/admin/doctors' },
+  { icon: 'event_note', label: 'Lịch hẹn', to: '/admin/appointments' },
   { icon: 'diagnosis', label: 'Ghi chú triệu chứng', to: '/admin/symptom-rules' },
   { icon: 'groups', label: 'Bệnh nhân', to: '/admin/patients' },
   { icon: 'description', label: 'Tài liệu AI', to: '/admin/hospital-documents' },
@@ -17,7 +18,7 @@ type DashboardSideNavProps = {
 
 const DashboardSideNav = ({ onLogout }: DashboardSideNavProps) => {
   return (
-    <aside className="sticky top-0 hidden h-screen w-64 flex-col gap-lg bg-surface-container-low px-md py-xl shadow-md md:flex">
+    <aside className="sticky top-0 hidden h-screen w-64 flex-col gap-lg border-r border-outline-variant bg-surface px-md py-xl md:flex">
       <div className="px-md">
         <Logo compact />
       </div>

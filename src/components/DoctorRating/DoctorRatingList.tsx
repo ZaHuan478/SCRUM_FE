@@ -1,5 +1,6 @@
 import React from 'react'
 import type { DoctorRatingItem } from '../../api/doctorRating.api'
+import { useTranslation } from '../../contexts/LanguageContext'
 import Button from '../Atoms/Button'
 import RatingCommentCard from './RatingCommentCard'
 
@@ -18,6 +19,7 @@ const DoctorRatingList: React.FC<DoctorRatingListProps> = ({
   onLoadMore,
   framed = true,
 }) => {
+  const { t } = useTranslation()
   const emptyStateClassName = framed
     ? 'rounded-xl border border-outline-variant/30 bg-surface p-lg shadow-sm'
     : 'rounded-lg bg-surface-container-lowest p-lg'
@@ -25,7 +27,7 @@ const DoctorRatingList: React.FC<DoctorRatingListProps> = ({
   if (isLoading && ratings.length === 0) {
     return (
       <div className={emptyStateClassName}>
-        <p className="font-body-md text-body-md text-on-surface-variant">Đang tải đánh giá...</p>
+        <p className="font-body-md text-body-md text-on-surface-variant">{t('doctorDetail.loadingReviews')}</p>
       </div>
     )
   }
@@ -34,7 +36,7 @@ const DoctorRatingList: React.FC<DoctorRatingListProps> = ({
     <div className="space-y-md">
       {ratings.length === 0 ? (
         <div className={emptyStateClassName}>
-          <p className="font-body-md text-body-md text-on-surface-variant">Chưa có đánh giá nào.</p>
+          <p className="font-body-md text-body-md text-on-surface-variant">{t('doctorDetail.noReviews')}</p>
         </div>
       ) : (
         ratings.map((rating) => (
@@ -56,7 +58,7 @@ const DoctorRatingList: React.FC<DoctorRatingListProps> = ({
           type="button"
           variant="ghost"
         >
-          {isLoading ? 'Đang tải...' : 'Tải thêm'}
+          {isLoading ? t('doctorDetail.loadingReviews') : t('doctorDetail.loadMore')}
         </Button>
       )}
     </div>

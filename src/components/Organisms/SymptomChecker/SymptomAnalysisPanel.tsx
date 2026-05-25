@@ -122,11 +122,11 @@ const SymptomAnalysisPanel = ({ analyzed, symptoms }: SymptomAnalysisPanelProps)
   if (!analyzed) return null
 
   return (
-    <section className="mx-auto max-w-7xl px-lg pt-xxl md:px-xxl" id="symptom-analysis">
-      <div className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-lg shadow-sm">
-        <div className="flex flex-col gap-sm border-b border-outline-variant/30 pb-lg sm:flex-row sm:items-center sm:justify-between">
+    <section className="mx-auto max-w-[1366px] px-lg pt-xxl md:px-xxl" id="symptom-analysis">
+      <div className="rounded-xl border border-outline-variant bg-surface p-lg shadow-[0_2px_8px_rgba(26,26,26,0.08)]">
+        <div className="flex flex-col gap-sm border-b border-outline-variant pb-lg sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-md">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-fixed/40 text-primary">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-fixed text-primary">
               <Icon name="diagnosis" className="text-2xl" />
             </div>
             <div>
@@ -135,7 +135,7 @@ const SymptomAnalysisPanel = ({ analyzed, symptoms }: SymptomAnalysisPanelProps)
             </div>
           </div>
           {symptoms.length > 0 && (
-            <span className="rounded-full bg-secondary-fixed px-md py-xs font-label-sm text-label-sm text-on-secondary-fixed">
+            <span className="rounded-lg bg-primary-fixed px-md py-xs font-label-sm text-label-sm text-on-primary-fixed">
               {symptoms.length} triệu chứng phù hợp
             </span>
           )}
@@ -155,7 +155,7 @@ const SymptomAnalysisPanel = ({ analyzed, symptoms }: SymptomAnalysisPanelProps)
               const conditions = inferCommonConditions(symptom)
 
               return (
-                <article className="rounded-lg border border-outline-variant/30 bg-surface p-md" key={symptom.id}>
+                <article className="rounded-lg border border-outline-variant bg-surface p-md" key={symptom.id}>
                   <div className="flex items-start justify-between gap-md">
                     <div>
                       <h3 className="font-headline-sm text-headline-sm text-on-surface">{symptom.name}</h3>
@@ -172,7 +172,7 @@ const SymptomAnalysisPanel = ({ analyzed, symptoms }: SymptomAnalysisPanelProps)
                     <p className="font-label-sm text-label-sm text-on-surface">Thường có thể gặp trong</p>
                     <div className="mt-sm flex flex-wrap gap-xs">
                       {conditions.map((condition) => (
-                        <span className="rounded-full bg-surface-container-lowest px-sm py-xs font-body-sm text-body-sm text-on-surface-variant" key={condition}>
+                        <span className="rounded-lg bg-surface-container-lowest px-sm py-xs font-body-sm text-body-sm text-on-surface-variant" key={condition}>
                           {condition}
                         </span>
                       ))}

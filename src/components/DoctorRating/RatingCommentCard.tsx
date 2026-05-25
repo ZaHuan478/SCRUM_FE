@@ -17,7 +17,7 @@ const formatDate = (value: string) => {
 
 const RatingCommentCard: React.FC<RatingCommentCardProps> = ({ name, rating, comment, createdAt }) => {
   return (
-    <div className="rounded-xl border border-outline-variant/30 bg-white p-md shadow-sm">
+    <div className="rounded-xl border border-outline-variant bg-surface p-md shadow-[0_2px_8px_rgba(26,26,26,0.08)]">
       <div className="flex flex-wrap items-center justify-between gap-sm">
         <div>
           <p className="font-label-md text-label-md text-on-surface">{name}</p>
