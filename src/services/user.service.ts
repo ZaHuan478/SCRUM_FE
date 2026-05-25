@@ -111,6 +111,15 @@ export const uploadCurrentUserAvatar = (imageData: string) =>
     body: JSON.stringify({ image_data: imageData }),
   })
 
+export const uploadCurrentUserCccdImage = (field: 'front' | 'back', imageData: string) =>
+  apiRequest<User>('/users/me/cccd-image', {
+    method: 'POST',
+    body: JSON.stringify({
+      field,
+      image_data: imageData,
+    }),
+  })
+
 export const changeCurrentUserPassword = (payload: ChangePasswordPayload) =>
   apiRequest<User>('/users/me/password', {
     method: 'PATCH',

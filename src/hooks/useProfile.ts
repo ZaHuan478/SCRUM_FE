@@ -4,7 +4,8 @@ import type { User } from '../services/auth.service'
 import { updateStoredUser } from '../services/auth.service'
 import { getDoctorAssignments } from '../services/doctorAssignment.service'
 import { getDoctorByUserId } from '../services/doctor.service'
-import { getCurrentUser, updateCurrentUser, uploadCurrentUserAvatar } from '../services/user.service'
+import { getCurrentUser, updateCurrentUser, uploadCurrentUserAvatar, uploadCurrentUserCccdImage } from '../services/user.service'
+import { scanCccdImages } from '../services/cccdScan.service'
 import {
   buildProfileForm,
   emptyDoctorReadonlyInfo,
@@ -35,6 +36,7 @@ export type ProfileState = {
   error: string
   form: ProfileFormState
   isSaving: boolean
+  isScanningCccd: boolean
   phoneValid: boolean
   status: LoadStatus
   success: string
@@ -47,6 +49,7 @@ export type ProfileState = {
     imageLabel?: string
   ) => Promise<void>
   handleSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>
+  scanCccd: () => Promise<void>
   updateField: (field: keyof ProfileFormState, value: string) => void
 }
 
@@ -79,6 +82,7 @@ export const useProfile = ({ storedUser, onAuthFailure }: UseProfileOptions): Pr
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [isSaving, setIsSaving] = useState(false)
+  const [isScanningCccd, setIsScanningCccd] = useState(false)
   const { success: toastSuccess, error: toastError, warning: toastWarning } = useToast()
 
   const showError = useCallback((message: string) => {
@@ -176,11 +180,26 @@ export const useProfile = ({ storedUser, onAuthFailure }: UseProfileOptions): Pr
     setSuccess('')
 
     try {
-      updateField(field, await fileToDataUrl(file, imageLabel))
+      const imageData = await fileToDataUrl(file, imageLabel)
+
+      if (field === 'cccdFrontImage' || field === 'cccdBackImage') {
+        const updatedUser = await uploadCurrentUserCccdImage(field === 'cccdFrontImage' ? 'front' : 'back', imageData)
+        setUser(updatedUser)
+        setForm((currentForm) => ({
+          ...currentForm,
+          cccdBackImage: updatedUser.cccd_back_image || currentForm.cccdBackImage,
+          cccdFrontImage: updatedUser.cccd_front_image || currentForm.cccdFrontImage,
+        }))
+        updateStoredUser(updatedUser)
+        showSuccess(`${imageLabel} đã được tải lên.`)
+        return
+      }
+
+      updateField(field, imageData)
     } catch (uploadError) {
       showWarning(uploadError instanceof Error ? uploadError.message : `Không thể tải ${imageLabel.toLowerCase()}.`)
     }
-  }, [showWarning, updateField])
+  }, [showSuccess, showWarning, updateField])
 
   const clearImage = useCallback((field: ProfileImageField) => {
     updateField(field, '')
@@ -190,6 +209,40 @@ export const useProfile = ({ storedUser, onAuthFailure }: UseProfileOptions): Pr
     clearImage('avatarUrl')
     if (avatarInputRef.current) avatarInputRef.current.value = ''
   }, [clearImage])
+
+  const scanCccd = useCallback(async () => {
+    setError('')
+    setSuccess('')
+
+    if (!form.cccdFrontImage || !form.cccdBackImage) {
+      showWarning('Vui lòng tải ảnh CCCD mặt trước và mặt sau trước khi quét.')
+      return
+    }
+
+    setIsScanningCccd(true)
+
+    try {
+      const result = await scanCccdImages({
+        backImage: form.cccdBackImage,
+        frontImage: form.cccdFrontImage,
+      })
+
+      if (!result.cccdNumber) {
+        showWarning('Đã quét ảnh nhưng chưa nhận diện được số CCCD.')
+        return
+      }
+
+      updateField('cccdNumber', result.cccdNumber)
+      if (result.dateOfBirth) updateField('dateOfBirth', result.dateOfBirth)
+      if (result.fullName) updateField('fullName', result.fullName)
+      if (result.gender) updateField('gender', result.gender)
+      showSuccess('Đã quét và điền số CCCD.')
+    } catch (scanError) {
+      showError(scanError instanceof Error ? scanError.message : 'Không thể quét CCCD.')
+    } finally {
+      setIsScanningCccd(false)
+    }
+  }, [form.cccdBackImage, form.cccdFrontImage, showError, showSuccess, showWarning, updateField])
 
   const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -266,9 +319,11 @@ export const useProfile = ({ storedUser, onAuthFailure }: UseProfileOptions): Pr
     handleImageChange,
     handleSubmit,
     isSaving,
+    isScanningCccd,
     phoneValid,
     status,
     success,
+    scanCccd,
     updateField,
     user,
   }

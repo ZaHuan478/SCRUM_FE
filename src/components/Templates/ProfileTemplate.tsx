@@ -25,7 +25,9 @@ const ProfileTemplate = ({
   handleImageChange,
   handleSubmit,
   isSaving,
+  isScanningCccd,
   phoneValid,
+  scanCccd,
   status,
   success,
   updateField,
@@ -67,9 +69,15 @@ const ProfileTemplate = ({
         />
 
         <ProfileDocumentImageCard
+          actionDisabled={!form.cccdFrontImage || !form.cccdBackImage || isSaving}
+          actionLabel="Quét CCCD"
+          actionLoading={isScanningCccd}
           imageAlt="CCCD mặt trước"
           imageLabel="Ảnh CCCD mặt trước"
           imageUrl={form.cccdFrontImage}
+          onAction={() => {
+            void scanCccd()
+          }}
           onChange={(event) => {
             void handleImageChange(event, 'cccdFrontImage', 'Ảnh CCCD')
           }}
@@ -87,8 +95,6 @@ const ProfileTemplate = ({
           onClear={() => clearImage('cccdBackImage')}
           title="CCCD mặt sau"
         />
-
-
       </div>
     </main>
   )

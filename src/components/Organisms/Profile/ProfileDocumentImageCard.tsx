@@ -8,15 +8,23 @@ type ProfileDocumentImageCardProps = {
   imageLabel: string
   imageUrl: string
   title: string
+  actionDisabled?: boolean
+  actionLabel?: string
+  actionLoading?: boolean
+  onAction?: () => void
   onChange: (event: ChangeEvent<HTMLInputElement>) => void
   onClear: () => void
 }
 
 const ProfileDocumentImageCard = ({
+  actionDisabled = false,
+  actionLabel,
+  actionLoading = false,
   imageAlt,
   imageLabel,
   imageUrl,
   title,
+  onAction,
   onChange,
   onClear,
 }: ProfileDocumentImageCardProps) => (
@@ -37,11 +45,27 @@ const ProfileDocumentImageCard = ({
         onChange={onChange}
         type="file"
       />
-      {imageUrl && (
-        <Button className="border-none p-0 text-error" fullWidth={false} onClick={onClear} type="button" variant="ghost">
-          Xóa ảnh
-        </Button>
-      )}
+      <div className="flex flex-wrap items-center gap-sm">
+        {imageUrl && (
+          <Button className="border-none p-0 text-error" fullWidth={false} onClick={onClear} type="button" variant="ghost">
+            Xóa ảnh
+          </Button>
+        )}
+        {onAction && actionLabel && (
+          <Button
+            className="inline-flex items-center justify-center gap-xs px-md py-sm"
+            disabled={actionDisabled || actionLoading}
+            fullWidth={false}
+            isLoading={actionLoading}
+            onClick={onAction}
+            type="button"
+            variant="ghost"
+          >
+            <Icon className="text-lg" name="document_scanner" />
+            {actionLabel}
+          </Button>
+        )}
+      </div>
     </div>
   </section>
 )

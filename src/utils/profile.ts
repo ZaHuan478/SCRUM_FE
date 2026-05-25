@@ -42,6 +42,8 @@ export const emptyDoctorReadonlyInfo: DoctorReadonlyInfo = {
 }
 
 const supportedImageTypes = ['image/png', 'image/jpeg', 'image/webp']
+const MAX_PROFILE_IMAGE_WIDTH = 1280
+const PROFILE_IMAGE_QUALITY = 0.78
 
 export const buildProfileForm = (user: User): ProfileFormState => ({
   fullName: user.full_name || '',
@@ -56,19 +58,46 @@ export const buildProfileForm = (user: User): ProfileFormState => ({
   cccdBackImage: user.cccd_back_image || '',
 })
 
+const loadImage = (src: string) => new Promise<HTMLImageElement>((resolve, reject) => {
+  const image = new Image()
+  image.onload = () => resolve(image)
+  image.onerror = () => reject(new Error('Không thể xử lý ảnh.'))
+  image.src = src
+})
+
+const resizeImageDataUrl = async (dataUrl: string) => {
+  const image = await loadImage(dataUrl)
+  const scale = Math.min(MAX_PROFILE_IMAGE_WIDTH / image.width, 1)
+  const width = Math.max(Math.round(image.width * scale), 1)
+  const height = Math.max(Math.round(image.height * scale), 1)
+  const canvas = document.createElement('canvas')
+  const context = canvas.getContext('2d')
+
+  if (!context) return dataUrl
+
+  canvas.width = width
+  canvas.height = height
+  context.drawImage(image, 0, 0, width, height)
+
+  return canvas.toDataURL('image/jpeg', PROFILE_IMAGE_QUALITY)
+}
+
 export const fileToDataUrl = (file: File, imageLabel = 'Ảnh') => new Promise<string>((resolve, reject) => {
   if (!supportedImageTypes.includes(file.type)) {
     reject(new Error('Chỉ hỗ trợ file PNG, JPG hoặc WEBP.'))
     return
   }
 
-  if (file.size > 2 * 1024 * 1024) {
-    reject(new Error(`${imageLabel} không được vượt quá 2MB.`))
+  if (file.size > 8 * 1024 * 1024) {
+    reject(new Error(`${imageLabel} không được vượt quá 8MB.`))
     return
   }
 
   const reader = new FileReader()
-  reader.onload = () => resolve(String(reader.result || ''))
+  reader.onload = () => {
+    const dataUrl = String(reader.result || '')
+    resizeImageDataUrl(dataUrl).then(resolve).catch(reject)
+  }
   reader.onerror = () => reject(new Error('Không thể đọc file ảnh.'))
   reader.readAsDataURL(file)
 })
