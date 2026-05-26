@@ -1,0 +1,17 @@
+services:
+  scrum-fe:
+    image: toandeptroai/scrum-fe:latest
+    pull_policy: always
+    container_name: scrum-fe
+    environment:
+      SCRUM_BE_ORIGIN: ${SCRUM_BE_ORIGIN:-http://scrum-be:3000}
+      CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-100m}
+    ports:
+      - "5173:80"
+    networks:
+      - tonynyan
+    restart: unless-stopped
+
+networks:
+  tonynyan:
+    external: true
