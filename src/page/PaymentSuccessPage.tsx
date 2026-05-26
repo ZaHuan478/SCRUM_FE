@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { getInvoiceByAppointment, type Invoice } from '../api/payment.api'
+import { useParams, useSearchParams } from 'react-router-dom'
+import { getInvoiceByAppointment, getPaymentStatus, type Invoice } from '../api/payment.api'
 import InvoiceButton from '../components/Molecules/Payment/InvoiceButton'
 import TopNavBar from '../components/Organisms/TopNavBar'
 import { useToast } from '../contexts/ToastContext'
@@ -13,6 +13,8 @@ const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
 
 const PaymentSuccessPage = () => {
   const { appointmentId } = useParams()
+  const [searchParams] = useSearchParams()
+  const paymentId = searchParams.get('paymentId')
   const { t } = useTranslation()
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [error, setError] = useState('')
@@ -28,6 +30,10 @@ const PaymentSuccessPage = () => {
 
     const loadInvoice = async () => {
       try {
+        if (paymentId) {
+          await getPaymentStatus(paymentId)
+        }
+
         const nextInvoice = await getInvoiceByAppointment(appointmentId)
         if (!active) return
 
@@ -54,7 +60,7 @@ const PaymentSuccessPage = () => {
       active = false
       if (timeoutId) window.clearTimeout(timeoutId)
     }
-  }, [appointmentId, t, toastError])
+  }, [appointmentId, paymentId, t, toastError])
 
   const payment = invoice?.payment
   const appointment = payment?.appointment
