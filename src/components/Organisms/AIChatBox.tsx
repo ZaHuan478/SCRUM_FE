@@ -9,6 +9,7 @@ import type { User } from '../../services/auth.service'
 import type { AIChatHistoryItem, AIChatMessage } from '../../types/aiChat.types'
 import type { AIChatStreamError } from '../../services/aiChatService'
 import { useTranslation } from '../../contexts/LanguageContext'
+import { OPEN_AI_CHAT_EVENT } from '../../constants/aiChatEvents'
 
 const CHATBOT_ALLOWED_ROLES: Array<User['role']> = ['PATIENT', 'DOCTOR', 'ADMIN']
 
@@ -127,6 +128,18 @@ const AIChatBox = () => {
       setIsExpanded(false)
     }
   }, [isOpen])
+
+  useEffect(() => {
+    const handleOpenChat = () => {
+      setIsOpen(true)
+    }
+
+    window.addEventListener(OPEN_AI_CHAT_EVENT, handleOpenChat)
+
+    return () => {
+      window.removeEventListener(OPEN_AI_CHAT_EVENT, handleOpenChat)
+    }
+  }, [])
 
   const conversationHistory = useMemo<AIChatHistoryItem[]>(() => (
     messages.map((message) => ({

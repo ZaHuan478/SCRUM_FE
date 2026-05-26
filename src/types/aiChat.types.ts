@@ -33,7 +33,7 @@ export type AIChatDoctorRecommendation = {
 }
 
 export type AIChatWarningLevel = 'NORMAL' | 'EMERGENCY'
-export type AIChatIntent = 'DOCUMENT_KNOWLEDGE' | 'DOCTOR_SEARCH'
+export type AIChatIntent = 'DOCUMENT_KNOWLEDGE' | 'DOCTOR_SEARCH' | 'OUT_OF_SCOPE' | 'HOSPITAL_DATA'
 
 export type AIChatDocumentMatch = {
   rank: number
@@ -49,6 +49,7 @@ export type AIChatResponse = {
   recommendations: AIChatRecommendation[]
   doctorRecommendations?: AIChatDoctorRecommendation[]
   documentMatches?: AIChatDocumentMatch[]
+  hospitalData?: unknown
   intent?: AIChatIntent
   warningLevel: AIChatWarningLevel
   matchedSymptoms?: Array<{
@@ -65,6 +66,7 @@ export type AIChatMessage = AIChatHistoryItem & {
   recommendations?: AIChatRecommendation[]
   doctorRecommendations?: AIChatDoctorRecommendation[]
   documentMatches?: AIChatDocumentMatch[]
+  hospitalData?: unknown
   intent?: AIChatIntent
   warningLevel?: AIChatWarningLevel
 }
