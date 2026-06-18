@@ -1,6 +1,7 @@
 import Button from '../../Atoms/Button'
 import Icon from '../../Atoms/Icon'
 import Input from '../../Atoms/Input'
+import ActionMenu from '../../Molecules/Common/ActionMenu'
 import type { Department } from '../../../services/department.service'
 import type { DashboardPagination } from '../../../utils/adminDashboard'
 
@@ -12,13 +13,14 @@ type DepartmentManagementTableProps = {
   status: LoadStatus
   totalDepartments: number
   onCreateDepartment: () => void
+  onDeleteDepartment: (department: Department) => void
   onEditDepartment: (department: Department) => void
   onPageChange: (page: number) => void
   onSearchQueryChange: (query: string) => void
   searchQuery: string
 }
 
-const statusConfig = {
+const statusConfig: Record<Department['status'], { label: string; className: string; dotClassName: string }> = {
   ACTIVE: {
     label: 'Đang hoạt động',
     className: 'bg-emerald-50 text-emerald-700',
@@ -37,6 +39,7 @@ const DepartmentManagementTable = ({
   status,
   totalDepartments,
   onCreateDepartment,
+  onDeleteDepartment,
   onEditDepartment,
   onPageChange,
   onSearchQueryChange,
@@ -60,7 +63,7 @@ const DepartmentManagementTable = ({
             className="py-sm text-body-sm"
             icon="search"
             onChange={(event) => onSearchQueryChange(event.target.value)}
-            placeholder="Tìm kiếm khoa..."
+            placeholder="Tim kiem khoa..."
             type="search"
             value={searchQuery}
             wrapperClassName="w-full sm:w-64"
@@ -116,16 +119,22 @@ const DepartmentManagementTable = ({
                       </span>
                     </td>
                     <td className="px-xl py-lg text-right">
-                      <Button
-                        aria-label={`Sửa ${department.name}`}
-                        className="rounded-full border-none p-sm text-primary shadow-none hover:bg-primary/5"
-                        fullWidth={false}
-                        onClick={() => onEditDepartment(department)}
-                        type="button"
-                        variant="ghost"
-                      >
-                        <Icon name="edit" />
-                      </Button>
+                      <ActionMenu
+                        ariaLabel={`Hành động cho ${department.name}`}
+                        items={[
+                          {
+                            icon: 'edit',
+                            label: 'Sửa',
+                            onClick: () => onEditDepartment(department),
+                          },
+                          {
+                            icon: 'delete',
+                            label: 'Xóa',
+                            tone: 'danger',
+                            onClick: () => onDeleteDepartment(department),
+                          },
+                        ]}
+                      />
                     </td>
                   </tr>
                 )
@@ -136,7 +145,7 @@ const DepartmentManagementTable = ({
       )}
       <div className="flex flex-col justify-between gap-md border-t border-outline-variant/20 bg-surface-container-low p-lg sm:flex-row sm:items-center">
         <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Đang hiển thị {firstItem}-{lastItem} trên {totalDepartments} khoa
+          Dang hien thi {firstItem}-{lastItem} tren {totalDepartments} khoa
         </p>
         <div className="flex items-center gap-sm">
           <Button
@@ -147,7 +156,7 @@ const DepartmentManagementTable = ({
             type="button"
             variant="ghost"
           >
-            Trước
+            Truoc
           </Button>
           <span className="min-w-20 text-center font-label-md text-label-md text-on-surface-variant">
             Trang {pagination.page}/{Math.max(pagination.totalPages, 1)}
@@ -160,7 +169,7 @@ const DepartmentManagementTable = ({
             type="button"
             variant="ghost"
           >
-            Tiếp theo
+            Tiep theo
           </Button>
         </div>
       </div>

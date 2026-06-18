@@ -1,5 +1,6 @@
 import DoctorScheduleDayPicker from '../Organisms/DoctorSchedule/DoctorScheduleDayPicker'
 import DoctorScheduleForm from '../Organisms/DoctorSchedule/DoctorScheduleForm'
+import DoctorAppointmentHistoryPanel from '../Organisms/DoctorSchedule/DoctorAppointmentHistoryPanel'
 import DoctorAppointmentRequestsPanel from '../Organisms/DoctorSchedule/DoctorAppointmentRequestsPanel'
 import DoctorScheduleSlotList from '../Organisms/DoctorSchedule/DoctorScheduleSlotList'
 import DoctorScheduleStatsGrid from '../Organisms/DoctorSchedule/DoctorScheduleStatsGrid'
@@ -16,6 +17,7 @@ type DoctorScheduleTemplateProps = DoctorScheduleState & {
 const DoctorScheduleTemplate = ({
   activeAssignment,
   appointmentActionId,
+  appointments,
   dayAction,
   daySummaryMap,
   doctor,
@@ -100,6 +102,11 @@ const DoctorScheduleTemplate = ({
             void handleConfirmAppointment(appointment)
           }}
           selectedDateLabel={selectedDateLabel}
+        />
+
+        <DoctorAppointmentHistoryPanel
+          appointments={appointments}
+          status={status}
         />
 
         <div className="grid grid-cols-1 items-start gap-xl lg:grid-cols-5">

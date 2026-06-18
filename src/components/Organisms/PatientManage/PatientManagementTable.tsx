@@ -11,6 +11,8 @@ type PatientManagementTableProps = {
   totalPatients: number
   onPageChange: (page: number) => void
   onSearchQueryChange: (query: string) => void
+  onDeletePatient: (patient: PatientManagementRowData) => void
+  onEditPatient: (patient: PatientManagementRowData) => void
   onViewPatient: (patient: PatientManagementRowData) => void
   searchQuery: string
 }
@@ -22,6 +24,8 @@ const PatientManagementTable = ({
   totalPatients,
   onPageChange,
   onSearchQueryChange,
+  onDeletePatient,
+  onEditPatient,
   onViewPatient,
   searchQuery,
 }: PatientManagementTableProps) => {
@@ -75,7 +79,13 @@ const PatientManagementTable = ({
             </thead>
             <tbody className="divide-y divide-outline-variant/10">
               {patients.map((patient) => (
-                <PatientManagementRow key={patient.id} onView={onViewPatient} patient={patient} />
+                <PatientManagementRow
+                  key={patient.id}
+                  onDelete={onDeletePatient}
+                  onEdit={onEditPatient}
+                  onView={onViewPatient}
+                  patient={patient}
+                />
               ))}
             </tbody>
           </table>

@@ -80,7 +80,7 @@ export const getUsers = async (query: UserQuery = {}) => {
   if (query.keyword) params.set('keyword', query.keyword)
 
   const search = params.toString()
-  const data = await apiRequest<UsersResult | User[]>(`/users${search ? `?${search}` : ''}`)
+  const data = await apiRequest<UsersResult | User[]>(`/admin/users${search ? `?${search}` : ''}`)
 
   return normalizeUsersResult(data, query)
 }
@@ -127,9 +127,15 @@ export const changeCurrentUserPassword = (payload: ChangePasswordPayload) =>
   })
 
 export const changeUserStatus = (id: number | string, status: User['status']) =>
-  apiRequest<User>(`/users/${id}/status`, {
+  apiRequest<User>(`/admin/users/${id}/status`, {
     method: 'PATCH',
     body: JSON.stringify({ status }),
+  })
+
+export const changeUserRole = (id: number | string, role: User['role']) =>
+  apiRequest<User>(`/admin/users/${id}/role`, {
+    method: 'PATCH',
+    body: JSON.stringify({ role }),
   })
 
 export const deleteUser = (id: number | string) =>

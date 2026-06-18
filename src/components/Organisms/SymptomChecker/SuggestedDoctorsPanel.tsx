@@ -15,7 +15,7 @@ const SuggestedDoctorsPanel = ({ doctors, status }: SuggestedDoctorsPanelProps) 
 
   return (
     <section className="space-y-xl lg:col-span-8">
-      <div className="flex items-center justify-between gap-md">
+      <div className="flex items-center justify-between gap-md rounded-2xl border border-white/70 bg-surface/72 p-md shadow-sm backdrop-blur-xl">
         <div className="flex items-center gap-md">
           <Icon name="groups" className="text-primary" />
           <h2 className="font-headline-sm text-headline-sm text-on-background">{t('symptomChecker.suggestedDoctors')}</h2>
@@ -27,7 +27,7 @@ const SuggestedDoctorsPanel = ({ doctors, status }: SuggestedDoctorsPanelProps) 
         </Link>
       </div>
       {status === 'loading' && (
-        <p className="rounded-lg border border-outline-variant bg-surface p-md font-body-sm text-body-sm text-on-surface-variant">
+        <p className="rounded-2xl border border-outline-variant/45 bg-surface/78 p-md font-body-sm text-body-sm text-on-surface-variant shadow-sm backdrop-blur-xl">
           {t('symptomChecker.loadingDoctors')}
         </p>
       )}
@@ -44,7 +44,7 @@ const SuggestedDoctorsPanel = ({ doctors, status }: SuggestedDoctorsPanelProps) 
         </div>
       ) : (
         status !== 'loading' && (
-          <p className="rounded-lg border border-outline-variant bg-surface p-lg text-center font-body-md text-body-md text-on-surface-variant">
+          <p className="rounded-2xl border border-outline-variant/45 bg-surface/78 p-lg text-center font-body-md text-body-md text-on-surface-variant shadow-sm backdrop-blur-xl">
             {t('symptomChecker.noDoctorData')}
           </p>
         )

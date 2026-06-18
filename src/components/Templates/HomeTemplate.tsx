@@ -13,8 +13,8 @@ type HomeTemplateProps = {
 
 const HomeTemplate = ({ searchQuery, onSearch }: HomeTemplateProps) => {
   return (
-    <div className="hp-home min-h-screen bg-background text-on-background">
-      <TopNavBar active="homepage" variant="hp" />
+    <div className="hp-home hp-soft-home min-h-screen text-on-background">
+      <TopNavBar active="homepage" variant="softHome" />
       <main>
         <HeroSection onSearch={onSearch} />
         <FeaturedDoctorsSection query={searchQuery} />

@@ -6,6 +6,7 @@ import type { User } from '../../../services/auth.service'
 import type { DashboardPagination } from '../../../utils/adminDashboard'
 
 type UserManagementTableProps = {
+  canManageSystemUsers?: boolean
   users: User[]
   pagination: DashboardPagination
   status: 'loading' | 'ready' | 'error'
@@ -20,31 +21,27 @@ type UserManagementTableProps = {
 }
 
 const roleLabels: Record<User['role'], string> = {
-  ADMIN: 'Quản trị viên',
-  DOCTOR: 'Bác sĩ',
-  PATIENT: 'Bệnh nhân',
-}
-
-const genderLabels: Record<NonNullable<User['gender']>, string> = {
-  MALE: 'Nam',
-  FEMALE: 'Nu',
-  OTHER: 'Khac',
+  ADMIN: 'Admin',
+  DOCTOR: 'Doctor',
+  PATIENT: 'Patient',
+  SUPER_ADMIN: 'Super admin',
 }
 
 const statusConfig: Record<User['status'], { label: string; className: string; dotClassName: string }> = {
   ACTIVE: {
-    label: 'Dang hoat dong',
+    label: 'Active',
     className: 'bg-emerald-50 text-emerald-700',
     dotClassName: 'bg-emerald-500',
   },
   INACTIVE: {
-    label: 'Tam ngung',
+    label: 'Inactive',
     className: 'bg-slate-100 text-slate-600',
     dotClassName: 'bg-slate-400',
   },
 }
 
 const UserManagementTable = ({
+  canManageSystemUsers = false,
   users,
   pagination,
   status,
@@ -66,47 +63,49 @@ const UserManagementTable = ({
     <section className="overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0px_4px_20px_rgba(15,23,42,0.05)]" id="user-management">
       <div className="flex flex-col items-start justify-between gap-lg border-b border-outline-variant/20 p-lg md:flex-row md:items-center md:p-xl">
         <div>
-          <h2 className="font-headline-sm text-headline-sm text-on-surface">Quản lý người dùng</h2>
-          <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">Tạo, cập nhật, khóa và xóa tài khoản trong hệ thống.</p>
+          <h2 className="font-headline-sm text-headline-sm text-on-surface">User Management</h2>
+          <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">Manage accounts, roles, and account status.</p>
         </div>
         <div className="flex w-full flex-col gap-md sm:flex-row md:w-auto md:items-center">
           <Input
-            aria-label="Tìm kiếm người dùng"
+            aria-label="Search users"
             className="py-sm text-body-sm"
             icon="search"
             onChange={(event) => onSearchQueryChange(event.target.value)}
-            placeholder="Tìm kiếm người dùng..."
+            placeholder="Search users..."
             type="search"
             value={searchQuery}
             wrapperClassName="w-full sm:w-64"
           />
-          <Button className="flex items-center gap-xs px-lg py-sm" fullWidth={false} onClick={onCreateUser} type="button">
-            <Icon name="person_add" />
-            Thêm người dùng
-          </Button>
+          {canManageSystemUsers && (
+            <Button className="flex items-center gap-xs px-lg py-sm" fullWidth={false} onClick={onCreateUser} type="button">
+              <Icon name="person_add" />
+              Add user
+            </Button>
+          )}
         </div>
       </div>
 
-      {status === 'loading' && <div className="p-xl font-body-sm text-body-sm text-on-surface-variant">Đang tải danh sách người dùng...</div>}
+      {status === 'loading' && <div className="p-xl font-body-sm text-body-sm text-on-surface-variant">Loading users...</div>}
       {status === 'error' && (
         <div className="m-lg rounded-lg bg-error-container px-md py-sm font-body-sm text-body-sm text-on-error-container">
-          Chưa tải được danh sách người dùng.
+          Unable to load users.
         </div>
       )}
       {status === 'ready' && users.length === 0 && (
-        <div className="p-xl text-center font-body-md text-body-md text-on-surface-variant">Chưa có người dùng nào.</div>
+        <div className="p-xl text-center font-body-md text-body-md text-on-surface-variant">No users found.</div>
       )}
       {users.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="border-b border-outline-variant/20 bg-surface-container-low">
               <tr>
-                <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Người dùng</th>
-                <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Vai trò</th>
-                <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Ngày sinh</th>
+                <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">User</th>
+                <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Role</th>
+                <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Gender</th>
                 <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">CCCD</th>
-                <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Trạng thái</th>
-                <th className="px-xl py-md text-right font-label-md text-label-md text-on-surface-variant">Hành động</th>
+                <th className="px-xl py-md font-label-md text-label-md text-on-surface-variant">Status</th>
+                <th className="px-xl py-md text-right font-label-md text-label-md text-on-surface-variant">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/10">
@@ -117,15 +116,14 @@ const UserManagementTable = ({
                   <tr className="transition-colors hover:bg-surface-container-low" key={user.id}>
                     <td className="px-xl py-lg">
                       <div className="min-w-64">
-                        <p className="font-label-md text-label-md text-on-surface">{user.full_name || 'Chua cap nhat ten'}</p>
+                        <p className="font-label-md text-label-md text-on-surface">{user.full_name || 'No name'}</p>
                         <p className="font-body-sm text-body-sm text-on-surface-variant">{user.email}</p>
-                        <p className="font-body-sm text-body-sm text-on-surface-variant">{user.phone || 'Chua co so dien thoai'}</p>
+                        <p className="font-body-sm text-body-sm text-on-surface-variant">{user.phone || 'No phone'}</p>
                       </div>
                     </td>
                     <td className="px-xl py-lg font-body-sm text-body-sm text-on-surface">{roleLabels[user.role]}</td>
-                    <td className="px-xl py-lg font-body-sm text-body-sm text-on-surface">{user.date_of_birth || 'Chua cap nhat'}</td>
-                    <td className="px-xl py-lg font-body-sm text-body-sm text-on-surface">{user.gender ? genderLabels[user.gender] : 'Chua cap nhat'}</td>
-                    <td className="px-xl py-lg font-body-sm text-body-sm text-on-surface">{user.cccd_number || 'Chua cap nhat'}</td>
+                    <td className="px-xl py-lg font-body-sm text-body-sm text-on-surface">{user.gender || '-'}</td>
+                    <td className="px-xl py-lg font-body-sm text-body-sm text-on-surface">{user.cccd_number || '-'}</td>
                     <td className="px-xl py-lg">
                       <span className={`inline-flex w-fit items-center gap-xs rounded-full px-sm py-xs font-label-sm text-label-sm ${displayStatus.className}`}>
                         <span className={`h-2 w-2 rounded-full ${displayStatus.dotClassName}`} />
@@ -134,24 +132,28 @@ const UserManagementTable = ({
                     </td>
                     <td className="px-xl py-lg text-right">
                       <ActionMenu
-                        ariaLabel={`Hành động cho ${user.email}`}
+                        ariaLabel={`Actions for ${user.email}`}
                         items={[
                           {
                             icon: 'visibility',
-                            label: 'Xem',
+                            label: 'View',
                             onClick: () => onViewUser(user),
                           },
-                          {
-                            icon: 'edit',
-                            label: 'Sửa',
-                            onClick: () => onEditUser(user),
-                          },
-                          {
-                            icon: 'delete',
-                            label: 'Xóa',
-                            tone: 'danger',
-                            onClick: () => onDeleteUser(user),
-                          },
+                          ...(canManageSystemUsers
+                            ? [
+                              {
+                                icon: 'edit',
+                                label: 'Edit',
+                                onClick: () => onEditUser(user),
+                              },
+                              {
+                                icon: 'delete',
+                                label: 'Delete',
+                                tone: 'danger' as const,
+                                onClick: () => onDeleteUser(user),
+                              },
+                            ]
+                            : []),
                         ]}
                       />
                     </td>
@@ -164,7 +166,7 @@ const UserManagementTable = ({
       )}
       <div className="flex flex-col justify-between gap-md border-t border-outline-variant/20 bg-surface-container-low p-lg sm:flex-row sm:items-center">
         <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Đang hiển thị {firstItem}-{lastItem} trên {totalUsers} người dùng
+          Showing {firstItem}-{lastItem} of {totalUsers} users
         </p>
         <div className="flex items-center gap-sm">
           <Button
@@ -175,10 +177,10 @@ const UserManagementTable = ({
             type="button"
             variant="ghost"
           >
-            Truoc
+            Previous
           </Button>
           <span className="min-w-20 text-center font-label-md text-label-md text-on-surface-variant">
-            Trang {pagination.page}/{Math.max(pagination.totalPages, 1)}
+            Page {pagination.page}/{Math.max(pagination.totalPages, 1)}
           </span>
           <Button
             className="px-md py-sm"
@@ -188,7 +190,7 @@ const UserManagementTable = ({
             type="button"
             variant="ghost"
           >
-            Tiep theo
+            Next
           </Button>
         </div>
       </div>

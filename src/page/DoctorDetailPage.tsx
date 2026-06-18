@@ -42,16 +42,16 @@ const DoctorDetailPage = () => {
   } = useDoctorDetail(doctorId)
 
   return (
-    <div className="min-h-screen bg-background text-on-background">
-      <TopNavBar active="doctors" />
-      <main className="mx-auto flex max-w-[1366px] flex-col gap-xl px-lg py-[48px] md:px-xxl md:py-[64px]">
-        <Link className="inline-flex items-center gap-xs self-start font-label-md text-label-md text-primary hover:underline" to="/doctors">
+    <div className="hp-home hp-soft-home min-h-screen text-on-background">
+      <TopNavBar active="doctors" variant="softHome" />
+      <main className="mx-auto flex max-w-[1366px] flex-col gap-xl px-lg pb-[72px] pt-[132px] md:px-xxl md:pb-[96px] md:pt-[152px]">
+        <Link className="inline-flex items-center gap-xs self-start rounded-full border border-outline-variant/45 bg-surface/74 px-md py-sm font-label-md text-label-md text-primary shadow-sm backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:border-primary/45" to="/doctors">
           <Icon name="arrow_back" className="text-[20px]" />
           {t('doctorDetail.back')}
         </Link>
 
         {status === 'loading' && (
-          <section className="rounded-xl border border-outline-variant bg-surface p-xl font-body-md text-body-md text-on-surface-variant">
+          <section className="rounded-2xl border border-outline-variant/45 bg-surface/78 p-xl font-body-md text-body-md text-on-surface-variant shadow-sm backdrop-blur-xl">
             {t('doctorDetail.loading')}
           </section>
         )}
@@ -65,33 +65,40 @@ const DoctorDetailPage = () => {
 
         {status === 'ready' && doctor && (
           <>
-            <section className="grid gap-xl rounded-xl border border-outline-variant bg-surface p-lg shadow-[0_2px_8px_rgba(26,26,26,0.08)] lg:grid-cols-[280px_minmax(0,1fr)] lg:p-xl">
-              <div className="overflow-hidden rounded-xl bg-surface-variant">
+            <section className="grid gap-xl rounded-[2rem] border border-white/70 bg-surface/78 p-lg shadow-[0_26px_70px_rgba(15,23,42,0.10)] backdrop-blur-2xl lg:grid-cols-[320px_minmax(0,1fr)] lg:p-xl">
+              <div className="relative overflow-hidden rounded-[1.75rem] bg-surface-variant shadow-[0_20px_50px_rgba(15,23,42,0.12)]">
                 <Image
                   alt={doctor.user?.full_name || doctor.license_number}
                   className="aspect-[4/5] h-full w-full object-cover"
                   fallbackClassName="aspect-[4/5] h-full w-full"
                   src={doctor.image_url || undefined}
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-on-background/42 via-transparent to-transparent" />
+                <div className="absolute left-md top-md rounded-full bg-surface/88 px-md py-xs font-label-sm text-label-sm text-primary shadow-sm backdrop-blur-xl">
+                  {doctor.status === 'ACTIVE' ? t('doctorDetail.acceptingAppointments') : t('doctorDetail.paused')}
+                </div>
               </div>
               <div className="flex flex-col gap-lg">
                 <div>
-                  <p className="font-label-md text-label-md text-primary">{primarySpecialty}</p>
-                  <h1 className="mt-sm font-headline-lg text-[32px] font-medium leading-none text-on-background sm:text-[40px] md:text-[44px]">
+                  <p className="inline-flex items-center gap-sm font-label-sm text-label-sm uppercase tracking-[0.24em] text-primary">
+                    <span className="h-1 w-10 rounded-full bg-primary" />
+                    {primarySpecialty}
+                  </p>
+                  <h1 className="mt-md font-headline-lg text-[42px] font-semibold uppercase leading-[0.92] text-on-background sm:text-[56px] md:text-[72px]">
                     {doctor.user?.full_name || doctor.license_number}
                   </h1>
-                  <p className="mt-sm max-w-3xl font-body-md text-body-md text-on-surface-variant">
+                  <p className="mt-md max-w-3xl font-body-md text-body-md leading-7 text-on-surface-variant">
                     {doctor.description ? translateDoctorDescription(doctor.description, language) : t('doctorDetail.fallbackDescription')}
                   </p>
                 </div>
                 <div className="grid gap-md sm:grid-cols-4">
-                  <div className="rounded-lg border border-outline-variant bg-surface-container-low p-md">
+                  <div className="rounded-2xl border border-outline-variant/35 bg-primary-fixed/28 p-md shadow-inner">
                     <p className="font-label-sm text-label-sm text-on-surface-variant">{t('doctorDetail.experience')}</p>
                     <p className="mt-xs font-label-md text-label-md text-on-surface">
                       {doctor.experience_years ? t('doctorDetail.yearsShort', { years: doctor.experience_years }) : t('doctorDetail.updating')}
                     </p>
                   </div>
-                  <div className="rounded-lg border border-outline-variant bg-surface-container-low p-md">
+                  <div className="rounded-2xl border border-outline-variant/35 bg-primary-fixed/28 p-md shadow-inner">
                     <p className="font-label-sm text-label-sm text-on-surface-variant">{t('doctorDetail.fee')}</p>
                     <p className="mt-xs font-label-md text-label-md text-on-surface">
                       {doctor.consultation_fee === undefined || doctor.consultation_fee === null || doctor.consultation_fee === ''
@@ -99,13 +106,13 @@ const DoctorDetailPage = () => {
                         : formatFee(doctor.consultation_fee)}
                     </p>
                   </div>
-                  <div className="rounded-lg border border-outline-variant bg-surface-container-low p-md">
+                  <div className="rounded-2xl border border-outline-variant/35 bg-primary-fixed/28 p-md shadow-inner">
                     <p className="font-label-sm text-label-sm text-on-surface-variant">{t('doctorDetail.status')}</p>
                     <p className="mt-xs font-label-md text-label-md text-primary">
                       {doctor.status === 'ACTIVE' ? t('doctorDetail.acceptingAppointments') : t('doctorDetail.paused')}
                     </p>
                   </div>
-                  <div className="rounded-lg border border-outline-variant bg-surface-container-low p-md">
+                  <div className="rounded-2xl border border-outline-variant/35 bg-primary-fixed/28 p-md shadow-inner">
                     <p className="font-label-sm text-label-sm text-on-surface-variant">{t('doctorDetail.reviews')}</p>
                     <p className="mt-xs font-label-md text-label-md text-on-surface">
                       {ratingSummary?.totalRatings
@@ -121,13 +128,13 @@ const DoctorDetailPage = () => {
                 </div>
                 <div className="flex flex-wrap gap-sm">
                   <Link
-                    className="inline-flex min-h-11 items-center justify-center rounded bg-primary px-lg py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-primary transition-colors hover:bg-primary-container"
+                    className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-primary px-lg py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-primary shadow-[0_16px_32px_rgba(2,132,199,0.22)] transition-all hover:-translate-y-0.5 hover:bg-primary-container"
                     to={bookingPath}
                   >
                     {t('doctorDetail.bookAppointment')}
                   </Link>
                   {doctor.user?.phone && (
-                    <a className="inline-flex min-h-11 items-center justify-center rounded border border-outline-variant bg-surface px-lg py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-surface hover:border-primary hover:text-primary" href={`tel:${doctor.user.phone}`}>
+                    <a className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-outline-variant/45 bg-surface/76 px-lg py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-surface shadow-sm backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:border-primary/45 hover:text-primary" href={`tel:${doctor.user.phone}`}>
                       {doctor.user.phone}
                     </a>
                   )}
@@ -135,17 +142,17 @@ const DoctorDetailPage = () => {
               </div>
             </section>
 
-            <section className="rounded-xl border border-outline-variant bg-surface p-lg shadow-[0_2px_8px_rgba(26,26,26,0.08)] lg:p-xl">
-              <div className="mb-lg flex flex-wrap gap-sm border-b border-outline-variant pb-md">
+            <section className="rounded-[2rem] border border-white/70 bg-surface/78 p-lg shadow-[0_22px_58px_rgba(15,23,42,0.10)] backdrop-blur-2xl lg:p-xl">
+              <div className="mb-lg flex flex-wrap gap-sm border-b border-outline-variant/35 pb-md">
                 {[
                   { id: 'biography', label: t('doctorDetail.biographyTab') },
                   { id: 'education', label: t('doctorDetail.educationTab') },
                 ].map((tab) => (
                   <Button
-                    className={`rounded-none border-x-0 border-t-0 px-md py-sm shadow-none ${
+                    className={`rounded-2xl px-md py-sm shadow-none ${
                       activeTab === tab.id
-                        ? 'border-b-2 border-primary text-primary'
-                        : 'border-b-2 border-transparent text-on-surface-variant hover:bg-surface-container-low hover:text-primary'
+                        ? 'border-primary/35 bg-primary-fixed/35 text-primary'
+                        : 'border-transparent text-on-surface-variant hover:bg-primary-fixed/25 hover:text-primary'
                     }`}
                     fullWidth={false}
                     key={tab.id}
@@ -172,7 +179,7 @@ const DoctorDetailPage = () => {
                   <h2 className="font-headline-md text-headline-md text-on-surface">{t('doctorDetail.educationTitle')}</h2>
                   <div className="mt-lg grid gap-md">
                     {educationItems.map((item) => (
-                      <div className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md" key={item.title}>
+                      <div className="rounded-2xl border border-outline-variant/35 bg-surface/70 p-md shadow-sm backdrop-blur-xl" key={item.title}>
                         <h3 className="font-headline-sm text-headline-sm text-on-surface">{item.title}</h3>
                         <p className="mt-sm font-body-md text-body-md text-on-surface-variant">{item.description}</p>
                       </div>
@@ -182,7 +189,7 @@ const DoctorDetailPage = () => {
               )}
             </section>
 
-            <section className="rounded-xl border border-outline-variant bg-surface p-lg shadow-[0_2px_8px_rgba(26,26,26,0.08)] lg:p-xl">
+            <section className="rounded-[2rem] border border-white/70 bg-surface/78 p-lg shadow-[0_22px_58px_rgba(15,23,42,0.10)] backdrop-blur-2xl lg:p-xl">
               <div className="mb-lg flex items-center justify-between gap-md">
                 <h2 className="font-headline-md text-headline-md text-on-surface">{t('doctorDetail.patientReviews')}</h2>
                 <span className="font-body-sm text-body-sm text-on-surface-variant">
@@ -203,7 +210,7 @@ const DoctorDetailPage = () => {
 
             <section>
               {!currentUser && (
-                <div className="rounded-xl border border-outline-variant bg-surface p-lg shadow-[0_2px_8px_rgba(26,26,26,0.08)]">
+                <div className="rounded-[2rem] border border-white/70 bg-surface/78 p-lg shadow-[0_22px_58px_rgba(15,23,42,0.10)] backdrop-blur-2xl">
                   <p className="font-body-md text-body-md text-on-surface-variant">
                     {t('doctorDetail.loginToReview')}
                   </p>

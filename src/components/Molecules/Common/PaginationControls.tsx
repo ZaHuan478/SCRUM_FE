@@ -41,14 +41,14 @@ const PaginationControls = ({
     const pageNumbers = getPageNumbers(safePage, safeTotalPages)
 
     return (
-        <div className="flex flex-col gap-md bg-transparent py-md md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-md rounded-2xl border border-white/60 bg-surface/60 px-md py-md shadow-sm backdrop-blur-xl md:flex-row md:items-center md:justify-between">
             <p className="font-body-sm text-body-sm text-on-surface-variant">
                 {t('common.showingRange', { first: firstItem, last: lastItem, total: totalItems, itemLabel })}
             </p>
 
             <div className="flex flex-wrap items-center gap-xs">
                 <button
-                    className="inline-flex min-h-10 items-center gap-xs rounded border border-outline-variant bg-surface px-sm py-xs font-label-md text-label-md text-on-surface transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex min-h-10 items-center gap-xs rounded-xl border border-outline-variant/45 bg-surface/76 px-sm py-xs font-label-md text-label-md text-on-surface shadow-sm transition-colors hover:border-primary/45 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
                     disabled={!hasPreviousPage || isLoading}
                     onClick={() => onPageChange(safePage - 1)}
                     type="button"
@@ -65,8 +65,8 @@ const PaginationControls = ({
                             aria-current={isActive ? 'page' : undefined}
                             className={
                                 isActive
-                                    ? 'h-10 min-w-10 rounded border border-primary bg-primary px-sm font-label-md text-label-md text-on-primary'
-                                    : 'h-10 min-w-10 rounded border border-outline-variant bg-surface px-sm font-label-md text-label-md text-on-surface transition-colors hover:border-primary hover:text-primary'
+                                    ? 'h-10 min-w-10 rounded-xl border border-primary bg-primary px-sm font-label-md text-label-md text-on-primary shadow-[0_10px_20px_rgba(2,132,199,0.18)]'
+                                    : 'h-10 min-w-10 rounded-xl border border-outline-variant/45 bg-surface/76 px-sm font-label-md text-label-md text-on-surface shadow-sm transition-colors hover:border-primary/45 hover:text-primary'
                             }
                             disabled={isLoading}
                             key={pageNumber}
@@ -79,7 +79,7 @@ const PaginationControls = ({
                 })}
 
                 <button
-                    className="inline-flex min-h-10 items-center gap-xs rounded border border-outline-variant bg-surface px-sm py-xs font-label-md text-label-md text-on-surface transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex min-h-10 items-center gap-xs rounded-xl border border-outline-variant/45 bg-surface/76 px-sm py-xs font-label-md text-label-md text-on-surface shadow-sm transition-colors hover:border-primary/45 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
                     disabled={!hasNextPage || isLoading}
                     onClick={() => onPageChange(safePage + 1)}
                     type="button"

@@ -1,6 +1,6 @@
 import { apiRequest } from '../api/client'
 
-export type UserRole = 'PATIENT' | 'DOCTOR' | 'ADMIN'
+export type UserRole = 'PATIENT' | 'DOCTOR' | 'ADMIN' | 'SUPER_ADMIN'
 export type UserGender = 'MALE' | 'FEMALE' | 'OTHER'
 
 export type User = {

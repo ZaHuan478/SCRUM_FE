@@ -19,10 +19,10 @@ const SearchPanel = ({ onSearch }: SearchPanelProps) => {
 
   return (
     <form
-      className="flex max-w-2xl flex-col gap-sm rounded border border-outline-variant bg-surface p-sm md:flex-row"
+      className="flex flex-col gap-sm rounded-2xl border border-white/65 bg-surface/74 p-sm shadow-[0_20px_55px_rgba(15,23,42,0.10)] backdrop-blur-2xl md:flex-row"
       onSubmit={handleSubmit}
     >
-      <div className="flex flex-grow items-center gap-sm border-b border-outline-variant px-md py-sm md:border-b-0 md:border-r">
+      <div className="flex flex-grow items-center gap-sm border-b border-outline-variant/35 px-md py-sm md:border-b-0 md:border-r">
         <Icon name="search" className="text-outline" />
         <Input
           aria-label={t('home.hero.searchAria')}
@@ -35,7 +35,7 @@ const SearchPanel = ({ onSearch }: SearchPanelProps) => {
         />
       </div>
       <button
-        className="inline-flex min-h-11 w-full items-center justify-center gap-sm rounded bg-primary px-xl py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-primary transition-colors hover:bg-primary-container md:w-auto"
+        className="inline-flex min-h-11 w-full items-center justify-center gap-sm rounded-xl bg-primary px-xl py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-primary shadow-[0_12px_24px_rgba(2,132,199,0.20)] transition-all hover:-translate-y-0.5 hover:bg-primary-container md:w-auto"
         type="submit"
       >
         <span>{t('home.hero.searchButton')}</span>

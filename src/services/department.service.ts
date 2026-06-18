@@ -57,3 +57,8 @@ export const updateDepartment = (id: number | string, payload: DepartmentPayload
     method: 'PUT',
     body: JSON.stringify(payload),
   })
+
+export const deleteDepartment = (id: number | string) =>
+  apiRequest<Record<string, never>>(`/departments/${id}`, {
+    method: 'DELETE',
+  })

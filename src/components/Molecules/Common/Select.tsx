@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent, ReactNode } from 'react'
 import Icon from '../../Atoms/Icon'
 
@@ -7,6 +7,15 @@ export type SelectOption = {
   value: string
   disabled?: boolean
 }
+
+const normalizeSearchText = (value: string) => (
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+)
 
 type SelectProps = {
   className?: string
@@ -17,6 +26,9 @@ type SelectProps = {
   name?: string
   options: SelectOption[]
   required?: boolean
+  searchable?: boolean
+  searchPlaceholder?: string
+  emptySearchMessage?: string
   title?: string
   value: string
   wrapperClassName?: string
@@ -32,6 +44,9 @@ const Select = ({
   name,
   options,
   required = false,
+  searchable = false,
+  searchPlaceholder = 'Search...',
+  emptySearchMessage = 'No matching options',
   title,
   value,
   wrapperClassName = '',
@@ -42,33 +57,32 @@ const Select = ({
   const menuId = `${selectId}-menu`
   const selectedOption = options.find((option) => option.value === value) || options[0]
   const [open, setOpen] = useState(false)
-  const [menuStyle, setMenuStyle] = useState({ left: 0, top: 0, width: 0 })
-  const buttonRef = useRef<HTMLButtonElement>(null)
+  const [searchTerm, setSearchTerm] = useState('')
   const rootRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  const filteredOptions = useMemo(() => {
+    if (!searchable || !searchTerm.trim()) return options
+
+    const normalizedSearchTerm = normalizeSearchText(searchTerm.trim())
+
+    return options.filter((option) => (
+      normalizeSearchText(String(option.label)).includes(normalizedSearchTerm)
+    ))
+  }, [options, searchable, searchTerm])
 
   useEffect(() => {
-    if (!open) return undefined
-
-    const updateMenuPosition = () => {
-      const rect = buttonRef.current?.getBoundingClientRect()
-      if (!rect) return
-
-      setMenuStyle({
-        left: rect.left,
-        top: rect.bottom + 4,
-        width: rect.width,
-      })
+    if (!open) {
+      setSearchTerm('')
+      return undefined
     }
 
-    updateMenuPosition()
-    window.addEventListener('resize', updateMenuPosition)
-    window.addEventListener('scroll', updateMenuPosition, true)
-
-    return () => {
-      window.removeEventListener('resize', updateMenuPosition)
-      window.removeEventListener('scroll', updateMenuPosition, true)
+    if (searchable) {
+      window.setTimeout(() => searchInputRef.current?.focus(), 0)
     }
-  }, [open])
+
+    return undefined
+  }, [open, searchable])
 
   useEffect(() => {
     if (!open) return undefined
@@ -89,6 +103,7 @@ const Select = ({
     if (!nextOption || nextOption.disabled) return
 
     onChange(nextValue)
+    setSearchTerm('')
     setOpen(false)
   }
 
@@ -120,7 +135,7 @@ const Select = ({
   }
 
   return (
-    <div className={`relative space-y-xs ${wrapperClassName}`} ref={rootRef}>
+    <div className={`relative space-y-xs ${open ? 'z-[600]' : 'z-0'} ${wrapperClassName}`} ref={rootRef}>
       {label && (
         <label className="font-label-md text-label-md text-on-surface" htmlFor={selectId}>
           {label}
@@ -130,12 +145,11 @@ const Select = ({
         aria-controls={menuId}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className={`flex w-full items-center justify-between gap-sm rounded-xl border border-outline-variant bg-surface-container-lowest px-md py-md font-body-md text-body-md text-on-surface shadow-sm outline-none transition-all hover:bg-surface-container-high focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-surface-container-low disabled:text-on-surface-variant ${className}`}
+        className={`flex w-full items-center justify-between gap-sm rounded-xl border border-outline-variant/70 bg-surface/85 px-md py-md font-body-md text-body-md text-on-surface shadow-sm backdrop-blur outline-none transition-all hover:border-primary/40 hover:bg-surface focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-surface-container-low disabled:text-on-surface-variant ${className}`}
         disabled={disabled}
         id={selectId}
         onClick={() => setOpen((current) => !current)}
         onKeyDown={handleKeyDown}
-        ref={buttonRef}
         title={title}
         type="button"
       >
@@ -145,32 +159,52 @@ const Select = ({
       {name && <input name={name} type="hidden" value={value} />}
       {open && (
         <div
-          className={`fixed z-[120] max-h-64 overflow-y-auto rounded-xl border border-outline-variant/50 bg-surface-container-lowest p-xs shadow-[0_18px_40px_rgba(15,23,42,0.18)] ${menuClassName}`}
+          className={`absolute left-0 top-[calc(100%+0.35rem)] z-[700] w-full rounded-xl border border-white/60 bg-surface/95 p-xs shadow-[0_22px_55px_rgba(15,23,42,0.16)] backdrop-blur-2xl ${menuClassName}`}
           id={menuId}
-          role="listbox"
-          style={menuStyle}
         >
-          {options.map((option) => {
-            const selected = option.value === value
+          {searchable && (
+            <div className="sticky top-0 z-10 bg-surface/90 p-xs backdrop-blur">
+              <div className="relative">
+                <Icon className="absolute left-sm top-1/2 -translate-y-1/2 text-lg text-outline" name="search" />
+                <input
+                  className="h-10 w-full rounded-lg border border-outline-variant/70 bg-surface/90 py-xs pl-xl pr-sm font-body-sm text-body-sm text-on-surface outline-none placeholder:text-outline focus:border-primary focus:ring-4 focus:ring-primary/10"
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  placeholder={searchPlaceholder}
+                  ref={searchInputRef}
+                  type="search"
+                  value={searchTerm}
+                />
+              </div>
+            </div>
+          )}
+          <div className="max-h-64 overflow-y-auto" role="listbox">
+            {filteredOptions.length === 0 && (
+              <p className="px-sm py-md text-center font-body-sm text-body-sm text-on-surface-variant">
+                {emptySearchMessage}
+              </p>
+            )}
+            {filteredOptions.map((option) => {
+              const selected = option.value === value
 
-            return (
-              <button
-                aria-selected={selected}
-                className={`flex w-full items-center rounded-lg px-sm py-sm text-left font-body-md text-body-md transition-colors ${
-                  selected
-                    ? 'bg-primary text-on-primary'
-                    : 'text-on-surface hover:bg-surface-container-high'
-                } disabled:cursor-not-allowed disabled:opacity-50`}
-                disabled={option.disabled}
-                key={option.value}
-                onClick={() => selectValue(option.value)}
-                role="option"
-                type="button"
-              >
-                <span className="min-w-0 truncate">{option.label}</span>
-              </button>
-            )
-          })}
+              return (
+                <button
+                  aria-selected={selected}
+                  className={`flex w-full items-center rounded-lg px-sm py-sm text-left font-body-md text-body-md transition-colors ${
+                    selected
+                      ? 'bg-primary text-on-primary'
+                      : 'text-on-surface hover:bg-primary-fixed/35'
+                  } disabled:cursor-not-allowed disabled:opacity-50`}
+                  disabled={option.disabled}
+                  key={option.value}
+                  onClick={() => selectValue(option.value)}
+                  role="option"
+                  type="button"
+                >
+                  <span className="min-w-0 truncate">{option.label}</span>
+                </button>
+              )
+            })}
+          </div>
         </div>
       )}
       {required && !value && <input className="sr-only" readOnly required tabIndex={-1} value="" />}

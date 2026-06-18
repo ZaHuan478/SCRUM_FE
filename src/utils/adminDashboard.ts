@@ -296,6 +296,7 @@ export const mapDoctors = (
 export const mapPatients = (patientsResult?: PatientsResult): PatientManagementRowData[] => (
   (patientsResult?.patients || []).map((patient) => ({
     id: patient.id,
+    userId: patient.user_id,
     name: patient.user?.full_name || `BN-${patient.id}`,
     email: patient.user?.email,
     phone: patient.user?.phone,

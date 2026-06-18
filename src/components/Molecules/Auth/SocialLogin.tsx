@@ -22,7 +22,7 @@ export const SocialLogin = ({ remember = true, onError }: SocialLoginProps) => {
     try {
       const session = await loginWithGoogle({ credential })
       saveAuthSession(session, remember)
-      navigate(session.user.role === 'ADMIN' ? '/admin' : '/')
+      navigate(session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN' ? '/admin' : '/')
     } catch (requestError) {
       const message = requestError instanceof Error ? requestError.message : t('auth.googleLoginFailed')
       onError?.(message)

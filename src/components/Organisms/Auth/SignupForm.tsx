@@ -106,7 +106,13 @@ const SignupForm = () => {
           type="tel"
           value={phone}
         />
-        <GenderSelect id="signup-gender" name="gender" onChange={setGender} value={gender} />
+        <GenderSelect 
+          className="min-h-11 rounded bg-surface py-sm shadow-none focus:border-on-surface focus:ring-0"
+          id="signup-gender" 
+          name="gender" 
+          onChange={setGender} 
+          value={gender} 
+        />
         <Input
           autoComplete="email"
           icon="mail"

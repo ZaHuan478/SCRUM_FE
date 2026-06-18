@@ -23,6 +23,7 @@ export type UserFormValues = {
 }
 
 type UserEditModalProps = {
+  canManageAdmins?: boolean
   error?: string
   isSaving: boolean
   onClose: () => void
@@ -49,6 +50,7 @@ const fileToDataUrl = (file: File) => new Promise<string>((resolve, reject) => {
 })
 
 const UserEditModal = ({
+  canManageAdmins = false,
   error,
   isSaving,
   onClose,
@@ -90,6 +92,7 @@ const UserEditModal = ({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    const submittedRole = !canManageAdmins && role === 'ADMIN' ? 'PATIENT' : role
     onSubmit({
       fullName: fullName.trim(),
       email: email.trim(),
@@ -100,7 +103,7 @@ const UserEditModal = ({
       cccdNumber: cccdNumber.trim(),
       cccdFrontImage,
       cccdBackImage,
-      role,
+      role: submittedRole,
       status,
     })
   }
@@ -139,21 +142,27 @@ const UserEditModal = ({
           )}
 
           <div className="grid grid-cols-1 gap-lg md:grid-cols-2">
-            <Input id="user-full-name" label="Ho ten" onChange={(event) => setFullName(event.target.value)} type="text" value={fullName} />
+            <Input id="user-full-name" label="Họ và tên" onChange={(event) => setFullName(event.target.value)} type="text" value={fullName} />
             <Input id="user-email" label="Email" onChange={(event) => setEmail(event.target.value)} required type="email" value={email} />
             {!isEditing && (
-              <Input id="user-password" label="Mat khau" onChange={(event) => setPassword(event.target.value)} required type="password" value={password} />
+              <Input id="user-password" label="Mật khẩu" onChange={(event) => setPassword(event.target.value)} required type="password" value={password} />
             )}
-            <Input id="user-phone" label="So dien thoai" onChange={(event) => setPhone(event.target.value)} type="tel" value={phone} />
-            <Input id="user-date-of-birth" label="Ngay sinh" onChange={(event) => setDateOfBirth(event.target.value)} type="date" value={dateOfBirth} />
-            <GenderSelect id="user-gender" onChange={setGender} value={gender} />
-            <Input id="user-cccd-number" label="So CCCD" onChange={(event) => setCccdNumber(event.target.value)} type="text" value={cccdNumber} />
+            <Input id="user-phone" label="Số điện thoại" onChange={(event) => setPhone(event.target.value)} type="tel" value={phone} />
+            <Input id="user-date-of-birth" label="Ngày sinh" onChange={(event) => setDateOfBirth(event.target.value)} type="date" value={dateOfBirth} />
+            <GenderSelect
+              className="min-h-11 rounded bg-surface py-sm shadow-none focus:border-on-surface focus:ring-0"
+              id="user-gender"
+              onChange={setGender}
+              value={gender}
+            />
+            <Input id="user-cccd-number" label="Số CCCD" onChange={(event) => setCccdNumber(event.target.value)} type="text" value={cccdNumber} />
           </div>
 
           <div className="grid grid-cols-1 gap-lg md:grid-cols-2">
             <Select
+              className="min-h-11 rounded bg-surface py-sm shadow-none focus:border-on-surface focus:ring-0"
               id="user-role"
-              label="Vai tro"
+              label="Vai trò"
               onChange={(nextValue) => setRole(nextValue as UserRole)}
               options={[
                 { label: 'Bệnh nhân', value: 'PATIENT' },
@@ -163,8 +172,9 @@ const UserEditModal = ({
               value={role}
             />
             <Select
+              className="min-h-11 rounded bg-surface py-sm shadow-none focus:border-on-surface focus:ring-0"
               id="user-status"
-              label="Trang thai"
+              label="Trạng thái"
               onChange={(nextValue) => setStatus(nextValue as User['status'])}
               options={[
                 { label: 'Đang hoạt động', value: 'ACTIVE' },
@@ -183,7 +193,7 @@ const UserEditModal = ({
               <input accept="image/*" className="w-full font-body-sm text-body-sm text-on-surface-variant" onChange={(event) => void handleImageChange(event, setCccdFrontImage)} type="file" />
               {cccdFrontImage && (
                 <Button className="px-md py-sm text-error" fullWidth={false} onClick={() => setCccdFrontImage('')} type="button" variant="ghost">
-                  Xoa anh
+                  Xóa ảnh
                 </Button>
               )}
             </div>
@@ -195,7 +205,7 @@ const UserEditModal = ({
               <input accept="image/*" className="w-full font-body-sm text-body-sm text-on-surface-variant" onChange={(event) => void handleImageChange(event, setCccdBackImage)} type="file" />
               {cccdBackImage && (
                 <Button className="px-md py-sm text-error" fullWidth={false} onClick={() => setCccdBackImage('')} type="button" variant="ghost">
-                  Xoa anh
+                  Xóa ảnh
                 </Button>
               )}
             </div>

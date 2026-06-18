@@ -9,6 +9,7 @@ import DoctorManagementTable from '../Organisms/DoctorManage/DoctorManagementTab
 import HospitalDocumentManager from '../Organisms/HospitalDocuments/HospitalDocumentManager'
 import PatientManagementTable from '../Organisms/PatientManage/PatientManagementTable'
 import SymptomRuleManagementTable from '../Organisms/SymptomRules/SymptomRuleManagementTable'
+import SystemLogsPanel from '../Organisms/SystemLogs/SystemLogsPanel'
 import UserManagementTable from '../Organisms/UserManage/UserManagementTable'
 import type { AnalyticsPoint } from '../Organisms/Dashboard/AppointmentAnalyticsSection'
 import type { DashboardStat } from '../Molecules/Dashboard/DashboardStatCard'
@@ -20,7 +21,7 @@ import type { Department } from '../../services/department.service'
 import type { DepartmentSymptomRule } from '../../services/departmentSymptomRule.service'
 import type { DashboardPagination } from '../../utils/adminDashboard'
 
-type DashboardSection = 'overview' | 'departments' | 'doctors' | 'appointments' | 'patients' | 'symptom-rules' | 'users' | 'hospital-documents'
+type DashboardSection = 'overview' | 'departments' | 'doctors' | 'appointments' | 'patients' | 'symptom-rules' | 'users' | 'admins' | 'hospital-documents' | 'system-logs' | 'system-settings'
 
 const getDashboardSection = (pathname: string): DashboardSection => {
   if (pathname.endsWith('/departments')) return 'departments'
@@ -29,7 +30,10 @@ const getDashboardSection = (pathname: string): DashboardSection => {
   if (pathname.endsWith('/patients')) return 'patients'
   if (pathname.endsWith('/symptom-rules')) return 'symptom-rules'
   if (pathname.endsWith('/users')) return 'users'
+  if (pathname.endsWith('/admins')) return 'admins'
   if (pathname.endsWith('/hospital-documents')) return 'hospital-documents'
+  if (pathname.endsWith('/system-logs')) return 'system-logs'
+  if (pathname.endsWith('/system-settings')) return 'system-settings'
 
   return 'overview'
 }
@@ -37,6 +41,7 @@ const getDashboardSection = (pathname: string): DashboardSection => {
 type DashboardTemplateProps = {
   analyticsData: AnalyticsPoint[]
   analyticsStatus: 'loading' | 'ready' | 'error'
+  currentUserRole: 'ADMIN' | 'SUPER_ADMIN'
   departments: Department[]
   departmentPagination: DashboardPagination
   departmentStatus: 'loading' | 'ready' | 'error'
@@ -71,6 +76,9 @@ type DashboardTemplateProps = {
   onCreateDoctor: () => void
   onCreateDepartment: () => void
   onCreateSymptomRule: () => void
+  onDeleteDepartment: (department: Department) => void
+  onDeleteDoctor: (doctor: DoctorManagementRowData) => void
+  onDeletePatient: (patient: PatientManagementRowData) => void
   onDeleteSymptomRule: (rule: DepartmentSymptomRule) => void
   onEditDepartment: (department: Department) => void
   onLogout: () => void
@@ -86,6 +94,8 @@ type DashboardTemplateProps = {
   onUserPageChange: (page: number) => void
   onUserSearchQueryChange: (query: string) => void
   onEditDoctor: (doctor: DoctorManagementRowData) => void
+  onEditPatient: (patient: PatientManagementRowData) => void
+  onScheduleDoctor: (doctor: DoctorManagementRowData) => void
   onEditSymptomRule: (rule: DepartmentSymptomRule) => void
   onCreateUser: () => void
   onDeleteUser: (user: User) => void
@@ -101,6 +111,7 @@ type DashboardTemplateProps = {
 const DashboardTemplate = ({
   analyticsData,
   analyticsStatus,
+  currentUserRole,
   departments,
   departmentPagination,
   departmentStatus,
@@ -135,6 +146,9 @@ const DashboardTemplate = ({
   onCreateDoctor,
   onCreateDepartment,
   onCreateSymptomRule,
+  onDeleteDepartment,
+  onDeleteDoctor,
+  onDeletePatient,
   onDeleteSymptomRule,
   onEditDepartment,
   onLogout,
@@ -150,6 +164,8 @@ const DashboardTemplate = ({
   onUserPageChange,
   onUserSearchQueryChange,
   onEditDoctor,
+  onEditPatient,
+  onScheduleDoctor,
   onEditSymptomRule,
   onCreateUser,
   onDeleteUser,
@@ -165,11 +181,11 @@ const DashboardTemplate = ({
   const activeSection = getDashboardSection(location.pathname)
 
   return (
-    <div className="flex min-h-screen bg-background text-on-background">
-      <DashboardSideNav onLogout={onLogout} />
+    <div className="scrum-dashboard-shell flex min-h-screen text-on-background">
+      <DashboardSideNav currentUserRole={currentUserRole} onLogout={onLogout} />
       <div className="flex min-w-0 flex-grow flex-col">
-        <DashboardTopBar onLogout={onLogout} />
-        <main className="mx-auto flex w-full max-w-[1366px] flex-grow flex-col gap-xxl px-lg py-lg md:px-xxl md:py-xxl">
+        <DashboardTopBar currentUserRole={currentUserRole} onLogout={onLogout} />
+        <main className="mx-auto flex w-full max-w-[1366px] flex-grow flex-col gap-xl px-lg py-lg md:px-xxl md:py-xxl">
           {activeSection === 'overview' && (
             <>
               <DashboardStatsGrid stats={stats} status={statsStatus} />
@@ -184,6 +200,7 @@ const DashboardTemplate = ({
           {activeSection === 'departments' && (
             <DepartmentManagementTable
               departments={departments}
+              onDeleteDepartment={onDeleteDepartment}
               onPageChange={onDepartmentPageChange}
               onCreateDepartment={onCreateDepartment}
               onEditDepartment={onEditDepartment}
@@ -197,9 +214,11 @@ const DashboardTemplate = ({
           {activeSection === 'doctors' && (
             <DoctorManagementTable
               doctors={doctors}
+              onDeleteDoctor={onDeleteDoctor}
               onCreateDoctor={onCreateDoctor}
               onEditDoctor={onEditDoctor}
               onPageChange={onDoctorPageChange}
+              onScheduleDoctor={onScheduleDoctor}
               onSearchQueryChange={onDoctorSearchQueryChange}
               onViewDoctor={onViewDoctor}
               pagination={doctorPagination}
@@ -236,6 +255,8 @@ const DashboardTemplate = ({
           )}
           {activeSection === 'patients' && (
             <PatientManagementTable
+              onDeletePatient={onDeletePatient}
+              onEditPatient={onEditPatient}
               onPageChange={onPatientPageChange}
               onSearchQueryChange={onPatientSearchQueryChange}
               onViewPatient={onViewPatient}
@@ -248,6 +269,7 @@ const DashboardTemplate = ({
           )}
           {activeSection === 'users' && (
             <UserManagementTable
+              canManageSystemUsers={currentUserRole === 'SUPER_ADMIN'}
               onCreateUser={onCreateUser}
               onDeleteUser={onDeleteUser}
               onEditUser={onEditUser}
@@ -261,7 +283,30 @@ const DashboardTemplate = ({
               users={users}
             />
           )}
+          {activeSection === 'admins' && (
+            <UserManagementTable
+              canManageSystemUsers={currentUserRole === 'SUPER_ADMIN'}
+              onCreateUser={onCreateUser}
+              onDeleteUser={onDeleteUser}
+              onEditUser={onEditUser}
+              onPageChange={onUserPageChange}
+              onSearchQueryChange={onUserSearchQueryChange}
+              onViewUser={onViewUser}
+              pagination={userPagination}
+              searchQuery={userSearchQuery}
+              status={userStatus}
+              totalUsers={users.filter((user) => user.role === 'ADMIN').length}
+              users={users.filter((user) => user.role === 'ADMIN')}
+            />
+          )}
           {activeSection === 'hospital-documents' && <HospitalDocumentManager />}
+          {activeSection === 'system-logs' && <SystemLogsPanel />}
+          {activeSection === 'system-settings' && (
+            <section className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)]">
+              <h2 className="font-headline-sm text-headline-sm text-on-surface">System Settings</h2>
+              <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">System configuration can be connected here when backend settings are available.</p>
+            </section>
+          )}
         </main>
       </div>
     </div>

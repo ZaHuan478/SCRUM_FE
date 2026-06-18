@@ -47,13 +47,18 @@ const PatientAppointmentsTemplate = ({
   upcomingDays,
   user,
 }: PatientAppointmentsTemplateProps) => (
-  <div className="min-h-screen bg-background text-on-background">
-    <TopNavBar active="doctors" />
-    <main className="mx-auto flex w-full max-w-[1366px] flex-col gap-xl px-lg py-xl md:px-xxl md:py-xxl">
-      <section className="rounded-xl border border-outline-variant bg-surface p-xl shadow-[0_2px_8px_rgba(26,26,26,0.08)]">
-        <p className="font-label-md text-label-md text-primary">Dành cho bệnh nhân</p>
-        <h1 className="mt-sm font-headline-lg text-[32px] font-medium leading-none text-on-background sm:text-[40px] md:text-[44px]">Đặt lịch hẹn</h1>
-        <p className="max-w-3xl font-body-md text-body-md text-on-surface-variant">
+  <div className="hp-home hp-soft-home min-h-screen text-on-background">
+    <TopNavBar active="doctors" variant="softHome" />
+    <main className="mx-auto flex w-full max-w-[1366px] flex-col gap-xl px-lg pb-[72px] pt-[132px] md:px-xxl md:pb-[96px] md:pt-[152px]">
+      <section className="rounded-[2rem] border border-white/70 bg-surface/78 p-lg shadow-[0_26px_70px_rgba(15,23,42,0.10)] backdrop-blur-2xl md:p-xl">
+        <p className="inline-flex items-center gap-sm font-label-sm text-label-sm uppercase tracking-[0.32em] text-on-surface-variant">
+          <span className="h-1 w-10 rounded-full bg-primary" />
+          Dành cho bệnh nhân
+        </p>
+        <h1 className="mt-md font-headline-lg text-[42px] font-semibold uppercase leading-[0.92] text-on-background sm:text-[56px] md:text-[72px]">
+          Đặt lịch hẹn
+        </h1>
+        <p className="mt-md max-w-3xl font-body-md text-body-md leading-7 text-on-surface-variant">
           Chọn khung giờ còn trống với bác sĩ phù hợp, sau đó theo dõi trạng thái lịch hẹn đã đặt ngay tại đây.
         </p>
       </section>
@@ -104,10 +109,10 @@ const PatientAppointmentsTemplate = ({
             status={appointmentStatus}
           />
         ) : (
-          <aside className="rounded-lg border border-outline-variant bg-surface p-lg shadow-[0_2px_8px_rgba(26,26,26,0.08)] lg:col-span-5">
+          <aside className="rounded-[2rem] border border-white/70 bg-surface/78 p-lg shadow-[0_22px_58px_rgba(15,23,42,0.10)] backdrop-blur-2xl lg:col-span-5">
             <h2 className="font-headline-sm text-headline-sm text-on-surface">Gửi đặt lịch</h2>
             <p className="mt-sm font-body-sm text-body-sm text-on-surface-variant">
-              Bạn có thể xem lịch khám trống gần nhất ngay tại đây. Để gửi yêu cầu đặt lịch và theo dõi lịch hẹn, hãy đăng nhập bằng tài khoản bệnh nhân.
+              Bạn có thể xem lịch khám trống gần nhất tại đây. Để gửi yêu cầu đặt lịch và theo dõi lịch hẹn, hãy đăng nhập bằng tài khoản bệnh nhân.
             </p>
           </aside>
         )}

@@ -12,7 +12,7 @@ const SuggestedDepartmentsPanel = ({ departments }: SuggestedDepartmentsPanelPro
 
   return (
     <aside className="space-y-xl lg:col-span-4">
-      <div className="flex items-center gap-md">
+      <div className="flex items-center gap-md rounded-2xl border border-white/70 bg-surface/72 p-md shadow-sm backdrop-blur-xl">
         <Icon name="clinical_notes" className="text-primary" />
         <h2 className="font-headline-sm text-headline-sm text-on-background">{t('symptomChecker.suggestedDepartments')}</h2>
       </div>
@@ -22,7 +22,7 @@ const SuggestedDepartmentsPanel = ({ departments }: SuggestedDepartmentsPanelPro
             <SuggestedDepartmentCard department={department} key={department.title} />
           ))
         ) : (
-          <p className="rounded-lg border border-outline-variant bg-surface p-lg font-body-md text-body-md text-on-surface-variant">
+          <p className="rounded-2xl border border-outline-variant/45 bg-surface/78 p-lg font-body-md text-body-md text-on-surface-variant shadow-sm backdrop-blur-xl">
             {t('symptomChecker.noDepartmentData')}
           </p>
         )}

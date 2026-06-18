@@ -54,7 +54,7 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
     setApiStatus('loading')
 
     getDoctors({
-      limit: keyword ? 12 : 4,
+      limit: keyword ? 12 : 3,
       keyword: keyword || undefined,
       status: 'ACTIVE',
     })
@@ -77,14 +77,17 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
   }, [language, query])
 
   return (
-    <section className="mx-auto max-w-[1366px] bg-background px-lg py-[56px] md:px-xxl md:py-[80px]" id="featured-doctors">
-      <div className="mb-xxl flex flex-col justify-between gap-md md:flex-row md:items-end">
-        <div>
-          <h2 className="mb-sm font-headline-lg text-[32px] font-medium leading-none tracking-normal text-on-background sm:text-[40px] md:text-[44px]">{t('home.featuredDoctors.title')}</h2>
-          <p className="font-body-md text-body-md text-on-surface-variant"></p>
+    <section className="mx-auto max-w-[1366px] px-lg py-[56px] md:px-xxl md:py-[88px]" id="featured-doctors">
+      <div className="mb-xxl flex flex-col items-start justify-between gap-md md:flex-row md:items-end">
+        <div className="max-w-2xl">
+          <span className="mb-md inline-flex items-center gap-xs rounded-full border border-outline-variant/45 bg-surface/72 px-md py-xs font-label-sm text-label-sm uppercase text-primary shadow-sm backdrop-blur-xl">
+            <Icon name="verified" />
+            {t('home.hero.verified')}
+          </span>
+          <h2 className="font-headline-lg text-[32px] font-semibold leading-none tracking-normal text-on-background sm:text-[40px] md:text-[48px]">{t('home.featuredDoctors.title')}</h2>
         </div>
         <Link
-          className="inline-flex min-h-11 items-center justify-center gap-xs self-start rounded border border-primary bg-surface px-xl py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-primary transition-colors hover:bg-surface-container-low"
+          className="inline-flex min-h-11 items-center justify-center gap-xs self-start rounded-2xl border border-outline-variant/45 bg-surface/72 px-xl py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-primary shadow-sm backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:border-primary/45 hover:bg-primary-fixed/35"
           to="/doctors"
         >
           {t('common.viewAll')} <Icon name="arrow_forward" />
@@ -96,10 +99,10 @@ const FeaturedDoctorsSection = ({ query }: FeaturedDoctorsSectionProps) => {
         </p>
       )}
       {apiStatus === 'loading' && (
-        <p className="mb-md font-body-sm text-body-sm text-on-surface-variant">{t('home.featuredDoctors.loading')}</p>
+        <p className="mb-md rounded-2xl border border-outline-variant/40 bg-surface/72 px-md py-sm font-body-sm text-body-sm text-on-surface-variant shadow-sm backdrop-blur-xl">{t('home.featuredDoctors.loading')}</p>
       )}
       {doctors.length > 0 ? (
-        <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-xl md:grid-cols-2 xl:grid-cols-3">
           {doctors.map((doctor, index) => (
             <DoctorCard doctor={doctor} key={doctor.id ? String(doctor.id) : `${doctor.name || 'doctor'}-${index}`} variant="hp" />
           ))}

@@ -6,6 +6,7 @@ import type { DoctorCardData } from '../components/Molecules/Home/DoctorCard'
 import Icon from '../components/Atoms/Icon'
 import Input from '../components/Atoms/Input'
 import PaginationControls from '../components/Molecules/Common/PaginationControls'
+import Select from '../components/Molecules/Common/Select'
 import { useTranslation } from '../contexts/LanguageContext'
 import { getDoctorAssignments } from '../services/doctorAssignment.service'
 import type { DoctorAssignment } from '../services/doctorAssignment.service'
@@ -24,6 +25,7 @@ type DoctorDirectoryItem = DoctorCardData & {
 }
 
 const DOCTORS_PER_PAGE = 4
+const filterSelectClassName = 'h-11 min-h-11 rounded-xl border-outline-variant/60 bg-surface/80 py-sm shadow-sm backdrop-blur hover:border-primary/40 hover:bg-surface focus:border-primary focus:ring-4 focus:ring-primary/10'
 
 const formatFee = (fee?: string | number | null) => {
   if (fee === undefined || fee === null || fee === '') return undefined
@@ -262,6 +264,10 @@ const DoctorsPage = () => {
     [...new Map(doctors.map((doctor) => [String(doctor.departmentId), doctor.departmentName])).entries()]
       .filter(([departmentId]) => departmentId !== 'undefined')
       .sort(([, firstName], [, secondName]) => firstName.localeCompare(secondName))
+      .map(([departmentId, departmentName]) => ({
+        label: departmentName,
+        value: departmentId,
+      }))
   ), [doctors])
 
   const resetFilters = () => {
@@ -273,14 +279,17 @@ const DoctorsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-on-background">
-      <TopNavBar active="doctors" />
-      <main className="mx-auto flex max-w-[1366px] flex-col gap-xxl px-lg py-[48px] md:px-xxl md:py-[64px]">
-        <section className="rounded-xl border border-outline-variant bg-surface p-xl shadow-[0_2px_8px_rgba(26,26,26,0.08)]">
+    <div className="hp-home hp-soft-home min-h-screen text-on-background">
+      <TopNavBar active="doctors" variant="softHome" />
+      <main className="mx-auto flex max-w-[1366px] flex-col gap-xxl px-lg pb-[72px] pt-[132px] md:px-xxl md:pb-[96px] md:pt-[152px]">
+        <section className="relative z-40 rounded-[2rem] border border-white/70 bg-surface/78 p-lg shadow-[0_26px_70px_rgba(15,23,42,0.10)] backdrop-blur-2xl md:p-xl">
           <div className="max-w-3xl">
-            <p className="font-label-md text-label-md text-primary">{t('doctorsPage.eyebrow')}</p>
-            <h1 className="mt-sm font-headline-lg text-[32px] font-medium leading-none text-on-background sm:text-[40px] md:text-[44px]">{t('doctorsPage.title')}</h1>
-            <p className="mt-sm font-body-md text-body-md text-on-surface-variant">
+            <p className="inline-flex items-center gap-sm font-label-sm text-label-sm uppercase tracking-[0.32em] text-on-surface-variant">
+              <span className="h-1 w-10 rounded-full bg-primary" />
+              {t('doctorsPage.eyebrow')}
+            </p>
+            <h1 className="mt-md font-headline-lg text-[42px] font-semibold uppercase leading-[0.92] text-on-background sm:text-[56px] md:text-[72px]">{t('doctorsPage.title')}</h1>
+            <p className="mt-md max-w-2xl font-body-md text-body-md leading-7 text-on-surface-variant">
               {t('doctorsPage.description')}
             </p>
           </div>
@@ -294,45 +303,32 @@ const DoctorsPage = () => {
               value={query}
             />
             <div className="grid gap-md md:grid-cols-3">
-              <label className="space-y-xs">
-                <span className="font-label-md text-label-md text-on-surface">{t('doctorsPage.departmentLabel')}</span>
-                <select
-                  className="min-h-11 w-full rounded border border-outline-variant bg-surface px-md py-sm font-body-md text-body-md outline-none transition-colors focus:border-on-surface"
-                  onChange={(event) => setSelectedDepartmentId(event.target.value)}
-                  value={selectedDepartmentId}
-                >
-                  <option value="all">{t('doctorsPage.allDepartments')}</option>
-                  {departmentOptions.map(([departmentId, departmentName]) => (
-                    <option key={departmentId} value={departmentId}>{departmentName}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="space-y-xs">
-                <span className="font-label-md text-label-md text-on-surface">{t('doctorsPage.feeLabel')}</span>
-                <select
-                  className="min-h-11 w-full rounded border border-outline-variant bg-surface px-md py-sm font-body-md text-body-md outline-none transition-colors focus:border-on-surface"
-                  onChange={(event) => setSelectedFee(event.target.value)}
-                  value={selectedFee}
-                >
-                  {feeOptions.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="space-y-xs">
-                <span className="font-label-md text-label-md text-on-surface">{t('doctorsPage.experienceLabel')}</span>
-                <select
-                  className="min-h-11 w-full rounded border border-outline-variant bg-surface px-md py-sm font-body-md text-body-md outline-none transition-colors focus:border-on-surface"
-                  onChange={(event) => setSelectedExperience(event.target.value)}
-                  value={selectedExperience}
-                >
-                  {experienceOptions.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
-              </label>
+              <Select
+                className={filterSelectClassName}
+                label={t('doctorsPage.departmentLabel')}
+                onChange={setSelectedDepartmentId}
+                options={[
+                  { label: t('doctorsPage.allDepartments'), value: 'all' },
+                  ...departmentOptions,
+                ]}
+                value={selectedDepartmentId}
+              />
+              <Select
+                className={filterSelectClassName}
+                label={t('doctorsPage.feeLabel')}
+                onChange={setSelectedFee}
+                options={feeOptions}
+                value={selectedFee}
+              />
+              <Select
+                className={filterSelectClassName}
+                label={t('doctorsPage.experienceLabel')}
+                onChange={setSelectedExperience}
+                options={experienceOptions}
+                value={selectedExperience}
+              />
             </div>
-            <div className="w-full rounded-lg border border-outline-variant bg-surface-container-low px-md py-sm font-label-md text-label-md text-on-surface-variant lg:w-fit">
+            <div className="w-full rounded-2xl border border-outline-variant/45 bg-primary-fixed/35 px-md py-sm font-label-md text-label-md text-primary shadow-inner lg:w-fit">
               {t('doctorsPage.resultCount', { visible: visibleDoctors.length, total: doctors.length })}
             </div>
           </div>
@@ -350,9 +346,9 @@ const DoctorsPage = () => {
           )}
         </section>
 
-        <section className="space-y-xl">
+        <section className="relative z-0 space-y-xl">
           {status === 'loading' && (
-            <p className="rounded-lg border border-outline-variant bg-surface p-md font-body-md text-body-md text-on-surface-variant">
+            <p className="rounded-2xl border border-outline-variant/45 bg-surface/78 p-md font-body-md text-body-md text-on-surface-variant shadow-sm backdrop-blur-xl">
               {t('doctorsPage.loading')}
             </p>
           )}
@@ -364,7 +360,7 @@ const DoctorsPage = () => {
           )}
 
           {status !== 'loading' && visibleDoctors.length === 0 && (
-            <div className="rounded-lg border border-dashed border-outline-variant bg-surface p-xl text-center">
+            <div className="rounded-[2rem] border border-dashed border-outline-variant/55 bg-surface/78 p-xl text-center shadow-[0_20px_55px_rgba(15,23,42,0.08)] backdrop-blur-xl">
               <Icon className="text-4xl text-outline" name="person_off" />
               <p className="mt-sm font-label-md text-label-md text-on-surface">{t('doctorsPage.emptyTitle')}</p>
               <p className="mt-xs font-body-sm text-body-sm text-on-surface-variant">{t('doctorsPage.emptyDescription')}</p>

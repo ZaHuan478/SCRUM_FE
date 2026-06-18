@@ -10,7 +10,7 @@ const SymptomSuggestionPill = ({ label, onSelect }: SymptomSuggestionPillProps) 
     <Button
       fullWidth={false}
       variant="ghost"
-      className="rounded-full border border-secondary-fixed bg-secondary-fixed/30 px-md py-xs font-label-sm text-label-sm text-on-secondary-fixed-variant transition-colors hover:bg-secondary-fixed/50"
+      className="rounded-full border border-outline-variant/45 bg-surface/76 px-md py-xs font-label-sm text-label-sm text-on-surface-variant shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/45 hover:bg-primary-fixed/35 hover:text-primary"
       onClick={() => onSelect(label)}
       type="button"
     >

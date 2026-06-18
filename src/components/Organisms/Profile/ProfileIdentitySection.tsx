@@ -67,6 +67,7 @@ const ProfileIdentitySection = ({
         value={form.dateOfBirth}
       />
       <GenderSelect
+        className="min-h-11 rounded bg-surface py-sm shadow-none focus:border-on-surface focus:ring-0"
         id="profile-gender"
         onChange={(value) => onFieldChange('gender', value)}
         value={form.gender as 'MALE' | 'FEMALE' | 'OTHER' | ''}

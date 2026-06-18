@@ -16,24 +16,24 @@ type DashboardStatCardProps = {
 
 const toneClasses: Record<DashboardStatTone, { icon: string; helper: string }> = {
   primary: {
-    icon: 'bg-primary-fixed text-primary',
-    helper: 'bg-primary-fixed text-primary',
+    icon: 'bg-sky-50 text-primary ring-1 ring-sky-100',
+    helper: 'bg-sky-50 text-primary ring-1 ring-sky-100',
   },
   secondary: {
-    icon: 'bg-surface-container-low text-on-surface',
-    helper: 'bg-surface-container-low text-on-surface',
+    icon: 'bg-cyan-50 text-cyan-700 ring-1 ring-cyan-100',
+    helper: 'bg-cyan-50 text-cyan-700 ring-1 ring-cyan-100',
   },
   tertiary: {
-    icon: 'bg-tertiary-fixed text-tertiary',
-    helper: 'bg-tertiary-fixed text-tertiary',
+    icon: 'bg-rose-50 text-rose-700 ring-1 ring-rose-100',
+    helper: 'bg-rose-50 text-rose-700 ring-1 ring-rose-100',
   },
   success: {
-    icon: 'bg-primary-fixed text-primary',
-    helper: 'bg-primary-fixed text-primary',
+    icon: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100',
+    helper: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100',
   },
   neutral: {
-    icon: 'bg-surface-variant text-on-surface-variant',
-    helper: 'bg-surface-variant text-on-surface-variant',
+    icon: 'bg-slate-50 text-slate-600 ring-1 ring-slate-100',
+    helper: 'bg-slate-50 text-slate-600 ring-1 ring-slate-100',
   },
 }
 
@@ -41,13 +41,13 @@ const DashboardStatCard = ({ stat }: DashboardStatCardProps) => {
   const tone = toneClasses[stat.tone]
 
   return (
-    <article className="rounded-xl bg-surface p-lg shadow-[0_2px_8px_rgba(26,26,26,0.08)] ring-1 ring-outline-variant">
+    <article className="rounded-2xl border border-white/65 bg-white/78 p-lg shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_22px_55px_rgba(15,23,42,0.11)]">
       <div className="mb-md flex items-start justify-between gap-md">
-        <div className={`flex h-11 w-11 items-center justify-center rounded-lg ${tone.icon}`}>
+        <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${tone.icon}`}>
           <Icon name={stat.icon} />
         </div>
         {stat.helper && (
-          <span className={`rounded-lg px-sm py-xs font-label-sm text-label-sm ${tone.helper}`}>
+          <span className={`rounded-full px-sm py-xs font-label-sm text-label-sm ${tone.helper}`}>
             {stat.helper}
           </span>
         )}

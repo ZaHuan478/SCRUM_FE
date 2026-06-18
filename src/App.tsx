@@ -13,11 +13,13 @@ import DepartmentDetailPage from './page/DepartmentDetailPage'
 import DoctorDetailPage from './page/DoctorDetailPage'
 import PaymentPage from './page/PaymentPage'
 import PaymentSuccessPage from './page/PaymentSuccessPage'
+import ForbiddenPage from './page/ForbiddenPage'
 import { NotificationProvider } from './contexts/NotificationContext'
 import { ToastProvider } from './contexts/ToastContext'
 import { LanguageProvider } from './contexts/LanguageContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import AIChatBox from './components/Organisms/AIChatBox'
+import ProtectedRoute from './components/Routes/ProtectedRoute'
 
 function App() {
   return (
@@ -28,16 +30,19 @@ function App() {
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<HomePage />} />
-                <Route path="/admin" element={<AdminDashboardPage />} />
-                <Route path="/admin/departments" element={<AdminDashboardPage />} />
-                <Route path="/admin/doctors" element={<AdminDashboardPage />} />
-                <Route path="/admin/appointments" element={<AdminDashboardPage />} />
-                <Route path="/admin/symptom-rules" element={<AdminDashboardPage />} />
-                <Route path="/admin/hospital-documents" element={<AdminDashboardPage />} />
-                <Route path="/admin/patients" element={<AdminDashboardPage />} />
-                <Route path="/admin/users" element={<AdminDashboardPage />} />
-                <Route path="/doctor" element={<DoctorSchedulePage />} />
-                <Route path="/doctor/schedule" element={<DoctorSchedulePage />} />
+                <Route path="/admin" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPER_ADMIN']}><AdminDashboardPage /></ProtectedRoute>} />
+                <Route path="/admin/departments" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPER_ADMIN']}><AdminDashboardPage /></ProtectedRoute>} />
+                <Route path="/admin/doctors" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPER_ADMIN']}><AdminDashboardPage /></ProtectedRoute>} />
+                <Route path="/admin/appointments" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPER_ADMIN']}><AdminDashboardPage /></ProtectedRoute>} />
+                <Route path="/admin/symptom-rules" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPER_ADMIN']}><AdminDashboardPage /></ProtectedRoute>} />
+                <Route path="/admin/hospital-documents" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPER_ADMIN']}><AdminDashboardPage /></ProtectedRoute>} />
+                <Route path="/admin/patients" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPER_ADMIN']}><AdminDashboardPage /></ProtectedRoute>} />
+                <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']}><AdminDashboardPage /></ProtectedRoute>} />
+                <Route path="/admin/admins" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']}><AdminDashboardPage /></ProtectedRoute>} />
+                <Route path="/admin/system-logs" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']}><AdminDashboardPage /></ProtectedRoute>} />
+                <Route path="/admin/system-settings" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']}><AdminDashboardPage /></ProtectedRoute>} />
+                <Route path="/doctor" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorSchedulePage /></ProtectedRoute>} />
+                <Route path="/doctor/schedule" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorSchedulePage /></ProtectedRoute>} />
                 <Route path="/doctors" element={<DoctorsPage />} />
                 <Route path="/doctors/:doctorId" element={<DoctorDetailPage />} />
                 <Route path="/departments" element={<DepartmentsPage />} />
@@ -51,6 +56,7 @@ function App() {
                 <Route path="/login" element={<AuthPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/reset-password" element={<AuthPage />} />
+                <Route path="/forbidden" element={<ForbiddenPage />} />
               </Routes>
               <AIChatBox />
             </BrowserRouter>

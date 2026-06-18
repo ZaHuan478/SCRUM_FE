@@ -11,7 +11,7 @@ const DashboardStatsGrid = ({ stats, status }: DashboardStatsGridProps) => {
     return (
       <section className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div className="h-36 animate-pulse rounded-xl bg-surface shadow-[0_2px_8px_rgba(26,26,26,0.08)] ring-1 ring-outline-variant" key={index} />
+          <div className="h-36 animate-pulse rounded-2xl border border-white/65 bg-white/60 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur-xl" key={index} />
         ))}
       </section>
     )
@@ -19,7 +19,7 @@ const DashboardStatsGrid = ({ stats, status }: DashboardStatsGridProps) => {
 
   if (status === 'error' && stats.length === 0) {
     return (
-      <section className="rounded-xl border border-outline-variant bg-surface p-lg text-center font-body-md text-body-md text-on-surface-variant">
+      <section className="rounded-2xl border border-white/65 bg-white/75 p-lg text-center font-body-md text-body-md text-on-surface-variant shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur-xl">
         Chưa tải được số liệu tổng quan từ backend.
       </section>
     )

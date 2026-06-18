@@ -34,8 +34,8 @@ const SymptomCheckerTemplate = ({
   onSuggestionSelect,
 }: SymptomCheckerTemplateProps) => {
   return (
-    <div className="flex min-h-screen flex-col bg-background text-on-background">
-      <TopNavBar active="symptoms" />
+    <div className="hp-home hp-soft-home flex min-h-screen flex-col text-on-background">
+      <TopNavBar active="symptoms" variant="softHome" />
       <main className="flex-grow">
         <SymptomHeroSection
           onQueryChange={onQueryChange}

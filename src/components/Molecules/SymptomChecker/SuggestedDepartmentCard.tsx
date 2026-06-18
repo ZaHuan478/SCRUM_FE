@@ -25,9 +25,9 @@ const SuggestedDepartmentCard = ({ department }: SuggestedDepartmentCardProps) =
   const { Icon: DepartmentIcon, backgroundClassName, colorClassName, hoverClassName } = getDepartmentIconMeta(department.title)
 
   return (
-    <article className="group cursor-pointer rounded-xl bg-surface p-lg shadow-[0_2px_8px_rgba(26,26,26,0.08)] ring-1 ring-outline-variant transition-transform hover:-translate-y-1">
+    <article className="group cursor-pointer rounded-[1.75rem] border border-white/70 bg-surface/78 p-lg shadow-[0_22px_58px_rgba(15,23,42,0.10)] backdrop-blur-2xl transition-all hover:-translate-y-1 hover:border-primary/25 hover:shadow-[0_30px_72px_rgba(15,23,42,0.14)]">
       <div className="flex items-start justify-between gap-md">
-        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg transition-colors ${backgroundClassName} ${colorClassName} ${hoverClassName}`}>
+        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-sm transition-colors ${backgroundClassName} ${colorClassName} ${hoverClassName}`}>
           <DepartmentIcon className="h-6 w-6" />
         </div>
         <div className="min-w-0 flex-1 space-y-xs">
@@ -37,7 +37,7 @@ const SuggestedDepartmentCard = ({ department }: SuggestedDepartmentCardProps) =
         <Icon name="arrow_forward" className="text-primary transition-transform group-hover:translate-x-1" />
       </div>
       {hasPreVisitNote && (
-        <div className="mt-md rounded-lg border border-outline-variant bg-surface-container-low p-md">
+        <div className="mt-md rounded-2xl border border-outline-variant/35 bg-primary-fixed/30 p-md shadow-inner">
           <div className="flex items-center gap-xs">
             <Icon name="info" className="text-primary" />
             <p className="font-label-sm text-label-sm text-on-surface">{t('symptomChecker.preVisitNote')}</p>

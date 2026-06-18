@@ -23,24 +23,26 @@ export type DoctorManagementRowData = {
 
 type DoctorManagementRowProps = {
   doctor: DoctorManagementRowData
+  onDelete: (doctor: DoctorManagementRowData) => void
   onView: (doctor: DoctorManagementRowData) => void
   onEdit: (doctor: DoctorManagementRowData) => void
+  onSchedule: (doctor: DoctorManagementRowData) => void
 }
 
 const statusConfig: Record<DoctorManagementRowData['status'], { label: string; className: string; dotClassName: string }> = {
   ACTIVE: {
-    label: 'Đang hoạt động',
+    label: 'Dang hoat dong',
     className: 'bg-emerald-50 text-emerald-700',
     dotClassName: 'bg-emerald-500',
   },
   INACTIVE: {
-    label: 'Ngoại tuyến',
+    label: 'Ngoai tuyen',
     className: 'bg-slate-100 text-slate-600',
     dotClassName: 'bg-slate-400',
   },
 }
 
-const DoctorManagementRow = ({ doctor, onView, onEdit }: DoctorManagementRowProps) => {
+const DoctorManagementRow = ({ doctor, onDelete, onView, onEdit, onSchedule }: DoctorManagementRowProps) => {
   const status = statusConfig[doctor.status]
 
   return (
@@ -52,31 +54,42 @@ const DoctorManagementRow = ({ doctor, onView, onEdit }: DoctorManagementRowProp
           </div>
           <div>
             <p className="font-label-md text-label-md text-on-surface">{doctor.name}</p>
-            <p className="font-body-sm text-body-sm text-on-surface-variant">{doctor.email || 'Chưa có email'}</p>
+            <p className="font-body-sm text-body-sm text-on-surface-variant">{doctor.email || 'Chua co email'}</p>
           </div>
         </div>
       </td>
-      <td className="px-xl py-lg font-body-sm text-body-sm text-on-surface">{doctor.specialty || 'Chưa cập nhật'}</td>
+      <td className="px-xl py-lg font-body-sm text-body-sm text-on-surface">{doctor.specialty || 'Chua cap nhat'}</td>
       <td className="px-xl py-lg">
         <span className={`inline-flex w-fit items-center gap-xs rounded-full px-sm py-xs font-label-sm text-label-sm ${status.className}`}>
           <span className={`h-2 w-2 rounded-full ${status.dotClassName}`} />
           {status.label}
         </span>
       </td>
-      <td className="px-xl py-lg font-body-sm text-body-sm text-on-surface">{doctor.appointmentsThisWeek} tuần này</td>
+      <td className="px-xl py-lg font-body-sm text-body-sm text-on-surface">{doctor.appointmentsThisWeek} tuan nay</td>
       <td className="px-xl py-lg text-right">
         <ActionMenu
-          ariaLabel={`Hành động cho ${doctor.name}`}
+          ariaLabel={`Hanh dong cho ${doctor.name}`}
           items={[
             {
               icon: 'visibility',
-              label: 'Xem chi tiết',
+              label: 'Xem chi tiet',
               onClick: () => onView(doctor),
             },
             {
               icon: 'edit',
               label: 'Sửa',
               onClick: () => onEdit(doctor),
+            },
+            {
+              icon: 'event_available',
+              label: 'Tạo lịch khám',
+              onClick: () => onSchedule(doctor),
+            },
+            {
+              icon: 'delete',
+              label: 'Xóa',
+              tone: 'danger',
+              onClick: () => onDelete(doctor),
             },
           ]}
         />

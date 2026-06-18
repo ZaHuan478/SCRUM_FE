@@ -24,6 +24,7 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
   const menuRef = useRef<HTMLDivElement>(null)
   const displayName = user.full_name || user.email
   const { t } = useTranslation()
+  const canAccessAdmin = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN'
 
   useEffect(() => {
     if (!open) return undefined
@@ -58,14 +59,14 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label={t('account.menu')}
-        className="flex max-w-[11rem] items-center gap-sm rounded border border-outline-variant bg-surface py-xs pl-xs pr-sm text-left transition-colors hover:border-primary focus:outline-none focus:border-on-surface sm:max-w-[13rem]"
+        className="flex max-w-[11rem] items-center gap-sm rounded-xl border border-outline-variant/60 bg-white/70 py-xs pl-xs pr-sm text-left shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/50 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 sm:max-w-[13rem]"
         onClick={() => setOpen((current) => !current)}
         type="button"
       >
         {user.avatar_url ? (
-          <img alt="" className="h-9 w-9 shrink-0 rounded border border-outline-variant object-cover" src={user.avatar_url} />
+          <img alt="" className="h-9 w-9 shrink-0 rounded-xl border border-outline-variant/60 object-cover" src={user.avatar_url} />
         ) : (
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-primary text-label-md font-label-md text-on-primary">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-label-md font-label-md text-on-primary shadow-[0_10px_20px_rgba(2,132,199,0.22)]">
             {getInitials(user)}
           </span>
         )}
@@ -78,17 +79,17 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
 
       {open && (
         <div
-          className="absolute right-0 top-[calc(100%+0.5rem)] z-[80] w-[min(18rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-outline-variant bg-surface shadow-[0_8px_24px_rgba(26,26,26,0.12)]"
+          className="absolute right-0 top-[calc(100%+0.5rem)] z-[80] w-[min(18rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-white/60 bg-white/88 shadow-[0_22px_55px_rgba(15,23,42,0.16)] backdrop-blur-2xl"
           role="menu"
         >
-          <div className="border-b border-outline-variant px-lg py-md">
+          <div className="border-b border-outline-variant/35 px-lg py-md">
             <p className="truncate font-label-md text-label-md text-on-surface">{displayName}</p>
             <p className="truncate font-body-sm text-body-sm text-on-surface-variant">{user.email}</p>
           </div>
           <div className="p-sm">
             {user.role === 'DOCTOR' && (
               <Link
-                className="flex w-full items-center gap-sm rounded-lg px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-high"
+                className="flex w-full items-center gap-sm rounded-xl px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-primary-fixed/35"
                 onClick={() => setOpen(false)}
                 role="menuitem"
                 to="/doctor/schedule"
@@ -99,7 +100,7 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
             )}
             {user.role === 'PATIENT' && (
               <Link
-                className="flex w-full items-center gap-sm rounded-lg px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-high"
+                className="flex w-full items-center gap-sm rounded-xl px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-primary-fixed/35"
                 onClick={() => setOpen(false)}
                 role="menuitem"
                 to="/appointments"
@@ -108,9 +109,9 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
                 {t('account.patientAppointments')}
               </Link>
             )}
-            {user.role === 'ADMIN' && (
+            {canAccessAdmin && (
               <Link
-                className="flex w-full items-center gap-sm rounded-lg px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-high"
+                className="flex w-full items-center gap-sm rounded-xl px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-primary-fixed/35"
                 onClick={() => setOpen(false)}
                 role="menuitem"
                 to="/admin"
@@ -120,7 +121,7 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
               </Link>
             )}
             <Link
-              className="flex w-full items-center gap-sm rounded-lg px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-high"
+              className="flex w-full items-center gap-sm rounded-xl px-md py-sm font-label-md text-label-md text-on-surface transition-colors hover:bg-primary-fixed/35"
               onClick={() => setOpen(false)}
               role="menuitem"
               to="/profile"
@@ -129,7 +130,7 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
               {t('account.profile')}
             </Link>
             <button
-              className="mt-xs flex w-full items-center gap-sm rounded-lg px-md py-sm text-left font-label-md text-label-md text-error transition-colors hover:bg-error-container"
+              className="mt-xs flex w-full items-center gap-sm rounded-xl px-md py-sm text-left font-label-md text-label-md text-error transition-colors hover:bg-error-container"
               onClick={handleLogoutClick}
               role="menuitem"
               type="button"

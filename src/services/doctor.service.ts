@@ -88,6 +88,11 @@ export const updateDoctor = (id: number | string, payload: UpdateDoctorPayload) 
     body: JSON.stringify(payload),
   })
 
+export const deleteDoctor = (id: number | string) =>
+  apiRequest<Record<string, never>>(`/doctors/${id}`, {
+    method: 'DELETE',
+  })
+
 export const uploadDoctorImage = (id: number | string, imageData: string) =>
   apiRequest<Doctor>(`/doctors/${id}/image`, {
     method: 'POST',

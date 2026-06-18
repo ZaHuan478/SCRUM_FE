@@ -1,15 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { DepartmentFormValues } from '../components/Organisms/DepartmentDesign/DepartmentEditModal'
 import type { DoctorEditFormValues } from '../components/Organisms/DoctorManage/DoctorEditModal'
+import type { DoctorScheduleFormValues } from '../components/Organisms/DoctorManage/DoctorScheduleModal'
+import type { PatientEditFormValues } from '../components/Organisms/PatientManage/PatientEditModal'
 import type { SymptomRuleFormValues } from '../components/Organisms/SymptomRules/SymptomRuleEditModal'
 import type { UserFormValues } from '../components/Organisms/UserManage/UserEditModal'
 import type { DoctorManagementRowData } from '../components/Molecules/Management/DoctorManagementRow'
 import type { PatientManagementRowData } from '../components/Molecules/Management/PatientManagementRow'
 import { cancelAppointment, completeAppointment, confirmAppointment, getAppointments } from '../services/appointment.service'
 import type { Appointment, AppointmentStatus } from '../services/appointment.service'
-import { getAppointmentSlots } from '../services/appointmentSlot.service'
+import { createAppointmentSlot, getAppointmentSlots } from '../services/appointmentSlot.service'
 import type { User } from '../services/auth.service'
-import { createDepartment, getDepartments, updateDepartment } from '../services/department.service'
+import { createDepartment, deleteDepartment, getDepartments, updateDepartment } from '../services/department.service'
 import type { Department } from '../services/department.service'
 import {
   createDepartmentSymptomRule,
@@ -19,8 +21,8 @@ import {
 } from '../services/departmentSymptomRule.service'
 import type { DepartmentSymptomRule } from '../services/departmentSymptomRule.service'
 import { createDoctorAssignment, getDoctorAssignments, updateDoctorAssignment } from '../services/doctorAssignment.service'
-import { getDoctorByUserId, getDoctors, updateDoctor, uploadDoctorImage } from '../services/doctor.service'
-import { getPatients } from '../services/patient.service'
+import { deleteDoctor, getDoctorByUserId, getDoctors, updateDoctor, uploadDoctorImage } from '../services/doctor.service'
+import { createPatient, deletePatient, getPatients, updatePatient } from '../services/patient.service'
 import { getSymptoms } from '../services/symptom.service'
 import { changeUserStatus, createUser, deleteUser, getUsers, updateUser } from '../services/user.service'
 import {
@@ -38,6 +40,7 @@ import {
   toDashboardPagination,
 } from '../utils/adminDashboard'
 import type { DashboardState } from '../utils/adminDashboard'
+import { getTimeMinutes, toApiDateTime } from '../utils/doctorSchedule'
 import { useToast } from '../contexts/ToastContext'
 
 const ADMIN_PAGE_LIMIT = 8
@@ -61,6 +64,8 @@ const getSearchKeyword = (value?: string) => value?.trim() || undefined
 const getRequestMessage = (error: unknown, fallback: string) => (
   error instanceof Error ? error.message : fallback
 )
+
+const isNumericId = (value?: number | string | null) => /^\d+$/.test(String(value || ''))
 
 export const loadDashboardData = async ({
   departmentKeyword,
@@ -204,6 +209,14 @@ export const useAdminDashboard = () => {
   const [isDoctorModalOpen, setIsDoctorModalOpen] = useState(false)
   const [doctorEditError, setDoctorEditError] = useState('')
   const [isSavingDoctor, setIsSavingDoctor] = useState(false)
+  const [schedulingDoctor, setSchedulingDoctor] = useState<DoctorManagementRowData | null>(null)
+  const [isDoctorScheduleModalOpen, setIsDoctorScheduleModalOpen] = useState(false)
+  const [doctorScheduleError, setDoctorScheduleError] = useState('')
+  const [isSavingDoctorSchedule, setIsSavingDoctorSchedule] = useState(false)
+  const [editingPatient, setEditingPatient] = useState<PatientManagementRowData | null>(null)
+  const [isPatientModalOpen, setIsPatientModalOpen] = useState(false)
+  const [patientEditError, setPatientEditError] = useState('')
+  const [isSavingPatient, setIsSavingPatient] = useState(false)
   const [editingSymptomRule, setEditingSymptomRule] = useState<DepartmentSymptomRule | null>(null)
   const [isSymptomRuleModalOpen, setIsSymptomRuleModalOpen] = useState(false)
   const [symptomRuleEditError, setSymptomRuleEditError] = useState('')
@@ -589,6 +602,22 @@ export const useAdminDashboard = () => {
     setIsDepartmentModalOpen(true)
   }, [])
 
+  const handleDeleteDepartment = useCallback(async (department: Department) => {
+    if (!window.confirm(`Xoa khoa ${department.name}?`)) return
+
+    try {
+      await deleteDepartment(department.id)
+      await refreshDashboard()
+      toastSuccess('Khoa da duoc xoa.')
+    } catch (error) {
+      const message = getRequestMessage(error, 'Khong the xoa khoa.')
+      setEditingDepartment(department)
+      setDepartmentEditError(message)
+      setIsDepartmentModalOpen(true)
+      toastError(message)
+    }
+  }, [refreshDashboard, toastError, toastSuccess])
+
   const handleDepartmentEditSubmit = useCallback(async (payload: DepartmentFormValues) => {
     if (!payload.name) {
       const message = 'Tên khoa không được để trống.'
@@ -733,6 +762,79 @@ export const useAdminDashboard = () => {
     setEditingDoctor(doctor)
     setIsDoctorModalOpen(true)
   }, [])
+
+  const handleDeleteDoctor = useCallback(async (doctor: DoctorManagementRowData) => {
+    if (!window.confirm(`Xoa bac si ${doctor.name}?`)) return
+
+    try {
+      await deleteDoctor(doctor.id)
+      await refreshDashboard()
+      toastSuccess('Bac si da duoc xoa.')
+    } catch (error) {
+      const message = getRequestMessage(error, 'Khong the xoa bac si.')
+      setSelectedDoctor(doctor)
+      toastError(message)
+    }
+  }, [refreshDashboard, toastError, toastSuccess])
+
+  const closeDoctorScheduleModal = useCallback(() => {
+    setSchedulingDoctor(null)
+    setIsDoctorScheduleModalOpen(false)
+    setDoctorScheduleError('')
+  }, [])
+
+  const handleScheduleDoctor = useCallback((doctor: DoctorManagementRowData) => {
+    setSchedulingDoctor(doctor)
+    setDoctorScheduleError(doctor.activeAssignmentId ? '' : 'Bac si nay chua co khoa dang hoat dong.')
+    setIsDoctorScheduleModalOpen(true)
+  }, [])
+
+  const handleDoctorScheduleSubmit = useCallback(async (payload: DoctorScheduleFormValues) => {
+    if (!schedulingDoctor?.activeAssignmentId) {
+      const message = 'Bac si nay chua co khoa dang hoat dong.'
+      setDoctorScheduleError(message)
+      toastWarning(message)
+      return
+    }
+
+    const maxPatients = Number(payload.maxPatients)
+    if (!Number.isInteger(maxPatients) || maxPatients <= 0) {
+      const message = 'Suc chua phai lon hon 0.'
+      setDoctorScheduleError(message)
+      toastWarning(message)
+      return
+    }
+
+    if (getTimeMinutes(payload.startTime) >= getTimeMinutes(payload.endTime)) {
+      const message = 'Gio bat dau phai nho hon gio ket thuc.'
+      setDoctorScheduleError(message)
+      toastWarning(message)
+      return
+    }
+
+    setDoctorScheduleError('')
+    setIsSavingDoctorSchedule(true)
+
+    try {
+      await createAppointmentSlot({
+        doctor_assignment_id: schedulingDoctor.activeAssignmentId,
+        start_time: toApiDateTime(payload.date, payload.startTime),
+        end_time: toApiDateTime(payload.date, payload.endTime),
+        max_patients: maxPatients,
+        status: payload.status,
+      })
+
+      await refreshDashboard()
+      closeDoctorScheduleModal()
+      toastSuccess('Lich kham da duoc tao.')
+    } catch (error) {
+      const message = getRequestMessage(error, 'Khong the tao lich kham.')
+      setDoctorScheduleError(message)
+      toastError(message)
+    } finally {
+      setIsSavingDoctorSchedule(false)
+    }
+  }, [closeDoctorScheduleModal, refreshDashboard, schedulingDoctor, toastError, toastSuccess, toastWarning])
 
   const handleDoctorEditSubmit = useCallback(async (payload: DoctorEditFormValues) => {
     const isCreatingDoctor = !editingDoctor
@@ -899,6 +1001,104 @@ export const useAdminDashboard = () => {
     }
   }, [closeDoctorModal, editingDoctor, refreshDashboard, toastError, toastSuccess, toastWarning])
 
+  const closePatientModal = useCallback(() => {
+    setEditingPatient(null)
+    setIsPatientModalOpen(false)
+    setPatientEditError('')
+  }, [])
+
+  const handleEditPatient = useCallback((patient: PatientManagementRowData) => {
+    setPatientEditError('')
+    setEditingPatient(patient)
+    setIsPatientModalOpen(true)
+  }, [])
+
+  const handlePatientSubmit = useCallback(async (payload: PatientEditFormValues) => {
+    if (!editingPatient) return
+
+    if (!editingPatient.userId) {
+      const message = 'Khong tim thay user_id cua benh nhan.'
+      setPatientEditError(message)
+      toastError(message)
+      return
+    }
+
+    if (!payload.fullName) {
+      const message = 'Ten benh nhan khong duoc de trong.'
+      setPatientEditError(message)
+      toastWarning(message)
+      return
+    }
+
+    if (!payload.email) {
+      const message = 'Email khong duoc de trong.'
+      setPatientEditError(message)
+      toastWarning(message)
+      return
+    }
+
+    setPatientEditError('')
+    setIsSavingPatient(true)
+
+    try {
+      await updateUser(editingPatient.userId, {
+        full_name: payload.fullName,
+        email: payload.email,
+        phone: payload.phone || null,
+        date_of_birth: payload.dateOfBirth || null,
+        gender: payload.gender || null,
+        role: 'PATIENT',
+      })
+
+      const patientPayload = {
+        date_of_birth: payload.dateOfBirth || null,
+        gender: payload.gender || null,
+        address: payload.address || null,
+        insurance_number: payload.insuranceNumber || null,
+      }
+
+      if (isNumericId(editingPatient.id)) {
+        await updatePatient(editingPatient.id, patientPayload)
+      } else {
+        await createPatient({
+          user_id: editingPatient.userId,
+          ...patientPayload,
+        })
+      }
+
+      await refreshDashboard()
+      closePatientModal()
+      toastSuccess('Benh nhan da duoc cap nhat.')
+    } catch (error) {
+      const message = getRequestMessage(error, 'Khong the cap nhat benh nhan.')
+      setPatientEditError(message)
+      toastError(message)
+    } finally {
+      setIsSavingPatient(false)
+    }
+  }, [closePatientModal, editingPatient, refreshDashboard, toastError, toastSuccess, toastWarning])
+
+  const handleDeletePatient = useCallback(async (patient: PatientManagementRowData) => {
+    if (!window.confirm(`Xoa benh nhan ${patient.name}?`)) return
+
+    try {
+      if (patient.userId) {
+        await deleteUser(patient.userId)
+      } else if (isNumericId(patient.id)) {
+        await deletePatient(patient.id)
+      } else {
+        throw new Error('Khong tim thay ma benh nhan de xoa.')
+      }
+
+      await refreshDashboard()
+      toastSuccess('Benh nhan da duoc xoa.')
+    } catch (error) {
+      const message = getRequestMessage(error, 'Khong the xoa benh nhan.')
+      setSelectedPatient(patient)
+      toastError(message)
+    }
+  }, [refreshDashboard, toastError, toastSuccess])
+
   const userFields = useMemo(() => getUserInfoFields(selectedUser), [selectedUser])
   const doctorFields = useMemo(() => getDoctorInfoFields(selectedDoctor), [selectedDoctor])
   const patientFields = useMemo(() => getPatientInfoFields(selectedPatient), [selectedPatient])
@@ -906,6 +1106,8 @@ export const useAdminDashboard = () => {
   return {
     closeDepartmentModal,
     closeDoctorModal,
+    closeDoctorScheduleModal,
+    closePatientModal,
     closeSymptomRuleModal,
     closeUserModal,
     dashboard,
@@ -913,9 +1115,11 @@ export const useAdminDashboard = () => {
     departmentSearchQuery,
     doctorEditError,
     doctorFields,
+    doctorScheduleError,
     doctorSearchQuery,
     editingDepartment,
     editingDoctor,
+    editingPatient,
     editingSymptomRule,
     editingUser,
     handleCreateDepartment,
@@ -923,19 +1127,26 @@ export const useAdminDashboard = () => {
     handleCreateSymptomRule,
     handleCreateUser,
     handleDeleteUser,
+    handleDeleteDoctor,
+    handleDeleteDepartment,
+    handleDeletePatient,
     handleDeleteSymptomRule,
     handleDepartmentEditSubmit,
     handleDepartmentPageChange,
     handleDepartmentSearchQueryChange,
     handleDoctorEditSubmit,
+    handleDoctorScheduleSubmit,
     handleDoctorPageChange,
     handleDoctorSearchQueryChange,
     handleEditDepartment,
     handleEditDoctor,
+    handleEditPatient,
     handleEditSymptomRule,
     handleEditUser,
     handlePatientPageChange,
     handlePatientSearchQueryChange,
+    handlePatientSubmit,
+    handleScheduleDoctor,
     handleAppointmentPageChange,
     handleAppointmentStatusFilterChange,
     handleCancelAppointment,
@@ -948,15 +1159,21 @@ export const useAdminDashboard = () => {
     handleUserSearchQueryChange,
     isDepartmentModalOpen,
     isDoctorModalOpen,
+    isDoctorScheduleModalOpen,
+    isPatientModalOpen,
     isSavingSymptomRule,
     isSavingDepartment,
     isSavingDoctor,
+    isSavingDoctorSchedule,
+    isSavingPatient,
     isSavingUser,
     isSymptomRuleModalOpen,
     isUserModalOpen,
     patientFields,
+    patientEditError,
     patientSearchQuery,
     appointmentStatusFilter,
+    schedulingDoctor,
     selectedDoctor,
     selectedPatient,
     selectedUser,

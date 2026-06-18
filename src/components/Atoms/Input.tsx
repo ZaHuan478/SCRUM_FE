@@ -20,7 +20,7 @@ const Input: React.FC<InputProps> = ({ label, icon, error, wrapperClassName = ''
         <input
           aria-describedby={errorId}
           aria-invalid={Boolean(error)}
-          className={`w-full ${icon ? 'pl-xxl' : 'pl-md'} min-h-11 rounded border bg-surface pr-md py-sm ${error ? 'border-error' : 'border-outline-variant'} font-body-md text-body-md text-on-surface outline-none transition-colors placeholder:text-outline focus:border-on-surface ${className}`}
+          className={`w-full ${icon ? 'pl-xxl' : 'pl-md'} min-h-11 rounded-lg border bg-surface/85 pr-md py-sm shadow-sm backdrop-blur ${error ? 'border-error' : 'border-outline-variant/70'} font-body-md text-body-md text-on-surface outline-none transition-all placeholder:text-outline focus:border-primary focus:ring-4 focus:ring-primary/10 ${className}`}
           id={inputId}
           name={name}
           {...rest}

@@ -35,7 +35,7 @@ const ProfileTemplate = ({
   onLogout,
 }: ProfileTemplateProps) => {
   const profileContent = (
-    <main className="mx-auto flex w-full max-w-[1366px] flex-col gap-xl px-lg py-xl md:px-xxl md:py-xxl">
+    <main className="mx-auto flex w-full max-w-[1366px] flex-col gap-xl px-lg pb-[72px] pt-[132px] md:px-xxl md:pb-[96px] md:pt-[152px]">
       <ProfileHero avatarUrl={form.avatarUrl} user={user} />
 
       <div className="grid grid-cols-1 items-start gap-xl lg:grid-cols-3">
@@ -112,8 +112,8 @@ const ProfileTemplate = ({
   }
 
   return (
-    <div className="min-h-screen bg-background text-on-background">
-      <TopNavBar active="homepage" />
+    <div className="hp-home hp-soft-home min-h-screen text-on-background">
+      <TopNavBar active="homepage" variant="softHome" />
       {profileContent}
     </div>
   )

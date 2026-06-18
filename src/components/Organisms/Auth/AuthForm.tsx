@@ -134,7 +134,7 @@ const AuthForm = () => {
     try {
       const session = await login({ email, password })
       saveAuthSession(session, remember)
-      navigate(session.user.role === 'ADMIN' ? '/admin' : '/')
+      navigate(session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN' ? '/admin' : '/')
     } catch (requestError) {
       const message = requestError instanceof Error ? requestError.message : t('auth.loginFailed')
       setError(message)
@@ -168,7 +168,7 @@ const AuthForm = () => {
           label={t('auth.emailLabel')}
           name="email"
           onChange={(event) => setEmail(event.target.value)}
-          placeholder=""
+          placeholder={t('auth.emailPlaceholder')}
           type="email"
           value={email}
         />
@@ -179,7 +179,7 @@ const AuthForm = () => {
           label={t('auth.passwordLabel')}
           name="password"
           onChange={(event) => setPassword(event.target.value)}
-          placeholder=""
+          placeholder={t('auth.passwordPlaceholder')}
           type="password"
           value={password}
         />

@@ -13,7 +13,7 @@ type NavKey = 'homepage' | 'doctors' | 'departments' | 'symptoms'
 
 type TopNavBarProps = {
   active?: NavKey
-  variant?: 'default' | 'hp'
+  variant?: 'default' | 'hp' | 'softHome'
 }
 
 const navItems: Array<{ key: NavKey; labelKey: string; to: string }> = [
@@ -28,6 +28,8 @@ const TopNavBar = ({ active = 'homepage', variant = 'hp' }: TopNavBarProps) => {
   const { t } = useTranslation()
   const [user, setUser] = useState(() => getStoredUser())
   const isHp = variant === 'hp'
+  const isSoftHome = variant === 'softHome'
+  const canAccessAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN'
 
   useEffect(() => {
     const handleUserChange = (event: Event) => {
@@ -49,16 +51,20 @@ const TopNavBar = ({ active = 'homepage', variant = 'hp' }: TopNavBarProps) => {
   }
 
   return (
-    <header className={isHp ? 'sticky top-0 z-50 border-b border-outline-variant bg-surface' : 'sticky top-0 z-50 bg-surface/90 shadow-sm backdrop-blur-md'}>
-      <nav className={isHp ? 'mx-auto grid h-16 w-full max-w-[1366px] grid-cols-[auto_1fr_auto] items-center gap-lg px-lg md:px-xxl' : 'mx-auto grid w-full max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-lg px-lg py-md md:px-xxl'}>
+    <header className={isSoftHome ? 'fixed inset-x-0 top-0 z-50 px-sm pt-sm md:px-md' : isHp ? 'sticky top-0 z-50 border-b border-outline-variant bg-surface' : 'sticky top-0 z-50 bg-surface/90 shadow-sm backdrop-blur-md'}>
+      <nav className={isSoftHome ? 'mx-auto grid min-h-16 w-full max-w-[1536px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-md rounded-2xl border border-white/65 bg-surface/76 px-md py-sm shadow-[0_18px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl md:px-lg' : isHp ? 'mx-auto grid h-16 w-full max-w-[1366px] grid-cols-[auto_1fr_auto] items-center gap-lg px-lg md:px-xxl' : 'mx-auto grid w-full max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-lg px-lg py-md md:px-xxl'}>
         <Link aria-label="MedPrecision" className="justify-self-start" to="/">
           <Logo />
         </Link>
-        <div className="hidden min-w-0 items-center justify-center gap-lg justify-self-center md:flex xl:gap-xl">
+        <div className={isSoftHome ? 'hidden min-w-0 items-center justify-center gap-xs justify-self-center rounded-2xl border border-outline-variant/45 bg-surface/70 p-xs shadow-sm backdrop-blur lg:flex' : 'hidden min-w-0 items-center justify-center gap-lg justify-self-center md:flex xl:gap-xl'}>
           {navItems.map((item) => (
             <Link
               className={
-                isHp
+                isSoftHome
+                  ? item.key === active
+                    ? 'inline-flex min-h-10 items-center gap-xs whitespace-nowrap rounded-xl bg-on-background px-md py-xs font-label-md text-label-md text-inverse-on-surface shadow-[0_10px_24px_rgba(15,23,42,0.16)]'
+                    : 'inline-flex min-h-10 items-center whitespace-nowrap rounded-xl px-md py-xs font-label-md text-label-md text-on-surface-variant transition-all hover:bg-primary-fixed/35 hover:text-primary'
+                  : isHp
                   ? item.key === active
                     ? 'whitespace-nowrap border-b-2 border-primary pb-1 font-body-md text-body-md font-medium text-on-surface'
                     : 'whitespace-nowrap font-body-md text-body-md text-on-surface-variant transition-colors hover:text-primary'
@@ -69,23 +75,24 @@ const TopNavBar = ({ active = 'homepage', variant = 'hp' }: TopNavBarProps) => {
               key={item.key}
               to={item.to}
             >
+              {isSoftHome && item.key === 'homepage' && <Icon className="text-sm" name="home" />}
               {t(item.labelKey)}
             </Link>
           ))}
         </div>
         <div className="flex items-center justify-end gap-sm justify-self-end lg:gap-md">
           <AppPreferences />
-          {user?.role === 'ADMIN' && (
+          {canAccessAdmin && (
             <Link
               aria-label="Điều hành"
-              className={isHp ? 'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded bg-primary text-on-primary transition-all hover:bg-primary-container active:scale-[0.98]' : 'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-on-primary shadow-sm transition-all hover:opacity-90 hover:shadow-md active:scale-95'}
+              className={isSoftHome ? 'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/60 bg-primary text-on-primary shadow-[0_12px_24px_rgba(2,132,199,0.20)] transition-all hover:-translate-y-0.5 hover:bg-primary-container active:scale-[0.98]' : isHp ? 'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded bg-primary text-on-primary transition-all hover:bg-primary-container active:scale-[0.98]' : 'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-on-primary shadow-sm transition-all hover:opacity-90 hover:shadow-md active:scale-95'}
               to="/admin"
             >
               <Icon name="admin_panel_settings" />
             </Link>
           )}
           {user?.role === 'PATIENT' && (
-            <Link className={isHp ? 'hidden whitespace-nowrap rounded bg-primary px-md py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-primary transition-all hover:bg-primary-container active:scale-[0.98] sm:inline-flex lg:px-lg' : 'hidden whitespace-nowrap rounded-lg bg-primary-container px-md py-sm font-label-md text-label-md text-on-primary-container shadow-sm transition-all hover:opacity-90 active:scale-95 sm:inline-flex lg:px-lg'} to="/appointments">
+            <Link className={isSoftHome ? 'hidden min-h-11 items-center justify-center whitespace-nowrap rounded-xl bg-primary px-md py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-primary shadow-[0_12px_24px_rgba(2,132,199,0.20)] transition-all hover:-translate-y-0.5 hover:bg-primary-container sm:inline-flex lg:px-lg' : isHp ? 'hidden items-center justify-center whitespace-nowrap rounded bg-primary px-md py-sm font-label-md text-label-md uppercase tracking-[0.7px] text-on-primary transition-all hover:bg-primary-container active:scale-[0.98] sm:inline-flex lg:px-lg' : 'hidden items-center justify-center whitespace-nowrap rounded-lg bg-primary-container px-md py-sm font-label-md text-label-md text-on-primary-container shadow-sm transition-all hover:opacity-90 active:scale-95 sm:inline-flex lg:px-lg'} to="/appointments">
               {t('common.appointments')}
             </Link>
           )}
@@ -95,21 +102,22 @@ const TopNavBar = ({ active = 'homepage', variant = 'hp' }: TopNavBarProps) => {
               <AccountMenu onLogout={handleLogout} user={user} />
             </>
           ) : (
-            <Link className={isHp ? 'hidden font-body-md text-body-md font-medium text-primary transition-colors hover:text-primary-container lg:block' : 'hidden font-label-md text-label-md text-primary transition-colors hover:opacity-80 lg:block'} to="/login">
+            <Link className={isSoftHome ? 'hidden min-h-11 items-center gap-xs rounded-xl border border-outline-variant/45 bg-surface/78 px-md font-label-md text-label-md text-on-surface shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/45 hover:text-primary lg:inline-flex' : isHp ? 'hidden font-body-md text-body-md font-medium text-primary transition-colors hover:text-primary-container lg:block' : 'hidden font-label-md text-label-md text-primary transition-colors hover:opacity-80 lg:block'} to="/login">
+              {isSoftHome && <Icon className="text-lg" name="account_circle" />}
               {t('common.login')}
             </Link>
           )}
         </div>
       </nav>
-      <div className="border-t border-outline-variant bg-surface md:hidden">
-        <nav className="mx-auto flex max-w-[1366px] gap-sm overflow-x-auto px-lg py-sm">
-          {user?.role === 'ADMIN' && (
-            <Link className="shrink-0 rounded border border-outline-variant bg-surface px-md py-sm font-label-sm text-label-sm text-on-surface-variant" to="/admin">
+      <div className={isSoftHome ? 'mx-auto mt-sm max-w-[1536px] rounded-2xl border border-white/65 bg-surface/78 shadow-[0_14px_36px_rgba(15,23,42,0.08)] backdrop-blur-2xl lg:hidden' : 'border-t border-outline-variant bg-surface md:hidden'}>
+        <nav className={isSoftHome ? 'flex gap-sm overflow-x-auto px-md py-sm' : 'mx-auto flex max-w-[1366px] gap-sm overflow-x-auto px-lg py-sm'}>
+          {canAccessAdmin && (
+            <Link className={isSoftHome ? 'shrink-0 rounded-full border border-outline-variant/50 bg-surface/70 px-md py-sm font-label-sm text-label-sm text-on-surface-variant shadow-sm' : 'shrink-0 rounded border border-outline-variant bg-surface px-md py-sm font-label-sm text-label-sm text-on-surface-variant'} to="/admin">
               Admin
             </Link>
           )}
           {user?.role === 'PATIENT' && (
-            <Link className="shrink-0 rounded border border-outline-variant bg-surface px-md py-sm font-label-sm text-label-sm text-on-surface-variant" to="/appointments">
+            <Link className={isSoftHome ? 'shrink-0 rounded-full border border-outline-variant/50 bg-surface/70 px-md py-sm font-label-sm text-label-sm text-on-surface-variant shadow-sm' : 'shrink-0 rounded border border-outline-variant bg-surface px-md py-sm font-label-sm text-label-sm text-on-surface-variant'} to="/appointments">
               {t('common.appointments')}
             </Link>
           )}
@@ -117,8 +125,12 @@ const TopNavBar = ({ active = 'homepage', variant = 'hp' }: TopNavBarProps) => {
             <Link
               className={
                 item.key === active
-                  ? 'shrink-0 rounded bg-primary px-md py-sm font-label-sm text-label-sm text-on-primary'
-                  : 'shrink-0 rounded border border-outline-variant bg-surface px-md py-sm font-label-sm text-label-sm text-on-surface-variant'
+                  ? isSoftHome
+                    ? 'shrink-0 rounded-full bg-primary px-md py-sm font-label-sm text-label-sm text-on-primary shadow-[0_10px_20px_rgba(2,132,199,0.18)]'
+                    : 'shrink-0 rounded bg-primary px-md py-sm font-label-sm text-label-sm text-on-primary'
+                  : isSoftHome
+                    ? 'shrink-0 rounded-full border border-outline-variant/50 bg-surface/70 px-md py-sm font-label-sm text-label-sm text-on-surface-variant shadow-sm'
+                    : 'shrink-0 rounded border border-outline-variant bg-surface px-md py-sm font-label-sm text-label-sm text-on-surface-variant'
               }
               key={`mobile-${item.key}`}
               to={item.to}

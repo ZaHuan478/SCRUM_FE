@@ -45,7 +45,7 @@ const ActionMenu = ({ ariaLabel, items }: ActionMenuProps) => {
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label={ariaLabel}
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant/40 bg-surface-container-lowest text-on-surface shadow-sm transition-colors hover:bg-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/40"
+        className="flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant/45 bg-white/75 text-on-surface shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/45 hover:bg-primary-fixed/35 focus:outline-none focus:ring-2 focus:ring-primary/40"
         onClick={() => setOpen((current) => !current)}
         type="button"
       >
@@ -54,7 +54,7 @@ const ActionMenu = ({ ariaLabel, items }: ActionMenuProps) => {
 
       {open && (
         <div
-          className="absolute right-0 top-[calc(100%+0.35rem)] z-[80] min-w-44 overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-xs text-left shadow-[0_16px_40px_rgba(15,23,42,0.16)]"
+          className="absolute right-0 top-[calc(100%+0.35rem)] z-[80] min-w-44 overflow-hidden rounded-2xl border border-white/60 bg-white/90 p-xs text-left shadow-[0_22px_55px_rgba(15,23,42,0.16)] backdrop-blur-2xl"
           role="menu"
         >
           {items.map((item) => {
@@ -65,7 +65,7 @@ const ActionMenu = ({ ariaLabel, items }: ActionMenuProps) => {
                 className={`flex w-full items-center gap-sm rounded-lg px-md py-sm font-label-md text-label-md transition-colors ${
                   danger
                     ? 'text-error hover:bg-error-container'
-                    : 'text-on-surface hover:bg-surface-container-high'
+                    : 'text-on-surface hover:bg-primary-fixed/35'
                 }`}
                 key={item.label}
                 onClick={() => {

@@ -17,7 +17,7 @@ const AppointmentAnalyticsSection = ({ data, status, title, description }: Appoi
   const hasData = maxValue > 0
 
   return (
-    <section className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-lg shadow-[0px_4px_20px_rgba(15,23,42,0.05)] md:p-xl">
+    <section className="rounded-2xl border border-white/65 bg-white/78 p-lg shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur-xl md:p-xl">
       <div className="mb-xl flex flex-col justify-between gap-md md:flex-row md:items-center">
         <div>
           <h2 className="font-headline-sm text-headline-sm text-on-surface">{title}</h2>
@@ -33,19 +33,19 @@ const AppointmentAnalyticsSection = ({ data, status, title, description }: Appoi
         </div>
       </div>
 
-      {status === 'loading' && <div className="h-80 animate-pulse rounded-lg bg-surface-container-low" />}
+      {status === 'loading' && <div className="h-80 animate-pulse rounded-2xl bg-white/55" />}
       {status === 'error' && (
-        <div className="rounded-lg bg-error-container px-md py-lg text-center font-body-sm text-body-sm text-on-error-container">
+        <div className="rounded-xl bg-error-container px-md py-lg text-center font-body-sm text-body-sm text-on-error-container">
           Chưa tải được dữ liệu phân tích lịch hẹn.
         </div>
       )}
       {status === 'ready' && !hasData && (
-        <div className="rounded-lg border border-outline-variant/30 bg-surface-container-low px-md py-xxl text-center font-body-sm text-body-sm text-on-surface-variant">
+        <div className="rounded-2xl border border-outline-variant/30 bg-white/55 px-md py-xxl text-center font-body-sm text-body-sm text-on-surface-variant">
           Chưa có dữ liệu lịch trong 7 ngày gần nhất.
         </div>
       )}
       {status === 'ready' && hasData && (
-        <div className="relative h-80 overflow-hidden rounded-lg bg-surface-container-low p-lg">
+        <div className="relative h-80 overflow-hidden rounded-2xl border border-outline-variant/20 bg-white/55 p-lg">
           <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(115,118,134,0.16)_1px,transparent_1px)] bg-[length:100%_64px]" />
           <div className="relative flex h-full items-end justify-between gap-md">
             {data.map((point) => {
@@ -56,7 +56,7 @@ const AppointmentAnalyticsSection = ({ data, status, title, description }: Appoi
                   <span className="font-label-sm text-label-sm text-on-surface">{point.value}</span>
                   <div
                     aria-label={`${point.label}: ${point.value}`}
-                    className="w-full rounded-t-lg bg-primary transition-all hover:bg-secondary"
+                    className="w-full rounded-t-xl bg-gradient-to-t from-primary to-cyan-400 transition-all hover:brightness-105"
                     role="img"
                     style={{ height: `${height}%` }}
                   />

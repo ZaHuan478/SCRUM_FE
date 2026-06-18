@@ -28,7 +28,7 @@ const SymptomSearchBox = ({
 
   return (
     <div className="space-y-sm">
-      <form className="flex flex-col gap-sm rounded border border-outline-variant bg-surface p-sm shadow-[0_2px_8px_rgba(26,26,26,0.08)] sm:flex-row" onSubmit={handleSubmit}>
+      <form className="flex flex-col gap-sm rounded-2xl border border-white/70 bg-surface/78 p-sm shadow-[0_24px_65px_rgba(15,23,42,0.10)] backdrop-blur-2xl sm:flex-row" onSubmit={handleSubmit}>
         <div className="flex flex-grow items-center gap-sm px-md">
           <Icon className="text-xl text-outline" name="search" />
           <Input
@@ -49,7 +49,7 @@ const SymptomSearchBox = ({
         <div className="flex flex-wrap justify-center gap-xs">
           {suggestions.map((suggestion) => (
             <button
-              className="rounded-lg border border-outline-variant bg-surface px-sm py-xs font-label-sm text-label-sm text-on-surface-variant transition-colors hover:border-primary hover:text-primary"
+              className="rounded-full border border-outline-variant/45 bg-surface/76 px-md py-xs font-label-sm text-label-sm text-on-surface-variant shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/45 hover:bg-primary-fixed/35 hover:text-primary"
               key={suggestion}
               onClick={() => onSuggestionSelect?.(suggestion)}
               type="button"

@@ -12,8 +12,10 @@ type DoctorManagementTableProps = {
   status: 'loading' | 'ready' | 'error'
   totalDoctors: number
   onCreateDoctor: () => void
+  onDeleteDoctor: (doctor: DoctorManagementRowData) => void
   onViewDoctor: (doctor: DoctorManagementRowData) => void
   onEditDoctor: (doctor: DoctorManagementRowData) => void
+  onScheduleDoctor: (doctor: DoctorManagementRowData) => void
   onPageChange: (page: number) => void
   onSearchQueryChange: (query: string) => void
 }
@@ -25,8 +27,10 @@ const DoctorManagementTable = ({
   status,
   totalDoctors,
   onCreateDoctor,
+  onDeleteDoctor,
   onViewDoctor,
   onEditDoctor,
+  onScheduleDoctor,
   onPageChange,
   onSearchQueryChange,
 }: DoctorManagementTableProps) => {
@@ -88,7 +92,14 @@ const DoctorManagementTable = ({
             </thead>
             <tbody className="divide-y divide-outline-variant/10">
               {doctors.map((doctor) => (
-                <DoctorManagementRow doctor={doctor} key={doctor.id} onEdit={onEditDoctor} onView={onViewDoctor} />
+                <DoctorManagementRow
+                  doctor={doctor}
+                  key={doctor.id}
+                  onDelete={onDeleteDoctor}
+                  onEdit={onEditDoctor}
+                  onSchedule={onScheduleDoctor}
+                  onView={onViewDoctor}
+                />
               ))}
             </tbody>
           </table>

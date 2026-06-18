@@ -3,6 +3,8 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import AdminInfoModal from '../components/Organisms/Admin/AdminInfoModal'
 import DepartmentEditModal from '../components/Organisms/DepartmentDesign/DepartmentEditModal'
 import DoctorEditModal from '../components/Organisms/DoctorManage/DoctorEditModal'
+import DoctorScheduleModal from '../components/Organisms/DoctorManage/DoctorScheduleModal'
+import PatientEditModal from '../components/Organisms/PatientManage/PatientEditModal'
 import SymptomRuleEditModal from '../components/Organisms/SymptomRules/SymptomRuleEditModal'
 import UserEditModal from '../components/Organisms/UserManage/UserEditModal'
 import DashboardTemplate from '../components/Templates/DashboardTemplate'
@@ -12,13 +14,16 @@ import type { User } from '../services/auth.service'
 
 type AdminDashboardContentProps = {
   onLogout: () => void
+  currentUser: User & { role: 'ADMIN' | 'SUPER_ADMIN' }
 }
 
-const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
+const AdminDashboardContent = ({ currentUser, onLogout }: AdminDashboardContentProps) => {
   const adminDashboard = useAdminDashboard()
   const {
     closeDepartmentModal,
     closeDoctorModal,
+    closeDoctorScheduleModal,
+    closePatientModal,
     closeSymptomRuleModal,
     closeUserModal,
     dashboard,
@@ -26,25 +31,32 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
     departmentSearchQuery,
     doctorEditError,
     doctorFields,
+    doctorScheduleError,
     doctorSearchQuery,
     editingDepartment,
     editingDoctor,
+    editingPatient,
     editingSymptomRule,
     editingUser,
     handleCreateDepartment,
     handleCreateDoctor,
     handleCreateSymptomRule,
     handleCreateUser,
+    handleDeleteDepartment,
     handleDeleteSymptomRule,
     handleDeleteUser,
+    handleDeleteDoctor,
+    handleDeletePatient,
     handleDepartmentEditSubmit,
     handleDepartmentPageChange,
     handleDepartmentSearchQueryChange,
     handleDoctorEditSubmit,
+    handleDoctorScheduleSubmit,
     handleDoctorPageChange,
     handleDoctorSearchQueryChange,
     handleEditDepartment,
     handleEditDoctor,
+    handleEditPatient,
     handleEditSymptomRule,
     handleEditUser,
     handleAppointmentPageChange,
@@ -54,6 +66,8 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
     handleConfirmAppointment,
     handlePatientPageChange,
     handlePatientSearchQueryChange,
+    handlePatientSubmit,
+    handleScheduleDoctor,
     handleSymptomRulePageChange,
     handleSymptomRuleSubmit,
     handleUserSubmit,
@@ -61,15 +75,21 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
     handleUserSearchQueryChange,
     isDepartmentModalOpen,
     isDoctorModalOpen,
+    isDoctorScheduleModalOpen,
+    isPatientModalOpen,
     isSavingDepartment,
     isSavingDoctor,
+    isSavingDoctorSchedule,
+    isSavingPatient,
     isSavingSymptomRule,
     isSavingUser,
     isSymptomRuleModalOpen,
     isUserModalOpen,
     patientFields,
+    patientEditError,
     patientSearchQuery,
     appointmentStatusFilter,
+    schedulingDoctor,
     selectedDoctor,
     selectedPatient,
     selectedUser,
@@ -93,6 +113,7 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
       <DashboardTemplate
         analyticsData={dashboard.analyticsData}
         analyticsStatus={dashboard.analyticsStatus}
+        currentUserRole={currentUser.role}
         departments={visibleDepartments}
         departmentPagination={dashboard.departmentPagination}
         departmentSearchQuery={departmentSearchQuery}
@@ -108,10 +129,14 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         onCreateDoctor={handleCreateDoctor}
         onCreateSymptomRule={handleCreateSymptomRule}
         onCreateUser={handleCreateUser}
+        onDeleteDepartment={handleDeleteDepartment}
         onDeleteSymptomRule={handleDeleteSymptomRule}
         onDeleteUser={handleDeleteUser}
+        onDeleteDoctor={handleDeleteDoctor}
+        onDeletePatient={handleDeletePatient}
         onEditDepartment={handleEditDepartment}
         onEditDoctor={handleEditDoctor}
+        onEditPatient={handleEditPatient}
         onEditSymptomRule={handleEditSymptomRule}
         onEditUser={handleEditUser}
         onLogout={onLogout}
@@ -126,6 +151,7 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         onConfirmAppointment={handleConfirmAppointment}
         onPatientPageChange={handlePatientPageChange}
         onPatientSearchQueryChange={handlePatientSearchQueryChange}
+        onScheduleDoctor={handleScheduleDoctor}
         onSymptomRulePageChange={handleSymptomRulePageChange}
         onUserPageChange={handleUserPageChange}
         onUserSearchQueryChange={handleUserSearchQueryChange}
@@ -190,6 +216,7 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         onClose={closeUserModal}
         onSubmit={handleUserSubmit}
         open={isUserModalOpen}
+        canManageAdmins={currentUser.role === 'SUPER_ADMIN'}
         user={editingUser}
       />
       <DoctorEditModal
@@ -201,6 +228,23 @@ const AdminDashboardContent = ({ onLogout }: AdminDashboardContentProps) => {
         onClose={closeDoctorModal}
         open={isDoctorModalOpen}
         onSubmit={handleDoctorEditSubmit}
+      />
+      <DoctorScheduleModal
+        doctor={schedulingDoctor}
+        error={doctorScheduleError}
+        isSaving={isSavingDoctorSchedule}
+        onClose={closeDoctorScheduleModal}
+        onSubmit={handleDoctorScheduleSubmit}
+        open={isDoctorScheduleModalOpen}
+      />
+      <PatientEditModal
+        error={patientEditError}
+        isSaving={isSavingPatient}
+        key={editingPatient?.id || (isPatientModalOpen ? 'patient-edit-open' : 'patient-edit-closed')}
+        onClose={closePatientModal}
+        onSubmit={handlePatientSubmit}
+        open={isPatientModalOpen}
+        patient={editingPatient}
       />
       <SymptomRuleEditModal
         departments={dashboard.departments}
@@ -227,9 +271,9 @@ const AdminDashboardPage = () => {
   }, [navigate])
 
   if (!storedUser) return <Navigate replace to="/login" />
-  if (storedUser.role !== 'ADMIN') return <Navigate replace to="/" />
+  if (!['ADMIN', 'SUPER_ADMIN'].includes(storedUser.role)) return <Navigate replace to="/forbidden" />
 
-  return <AdminDashboardContent onLogout={handleLogout} />
+  return <AdminDashboardContent currentUser={storedUser as User & { role: 'ADMIN' | 'SUPER_ADMIN' }} onLogout={handleLogout} />
 }
 
 export default AdminDashboardPage

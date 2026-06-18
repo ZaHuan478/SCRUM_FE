@@ -27,6 +27,21 @@ type PatientQuery = {
   keyword?: string
 }
 
+export type CreatePatientPayload = {
+  user_id: number | string
+  date_of_birth?: string | null
+  gender?: Patient['gender']
+  address?: string | null
+  insurance_number?: string | null
+}
+
+export type UpdatePatientPayload = {
+  date_of_birth?: string | null
+  gender?: Patient['gender']
+  address?: string | null
+  insurance_number?: string | null
+}
+
 export const getPatients = (query: PatientQuery = {}) => {
   const params = new URLSearchParams()
 
@@ -38,3 +53,20 @@ export const getPatients = (query: PatientQuery = {}) => {
 
   return apiRequest<PatientsResult>(`/patients${search ? `?${search}` : ''}`)
 }
+
+export const createPatient = (payload: CreatePatientPayload) =>
+  apiRequest<Patient>('/patients', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+
+export const updatePatient = (id: number | string, payload: UpdatePatientPayload) =>
+  apiRequest<Patient>(`/patients/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+
+export const deletePatient = (id: number | string) =>
+  apiRequest<Record<string, never>>(`/patients/${id}`, {
+    method: 'DELETE',
+  })

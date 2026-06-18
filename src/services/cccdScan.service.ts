@@ -13,12 +13,60 @@ type CccdScanResult = {
   raw: unknown
 }
 
+const CLOUDINARY_SCAN_TRANSFORMATION = 'c_limit,w_1280,q_auto:good'
+const isDev = import.meta.env.DEV
+
+const formatDebugValue = (value: unknown) => {
+  if (typeof value === 'string') return value
+
+  try {
+    return JSON.stringify(value, null, 2)
+  } catch {
+    return String(value)
+  }
+}
+
 const getNestedValue = (value: unknown, keys: string[]): unknown => {
   if (!value || typeof value !== 'object') return undefined
 
   return keys.reduce<unknown>((current, key) => (
     current && typeof current === 'object' ? (current as Record<string, unknown>)[key] : undefined
   ), value)
+}
+
+const getErrorMessage = (value: unknown) => {
+  if (typeof value === 'string') return value
+
+  const message = getNestedValue(value, ['message'])
+    || getNestedValue(value, ['error'])
+    || getNestedValue(value, ['data', 'message'])
+    || getNestedValue(value, ['result', 'message'])
+
+  return typeof message === 'string' && message.trim()
+    ? message
+    : 'Không thể quét CCCD.'
+}
+
+const buildScanImageUrl = (imageUrl: string) => {
+  const trimmedUrl = imageUrl.trim()
+
+  try {
+    const url = new URL(trimmedUrl)
+    const uploadSegment = '/upload/'
+
+    if (!url.hostname.includes('cloudinary.com') || !url.pathname.includes(uploadSegment)) {
+      return trimmedUrl
+    }
+
+    if (url.pathname.includes(`${uploadSegment}${CLOUDINARY_SCAN_TRANSFORMATION}/`)) {
+      return url.toString()
+    }
+
+    url.pathname = url.pathname.replace(uploadSegment, `${uploadSegment}${CLOUDINARY_SCAN_TRANSFORMATION}/`)
+    return url.toString()
+  } catch {
+    return trimmedUrl
+  }
 }
 
 const findCccdNumber = (value: unknown): string | undefined => {
@@ -160,11 +208,30 @@ export const scanCccdImages = async ({ frontImage, backImage }: CccdScanPayload)
     throw new Error('Chưa cấu hình VITE_CCCD_FRONTEND_URL.')
   }
 
+  const frontUrl = buildScanImageUrl(frontImage)
+  const backUrl = buildScanImageUrl(backImage)
+  const payload = {
+    cccd_front_image: frontUrl,
+    cccd_back_image: backUrl,
+    cccd_front_image_url: frontUrl,
+    cccd_back_image_url: backUrl,
+    front_image: frontUrl,
+    back_image: backUrl,
+    front_image_url: frontUrl,
+    back_image_url: backUrl,
+    frontImage: frontUrl,
+    backImage: backUrl,
+    frontImageUrl: frontUrl,
+    backImageUrl: backUrl,
+  }
+
+  if (isDev) {
+    console.info(`[CCCD Scan] Request URL: ${CCCD_SCAN_URL}`)
+    console.info(`[CCCD Scan] Request payload:\n${formatDebugValue(payload)}`)
+  }
+
   const response = await fetch(CCCD_SCAN_URL, {
-    body: JSON.stringify({
-      cccd_back_image: backImage,
-      cccd_front_image: frontImage,
-    }),
+    body: JSON.stringify(payload),
     headers: {
       'Content-Type': 'application/json',
     },
@@ -174,8 +241,21 @@ export const scanCccdImages = async ({ frontImage, backImage }: CccdScanPayload)
   const contentType = response.headers.get('content-type') || ''
   const raw = contentType.includes('application/json') ? await response.json() : await response.text()
 
+  if (isDev) {
+    console.info(`[CCCD Scan] Response status: ${response.status} ${response.statusText || ''}`)
+    console.info(`[CCCD Scan] Response content-type: ${contentType || '(empty)'}`)
+    console.info(`[CCCD Scan] Response body:\n${formatDebugValue(raw)}`)
+  }
+
   if (!response.ok) {
-    throw new Error(typeof raw === 'string' ? raw : 'Không thể quét CCCD.')
+    const detail = formatDebugValue(raw)
+    console.error(`[CCCD Scan] Request failed: ${response.status} ${response.statusText || ''}\n${detail}`)
+    throw new Error(`${getErrorMessage(raw)} (HTTP ${response.status})`)
+  }
+
+  if (getNestedValue(raw, ['code']) === 0 && getNestedValue(raw, ['message'])) {
+    console.error(`[CCCD Scan] Workflow returned an error payload:\n${formatDebugValue(raw)}`)
+    throw new Error(getErrorMessage(raw))
   }
 
   return {
